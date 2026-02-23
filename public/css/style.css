@@ -10,6 +10,8 @@
   --white: #ffffff;
   --text-dark: #0e2f2b;
   --text-muted: #2d5a52;
+  --form-bg: #e8f0ec;
+  --form-bg-card: #f0f6f3;
   --shadow: 0 4px 24px rgba(14, 47, 43, 0.08);
   --shadow-hover: 0 12px 40px rgba(14, 47, 43, 0.12);
   --transition: 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -135,6 +137,7 @@ a, button {
 }
 
 .header-inner {
+  width: 100%;
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
@@ -142,6 +145,30 @@ a, button {
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 0.5rem;
+}
+
+@media (min-width: 641px) {
+  .header-inner {
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    width: 100%;
+    max-width: none;
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+    box-sizing: border-box;
+  }
+  .header-inner .logo {
+    flex-shrink: 0;
+  }
+  .header-inner .tagline-header {
+    margin-left: auto;
+    flex-shrink: 0;
+    text-align: right;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 65%;
+  }
 }
 
 .logo {
@@ -167,8 +194,8 @@ a, button {
 
 .tagline-header {
   font-family: var(--font-heading);
-  font-size: 0.8rem;
-  font-weight: 500;
+  font-size: 0.95rem;
+  font-weight: 700;
   font-style: italic;
   color: var(--gold);
   letter-spacing: 0.12em;
@@ -179,7 +206,7 @@ a, button {
 
 @media (max-width: 900px) {
   .tagline-header {
-    font-size: 0.7rem;
+    font-size: 0.85rem;
     letter-spacing: 0.08em;
   }
 }
@@ -193,7 +220,8 @@ a, button {
   }
   .tagline-header {
     display: block;
-    font-size: 0.6rem;
+    font-size: 0.7rem;
+    font-weight: 700;
     letter-spacing: 0.06em;
     white-space: normal;
     line-height: 1.35;
@@ -429,6 +457,18 @@ a, button {
 .btn-cta-primary {
   background: var(--emerald);
   color: var(--white);
+}
+
+#hero-cta.btn-cta-primary {
+  background: var(--gold);
+  color: var(--deep-green);
+}
+
+#hero-cta.btn-cta-primary:hover {
+  background: #b8964a;
+  color: var(--deep-green);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(198, 167, 94, 0.35);
 }
 
 .btn-cta-primary:hover {
@@ -945,7 +985,7 @@ a, button {
 .consultation-modal-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(14, 47, 43, 0.88);
+  background: rgba(14, 47, 43, 0.9);
   cursor: pointer;
 }
 
@@ -956,17 +996,18 @@ a, button {
   max-width: 600px;
   max-height: 90vh;
   overflow-y: auto;
-  background: var(--white);
+  background: var(--form-bg);
   color: var(--text-dark);
-  border-radius: 8px;
-  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 24px 56px rgba(14, 47, 43, 0.35), 0 0 0 1px rgba(14, 47, 43, 0.08);
 }
 
 .consultation-modal-header {
   position: relative;
   padding: 24px 24px 20px;
-  border-bottom: 1px solid rgba(14, 47, 43, 0.1);
-  background: var(--soft-cream);
+  border-bottom: 3px solid var(--gold);
+  background: var(--deep-green);
+  border-radius: 12px 12px 0 0;
 }
 
 .consultation-modal-close {
@@ -978,7 +1019,7 @@ a, button {
   padding: 0;
   font-size: 1.5rem;
   line-height: 1;
-  color: var(--text-muted);
+  color: var(--soft-cream);
   background: transparent;
   border: none;
   cursor: pointer;
@@ -986,21 +1027,21 @@ a, button {
 }
 
 .consultation-modal-close:hover {
-  color: var(--deep-green);
+  color: var(--gold);
 }
 
 .consultation-title {
   font-family: var(--font-heading);
   font-size: 1.5rem;
   font-weight: 600;
-  color: var(--deep-green);
+  color: var(--soft-cream);
   margin: 0 40px 4px 0;
   line-height: 1.3;
 }
 
 .consultation-subtitle {
   font-size: 0.9375rem;
-  color: var(--text-muted);
+  color: rgba(245, 242, 233, 0.85);
   margin: 0;
   line-height: 1.4;
 }
@@ -1008,13 +1049,15 @@ a, button {
 .consultation-form {
   padding: 24px;
   margin: 0;
+  background: var(--form-bg-card);
+  border-radius: 0 0 12px 12px;
 }
 
 .consultation-section {
   border: none;
   padding: 0 0 24px;
   margin: 0 0 24px;
-  border-bottom: 1px solid rgba(14, 47, 43, 0.08);
+  border-bottom: 1px solid rgba(14, 47, 43, 0.12);
 }
 
 .consultation-section:last-of-type {
@@ -1031,7 +1074,8 @@ a, button {
   letter-spacing: 0.03em;
   text-transform: uppercase;
   margin: 0 0 16px;
-  padding: 0;
+  padding: 0 0 0 12px;
+  border-left: 3px solid var(--gold);
   display: block;
 }
 
@@ -1086,8 +1130,8 @@ a, button {
   font-size: 0.9375rem;
   color: var(--text-dark);
   background: var(--white);
-  border: 1px solid rgba(14, 47, 43, 0.2);
-  border-radius: 4px;
+  border: 1px solid rgba(14, 47, 43, 0.25);
+  border-radius: 6px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
   box-sizing: border-box;
 }
@@ -1101,8 +1145,8 @@ a, button {
 .consultation-field select:focus,
 .consultation-field textarea:focus {
   outline: none;
-  border-color: var(--emerald);
-  box-shadow: 0 0 0 2px rgba(31, 122, 89, 0.2);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.25);
 }
 
 .consultation-field input::placeholder,
@@ -1158,13 +1202,13 @@ a, button {
   height: 18px;
   margin: 0;
   flex-shrink: 0;
-  accent-color: var(--emerald);
+  accent-color: var(--gold);
 }
 
 .consultation-actions {
   margin-top: 24px;
   padding-top: 24px;
-  border-top: 1px solid rgba(14, 47, 43, 0.08);
+  border-top: 2px solid rgba(14, 47, 43, 0.12);
 }
 
 .consultation-message {
@@ -1176,6 +1220,7 @@ a, button {
 
 .consultation-message.success {
   color: var(--emerald);
+  font-weight: 500;
 }
 
 .consultation-message.error {
@@ -1192,17 +1237,19 @@ a, button {
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.9375rem;
-  color: var(--white);
-  background: var(--emerald);
+  color: var(--deep-green);
+  background: var(--gold);
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s ease, opacity 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
   box-sizing: border-box;
 }
 
 .btn-consultation:hover {
-  background: #256b4d;
+  background: #b8964a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(198, 167, 94, 0.35);
 }
 
 .btn-consultation:disabled {
