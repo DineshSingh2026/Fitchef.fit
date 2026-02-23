@@ -93,7 +93,7 @@ a, button {
 }
 
 .loader-logo {
-  height: clamp(3.5rem, 12vw, 5rem);
+  height: clamp(4.25rem, 14vw, 6rem);
   width: auto;
   object-fit: contain;
   display: block;
@@ -178,17 +178,17 @@ a, button {
 }
 
 .logo-img {
-  height: 2.75rem;
+  height: 3.25rem;
   width: auto;
-  max-width: 180px;
+  max-width: 220px;
   object-fit: contain;
   display: block;
 }
 
 @media (min-width: 768px) {
   .logo-img {
-    height: 3.25rem;
-    max-width: 220px;
+    height: 4rem;
+    max-width: 260px;
   }
 }
 
@@ -1285,17 +1285,17 @@ a, button {
 }
 
 .footer-logo {
-  height: 2.5rem;
+  height: 3rem;
   width: auto;
-  max-width: 160px;
+  max-width: 200px;
   object-fit: contain;
   display: block;
 }
 
 @media (min-width: 768px) {
   .footer-logo {
-    height: 3rem;
-    max-width: 200px;
+    height: 3.5rem;
+    max-width: 240px;
   }
 }
 
