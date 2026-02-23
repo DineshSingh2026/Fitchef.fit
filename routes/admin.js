@@ -8,6 +8,7 @@ const logisticsController = require('../controllers/admin/logisticsController');
 const customersController = require('../controllers/admin/customersController');
 const leadsController = require('../controllers/admin/leadsController');
 const financeController = require('../controllers/admin/financeController');
+const consultationsController = require('../controllers/admin/consultationsController');
 
 const router = express.Router();
 router.use(authenticate);
@@ -51,5 +52,9 @@ router.patch('/leads/:id', leadsController.update);
 router.get('/finance/analytics', financeController.getAnalytics);
 router.get('/finance/payments', financeController.listPayments);
 router.post('/finance/payments', financeController.createPayment);
+
+// Consultations (form submissions)
+router.get('/consultations', consultationsController.list);
+router.get('/consultations/:id', consultationsController.getOne);
 
 module.exports = router;

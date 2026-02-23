@@ -17,6 +17,7 @@
         <a href="#" class="nav-link" data-view="logistics">Logistics</a>
         <a href="#" class="nav-link" data-view="customers">Customers</a>
         <a href="#" class="nav-link" data-view="leads">Leads</a>
+        <a href="#" class="nav-link" data-view="consultations">Consultations</a>
         <a href="#" class="nav-link" data-view="finance">Finance</a>
         <a href="#" class="nav-link" id="logoutLink">Logout</a>
       </nav>
@@ -98,6 +99,29 @@
             <div class="pagination" id="leadsPagination"></div>
           </div>
         </div>
+        <!-- Consultations (form submissions) -->
+        <div id="view-consultations" class="view">
+          <div class="filters">
+            <input type="text" id="consultationsSearch" placeholder="Search name, email, city">
+            <button type="button" class="btn-sm" id="consultationsFilterBtn">Search</button>
+          </div>
+          <div class="table-card">
+            <h3>Consultation form submissions</h3>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>City</th><th>Submitted</th><th></th></tr></thead><tbody id="consultationsBody"></tbody></table></div>
+            <div class="pagination" id="consultationsPagination"></div>
+          </div>
+        </div>
+        <!-- Detail modal -->
+        <div id="consultationDetailModal" class="detail-modal" role="dialog" aria-hidden="true" style="display: none;">
+          <div class="detail-modal-overlay"></div>
+          <div class="detail-modal-content">
+            <div class="detail-modal-header">
+              <h3>Consultation details</h3>
+              <button type="button" class="detail-modal-close" aria-label="Close">&times;</button>
+            </div>
+            <div id="consultationDetailBody" class="detail-modal-body"></div>
+          </div>
+        </div>
         <!-- Finance -->
         <div id="view-finance" class="view">
           <div class="kpi-grid" id="financeKpis"></div>
@@ -125,7 +149,7 @@
   document.getElementById('logoutLink').addEventListener('click', function(e) { e.preventDefault(); adminLogout(); });
   document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 
-  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', leads: 'Leads', finance: 'Finance' };
+  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', leads: 'Leads', consultations: 'Consultations', finance: 'Finance' };
   document.querySelectorAll('.nav-link').forEach(function(a) {
     if (a.id === 'logoutLink') return;
     a.addEventListener('click', function(e) { e.preventDefault(); switchView(a.getAttribute('data-view')); });
@@ -142,6 +166,7 @@
     else if (name === 'logistics') loadLogistics();
     else if (name === 'customers') loadCustomers();
     else if (name === 'leads') loadLeads();
+    else if (name === 'consultations') loadConsultations();
     else if (name === 'finance') loadFinance();
   }
   function authHeaders() { return getAuthHeaders(); }
@@ -243,6 +268,61 @@
     });
   }
   document.getElementById('leadsFilterBtn').addEventListener('click', function() { leadsPage = 1; loadLeads(); });
+
+  var consultationsPage = 1;
+  function loadConsultations() {
+    var search = document.getElementById('consultationsSearch').value.trim();
+    var url = API + '/consultations?page=' + consultationsPage + '&limit=10' + (search ? '&search=' + encodeURIComponent(search) : '');
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('consultationsBody');
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No consultation submissions yet</td></tr>';
+      else body.innerHTML = res.data.map(function(c) {
+        var date = c.created_at ? new Date(c.created_at).toLocaleString() : '-';
+        return '<tr><td>' + (c.full_name || '-') + '</td><td>' + (c.email || '') + '</td><td>' + (c.city || '-') + '</td><td>' + date + '</td><td><button type="button" class="btn-sm view-consultation-btn" data-id="' + c.id + '">View</button></td></tr>';
+      }).join('');
+      renderPagination('consultationsPagination', consultationsPage, res.total || 0, 10, function(p) { consultationsPage = p; loadConsultations(); });
+      body.querySelectorAll('.view-consultation-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { openConsultationDetail(parseInt(btn.getAttribute('data-id'), 10)); });
+      });
+    }).catch(function() { document.getElementById('consultationsBody').innerHTML = '<tr><td colspan="5" class="loading">Error loading consultations</td></tr>'; });
+  }
+  document.getElementById('consultationsFilterBtn').addEventListener('click', function() { consultationsPage = 1; loadConsultations(); });
+
+  var detailModal = document.getElementById('consultationDetailModal');
+  var detailBody = document.getElementById('consultationDetailBody');
+  function openConsultationDetail(id) {
+    fetch(API + '/consultations/' + id, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
+      var goals = Array.isArray(d.goals) ? d.goals.join(', ') : (d.goals || '-');
+      detailBody.innerHTML = '<table class="detail-table">' +
+        '<tr><th>Full name</th><td>' + (d.full_name || '-') + '</td></tr>' +
+        '<tr><th>Email</th><td>' + (d.email || '-') + '</td></tr>' +
+        '<tr><th>Phone</th><td>' + (d.phone || '-') + '</td></tr>' +
+        '<tr><th>City</th><td>' + (d.city || '-') + '</td></tr>' +
+        '<tr><th>Delivery frequency</th><td>' + (d.delivery_frequency || '-') + '</td></tr>' +
+        '<tr><th>Goals</th><td>' + goals + '</td></tr>' +
+        '<tr><th>Age</th><td>' + (d.age != null ? d.age : '-') + '</td></tr>' +
+        '<tr><th>Gender</th><td>' + (d.gender || '-') + '</td></tr>' +
+        '<tr><th>Height (cm)</th><td>' + (d.height != null ? d.height : '-') + '</td></tr>' +
+        '<tr><th>Weight (kg)</th><td>' + (d.weight != null ? d.weight : '-') + '</td></tr>' +
+        '<tr><th>Activity level</th><td>' + (d.activity_level || '-') + '</td></tr>' +
+        '<tr><th>Diet type</th><td>' + (d.diet_type || '-') + '</td></tr>' +
+        '<tr><th>Spice preference</th><td>' + (d.spice_preference || '-') + '</td></tr>' +
+        '<tr><th>Start timeline</th><td>' + (d.start_timeline || '-') + '</td></tr>' +
+        '<tr><th>Allergies</th><td>' + (d.allergies || '-') + '</td></tr>' +
+        '<tr><th>Submitted</th><td>' + (d.created_at ? new Date(d.created_at).toLocaleString() : '-') + '</td></tr>' +
+        '</table>';
+      detailModal.style.display = 'flex';
+      detailModal.setAttribute('aria-hidden', 'false');
+    }).catch(function() { detailBody.innerHTML = '<p class="loading">Failed to load details</p>'; detailModal.style.display = 'flex'; });
+  }
+  function closeConsultationDetail() {
+    detailModal.style.display = 'none';
+    detailModal.setAttribute('aria-hidden', 'true');
+  }
+  if (detailModal) {
+    detailModal.querySelector('.detail-modal-close').addEventListener('click', closeConsultationDetail);
+    detailModal.querySelector('.detail-modal-overlay').addEventListener('click', closeConsultationDetail);
+  }
 
   function loadFinance() {
     fetch(API + '/finance/analytics?period=30', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {

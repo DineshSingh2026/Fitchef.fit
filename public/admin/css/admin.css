@@ -88,6 +88,19 @@ tr:hover { background: var(--bg); }
 .loading { text-align: center; padding: 40px; color: var(--text-muted); }
 .empty { text-align: center; padding: 40px; color: var(--text-muted); }
 
+/* Detail modal (consultation) */
+.detail-modal { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.detail-modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,.4); }
+.detail-modal-content { position: relative; background: var(--card); border-radius: 12px; box-shadow: 0 8px 32px rgba(0,0,0,.15); max-width: 560px; width: 100%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+.detail-modal-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+.detail-modal-header h3 { margin: 0; font-size: 1.1rem; }
+.detail-modal-close { background: none; border: none; font-size: 1.5rem; line-height: 1; cursor: pointer; color: var(--text-muted); padding: 4px; }
+.detail-modal-close:hover { color: var(--text); }
+.detail-modal-body { overflow-y: auto; padding: 20px; }
+.detail-table { width: 100%; font-size: 0.875rem; border-collapse: collapse; }
+.detail-table th, .detail-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
+.detail-table th { color: var(--text-muted); font-weight: 500; width: 140px; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .dash-wrap { flex-direction: column; }
