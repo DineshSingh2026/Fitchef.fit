@@ -2,6 +2,7 @@
   'use strict';
 
   var EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  var PHONE_REGEX = /^[0-9]{10,15}$/;
 
   function ready(fn) {
     if (document.readyState !== 'loading') {
@@ -248,7 +249,18 @@
 
       var fullName = (form.querySelector('[name="full_name"]') || {}).value;
       var emailVal = (form.querySelector('[name="email"]') || {}).value;
+      var phoneVal = (form.querySelector('[name="phone"]') || {}).value;
       var cityVal = (form.querySelector('[name="city"]') || {}).value;
+      var deliveryFreq = (form.querySelector('[name="delivery_frequency"]') || {}).value;
+      var ageVal = (form.querySelector('[name="age"]') || {}).value;
+      var genderVal = (form.querySelector('[name="gender"]') || {}).value;
+      var heightVal = (form.querySelector('[name="height"]') || {}).value;
+      var weightVal = (form.querySelector('[name="weight"]') || {}).value;
+      var activityVal = (form.querySelector('[name="activity_level"]') || {}).value;
+      var dietVal = (form.querySelector('[name="diet_type"]') || {}).value;
+      var spiceVal = (form.querySelector('[name="spice_preference"]') || {}).value;
+      var timelineVal = (form.querySelector('[name="start_timeline"]') || {}).value;
+      var goalsChecked = form.querySelectorAll('input[name="goals"]:checked').length;
 
       var valid = true;
       if (!fullName || !fullName.trim()) {
@@ -262,8 +274,65 @@
         setFieldError('email', 'Please enter a valid email address.');
         valid = false;
       }
+      var phoneDigits = (phoneVal || '').replace(/\D/g, '');
+      if (!phoneDigits || phoneDigits.length < 10) {
+        setFieldError('phone', 'A valid mobile number (10–15 digits) is required.');
+        valid = false;
+      } else if (!PHONE_REGEX.test(phoneDigits)) {
+        setFieldError('phone', 'Please enter a valid mobile number (10–15 digits).');
+        valid = false;
+      }
       if (!cityVal || !cityVal.trim()) {
         setFieldError('city', 'City is required.');
+        valid = false;
+      }
+      if (!deliveryFreq || !deliveryFreq.trim()) {
+        setFieldError('delivery_frequency', 'Please select delivery frequency.');
+        valid = false;
+      }
+      if (goalsChecked === 0) {
+        setFieldError('goals', 'Please select at least one goal.');
+        valid = false;
+      }
+      if (!ageVal || ageVal.trim() === '') {
+        setFieldError('age', 'Age is required.');
+        valid = false;
+      } else if (isNaN(parseInt(ageVal, 10)) || parseInt(ageVal, 10) < 1 || parseInt(ageVal, 10) > 120) {
+        setFieldError('age', 'Please enter a valid age (1–120).');
+        valid = false;
+      }
+      if (!genderVal || !genderVal.trim()) {
+        setFieldError('gender', 'Please select gender.');
+        valid = false;
+      }
+      if (!heightVal || heightVal.trim() === '') {
+        setFieldError('height', 'Height is required.');
+        valid = false;
+      } else if (isNaN(parseInt(heightVal, 10)) || parseInt(heightVal, 10) < 50 || parseInt(heightVal, 10) > 250) {
+        setFieldError('height', 'Please enter a valid height (50–250 cm).');
+        valid = false;
+      }
+      if (!weightVal || weightVal.trim() === '') {
+        setFieldError('weight', 'Weight is required.');
+        valid = false;
+      } else if (isNaN(parseFloat(weightVal)) || parseFloat(weightVal) < 20 || parseFloat(weightVal) > 300) {
+        setFieldError('weight', 'Please enter a valid weight (20–300 kg).');
+        valid = false;
+      }
+      if (!activityVal || !activityVal.trim()) {
+        setFieldError('activity_level', 'Please select activity level.');
+        valid = false;
+      }
+      if (!dietVal || !dietVal.trim()) {
+        setFieldError('diet_type', 'Please select diet type.');
+        valid = false;
+      }
+      if (!spiceVal || !spiceVal.trim()) {
+        setFieldError('spice_preference', 'Please select spice preference.');
+        valid = false;
+      }
+      if (!timelineVal || !timelineVal.trim()) {
+        setFieldError('start_timeline', 'Please select start timeline.');
         valid = false;
       }
 

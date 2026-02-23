@@ -170,8 +170,9 @@
                 <span class="field-error" id="err-email" role="alert"></span>
               </div>
               <div class="consultation-field">
-                <label for="consultation-phone">Phone</label>
-                <input type="tel" id="consultation-phone" name="phone" autocomplete="tel" placeholder="Optional">
+                <label for="consultation-phone">Phone / Mobile <span class="required">*</span></label>
+                <input type="tel" id="consultation-phone" name="phone" required autocomplete="tel" placeholder="e.g. 9876543210" minlength="10" maxlength="15">
+                <span class="field-error" id="err-phone" role="alert"></span>
               </div>
               <div class="consultation-field">
                 <label for="consultation-city">City <span class="required">*</span></label>
@@ -179,20 +180,21 @@
                 <span class="field-error" id="err-city" role="alert"></span>
               </div>
               <div class="consultation-field consultation-field--full">
-                <label for="consultation-delivery_frequency">Delivery Frequency</label>
-                <select id="consultation-delivery_frequency" name="delivery_frequency">
-                  <option value="">How often? (optional)</option>
+                <label for="consultation-delivery_frequency">Delivery Frequency <span class="required">*</span></label>
+                <select id="consultation-delivery_frequency" name="delivery_frequency" required>
+                  <option value="">Select</option>
                   <option value="Daily">Daily</option>
                   <option value="3x per week">3x per week</option>
                   <option value="Weekly">Weekly</option>
                 </select>
+                <span class="field-error" id="err-delivery_frequency" role="alert"></span>
               </div>
             </div>
           </fieldset>
 
           <fieldset class="consultation-section">
-            <legend class="consultation-legend">Section 2 — Goals</legend>
-            <p class="consultation-hint">Select all that apply.</p>
+            <legend class="consultation-legend">Section 2 — Goals <span class="required">*</span></legend>
+            <p class="consultation-hint">Select at least one.</p>
             <div class="consultation-checkboxes">
               <label class="consultation-check"><input type="checkbox" name="goals" value="Fat Loss"> Fat Loss</label>
               <label class="consultation-check"><input type="checkbox" name="goals" value="Muscle Gain"> Muscle Gain</label>
@@ -201,42 +203,48 @@
               <label class="consultation-check"><input type="checkbox" name="goals" value="Busy Professional Convenience"> Busy Professional Convenience</label>
               <label class="consultation-check"><input type="checkbox" name="goals" value="Medical Diet Support"> Medical Diet Support</label>
             </div>
+            <span class="field-error" id="err-goals" role="alert"></span>
           </fieldset>
 
           <fieldset class="consultation-section">
             <legend class="consultation-legend">Section 3 — Body & Lifestyle</legend>
             <div class="consultation-grid consultation-grid--2">
               <div class="consultation-field">
-                <label for="consultation-age">Age</label>
-                <input type="number" id="consultation-age" name="age" min="1" max="120" placeholder="Optional — helps us personalize">
+                <label for="consultation-age">Age <span class="required">*</span></label>
+                <input type="number" id="consultation-age" name="age" min="1" max="120" required placeholder="e.g. 28">
+                <span class="field-error" id="err-age" role="alert"></span>
               </div>
               <div class="consultation-field">
-                <label for="consultation-gender">Gender</label>
-                <select id="consultation-gender" name="gender">
-                  <option value="">Optional</option>
+                <label for="consultation-gender">Gender <span class="required">*</span></label>
+                <select id="consultation-gender" name="gender" required>
+                  <option value="">Select</option>
                   <option value="Male">Male</option>
                   <option value="Female">Female</option>
                   <option value="Other">Other</option>
                   <option value="Prefer not to say">Prefer not to say</option>
                 </select>
+                <span class="field-error" id="err-gender" role="alert"></span>
               </div>
               <div class="consultation-field">
-                <label for="consultation-height">Height (cm)</label>
-                <input type="number" id="consultation-height" name="height" min="50" max="250" placeholder="e.g. 170">
+                <label for="consultation-height">Height (cm) <span class="required">*</span></label>
+                <input type="number" id="consultation-height" name="height" min="50" max="250" required placeholder="e.g. 170">
+                <span class="field-error" id="err-height" role="alert"></span>
               </div>
               <div class="consultation-field">
-                <label for="consultation-weight">Weight (kg)</label>
-                <input type="number" id="consultation-weight" name="weight" min="20" max="300" step="0.1" placeholder="e.g. 70">
+                <label for="consultation-weight">Weight (kg) <span class="required">*</span></label>
+                <input type="number" id="consultation-weight" name="weight" min="20" max="300" step="0.1" required placeholder="e.g. 70">
+                <span class="field-error" id="err-weight" role="alert"></span>
               </div>
               <div class="consultation-field consultation-field--full">
-                <label for="consultation-activity_level">Activity Level</label>
-                <select id="consultation-activity_level" name="activity_level">
+                <label for="consultation-activity_level">Activity Level <span class="required">*</span></label>
+                <select id="consultation-activity_level" name="activity_level" required>
                   <option value="">Select</option>
                   <option value="Sedentary">Sedentary</option>
                   <option value="Moderate">Moderate</option>
                   <option value="Active">Active</option>
                   <option value="Athlete">Athlete</option>
                 </select>
+                <span class="field-error" id="err-activity_level" role="alert"></span>
               </div>
             </div>
           </fieldset>
@@ -245,8 +253,8 @@
             <legend class="consultation-legend">Section 4 — Taste Profile</legend>
             <div class="consultation-grid consultation-grid--2">
               <div class="consultation-field">
-                <label for="consultation-diet_type">Diet Type</label>
-                <select id="consultation-diet_type" name="diet_type">
+                <label for="consultation-diet_type">Diet Type <span class="required">*</span></label>
+                <select id="consultation-diet_type" name="diet_type" required>
                   <option value="">Select</option>
                   <option value="Vegetarian">Vegetarian</option>
                   <option value="Vegan">Vegan</option>
@@ -255,24 +263,27 @@
                   <option value="Keto">Keto</option>
                   <option value="Gluten-Free">Gluten-Free</option>
                 </select>
+                <span class="field-error" id="err-diet_type" role="alert"></span>
               </div>
               <div class="consultation-field">
-                <label for="consultation-spice_preference">Spice Preference</label>
-                <select id="consultation-spice_preference" name="spice_preference">
+                <label for="consultation-spice_preference">Spice Preference <span class="required">*</span></label>
+                <select id="consultation-spice_preference" name="spice_preference" required>
                   <option value="">Select</option>
                   <option value="Mild">Mild</option>
                   <option value="Medium">Medium</option>
                   <option value="High">High</option>
                 </select>
+                <span class="field-error" id="err-spice_preference" role="alert"></span>
               </div>
               <div class="consultation-field">
-                <label for="consultation-start_timeline">Start Timeline</label>
-                <select id="consultation-start_timeline" name="start_timeline">
+                <label for="consultation-start_timeline">Start Timeline <span class="required">*</span></label>
+                <select id="consultation-start_timeline" name="start_timeline" required>
                   <option value="">Select</option>
                   <option value="Immediately">Immediately</option>
                   <option value="Within 7 days">Within 7 days</option>
                   <option value="Just exploring">Just exploring</option>
                 </select>
+                <span class="field-error" id="err-start_timeline" role="alert"></span>
               </div>
               <div class="consultation-field consultation-field--full">
                 <label for="consultation-allergies">Allergies</label>

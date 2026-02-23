@@ -5,6 +5,7 @@ const consultationModel = require('../models/consultationModel');
 const pool = require('../config/database');
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_REGEX = /^[0-9]{10,15}$/;
 
 const CREATE_CONSULTATIONS_SQL = `
 CREATE TABLE IF NOT EXISTS consultations (
@@ -92,27 +93,117 @@ async function postConsultation(req, res) {
       });
     }
 
+    const phoneRaw = body.phone != null ? String(body.phone).replace(/\D/g, '') : '';
+    if (!phoneRaw || phoneRaw.length < 10) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid mobile number (10–15 digits) is required.',
+      });
+    }
+    if (!PHONE_REGEX.test(phoneRaw)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a valid mobile number (10–15 digits).',
+      });
+    }
+
+    const delivery_frequency = sanitizeString(body.delivery_frequency, 50);
+    if (!delivery_frequency) {
+      return res.status(400).json({
+        success: false,
+        message: 'Delivery frequency is required.',
+      });
+    }
+
+    const goals = Array.isArray(body.goals) ? body.goals.filter(Boolean).map(String) : [];
+    if (goals.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please select at least one goal.',
+      });
+    }
+
+    const age = parseNumber(body.age);
+    if (age == null || age < 1 || age > 120) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid age (1–120) is required.',
+      });
+    }
+
+    const gender = sanitizeString(body.gender, 20);
+    if (!gender) {
+      return res.status(400).json({
+        success: false,
+        message: 'Gender is required.',
+      });
+    }
+
+    const heightVal = body.height != null && body.height !== '' ? parseInt(body.height, 10) : null;
+    if (heightVal == null || isNaN(heightVal) || heightVal < 50 || heightVal > 250) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid height (50–250 cm) is required.',
+      });
+    }
+
+    const weightVal = body.weight != null && body.weight !== '' ? parseFloat(body.weight) : null;
+    if (weightVal == null || isNaN(weightVal) || weightVal < 20 || weightVal > 300) {
+      return res.status(400).json({
+        success: false,
+        message: 'A valid weight (20–300 kg) is required.',
+      });
+    }
+
+    const activity_level = sanitizeString(body.activity_level, 50);
+    if (!activity_level) {
+      return res.status(400).json({
+        success: false,
+        message: 'Activity level is required.',
+      });
+    }
+
+    const diet_type = sanitizeString(body.diet_type, 50);
+    if (!diet_type) {
+      return res.status(400).json({
+        success: false,
+        message: 'Diet type is required.',
+      });
+    }
+
+    const spice_preference = sanitizeString(body.spice_preference, 20);
+    if (!spice_preference) {
+      return res.status(400).json({
+        success: false,
+        message: 'Spice preference is required.',
+      });
+    }
+
+    const start_timeline = sanitizeString(body.start_timeline, 50);
+    if (!start_timeline) {
+      return res.status(400).json({
+        success: false,
+        message: 'Start timeline is required.',
+      });
+    }
+
     data = {
       full_name,
       email,
-      phone: sanitizeString(body.phone, 20),
+      phone: phoneRaw.slice(0, 20),
       city,
-      delivery_frequency: sanitizeString(body.delivery_frequency, 50),
-      goals: Array.isArray(body.goals) ? body.goals.filter(Boolean).map(String) : [],
-      age: parseNumber(body.age),
-      gender: sanitizeString(body.gender, 20),
-      height: body.height != null && body.height !== '' ? parseInt(body.height, 10) : null,
-      weight: body.weight != null && body.weight !== '' ? parseInt(body.weight, 10) : null,
-      activity_level: sanitizeString(body.activity_level, 50),
-      diet_type: sanitizeString(body.diet_type, 50),
+      delivery_frequency,
+      goals,
+      age,
+      gender,
+      height: heightVal,
+      weight: weightVal,
+      activity_level,
+      diet_type,
       allergies: body.allergies != null ? String(body.allergies).trim() : null,
-      spice_preference: sanitizeString(body.spice_preference, 20),
-      start_timeline: sanitizeString(body.start_timeline, 50),
+      spice_preference,
+      start_timeline,
     };
-
-    if (data.height != null && (isNaN(data.height) || data.height < 0)) data.height = null;
-    if (data.weight != null && (isNaN(data.weight) || data.weight < 0)) data.weight = null;
-    if (data.age != null && (isNaN(data.age) || data.age < 0 || data.age > 150)) data.age = null;
 
     let row = null;
     try {
