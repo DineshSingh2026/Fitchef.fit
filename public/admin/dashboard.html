@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitChef Admin – Dashboard</title>
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="dash-wrap">
+    <aside class="sidebar">
+      <div class="sidebar-brand">FitChef Admin</div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-link active" data-view="overview">Dashboard</a>
+        <a href="#" class="nav-link" data-view="orders">Orders</a>
+        <a href="#" class="nav-link" data-view="chefs">Chefs</a>
+        <a href="#" class="nav-link" data-view="logistics">Logistics</a>
+        <a href="#" class="nav-link" data-view="customers">Customers</a>
+        <a href="#" class="nav-link" data-view="leads">Leads</a>
+        <a href="#" class="nav-link" data-view="finance">Finance</a>
+        <a href="#" class="nav-link" id="logoutLink">Logout</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <header class="navbar">
+        <h2 id="viewTitle">Dashboard</h2>
+        <div class="navbar-right">
+          <span class="user" id="userName"></span>
+          <button type="button" class="btn-outline" id="logoutBtn">Logout</button>
+        </div>
+      </header>
+      <div class="content">
+        <!-- Overview -->
+        <div id="view-overview" class="view active">
+          <div class="kpi-grid" id="kpiGrid"></div>
+          <div class="chart-card">
+            <h3>Revenue (last 30 days)</h3>
+            <div class="chart-placeholder" id="revenueChart"></div>
+          </div>
+        </div>
+        <!-- Orders -->
+        <div id="view-orders" class="view">
+          <div class="filters">
+            <select id="ordersStatus"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select>
+            <button type="button" class="btn-sm" id="ordersFilterBtn">Apply</button>
+          </div>
+          <div class="table-card">
+            <h3>Orders</h3>
+            <div class="table-wrap"><table><thead><tr><th>Order #</th><th>Customer</th><th>Chef</th><th>Status</th><th>Amount</th><th>Date</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+            <div class="pagination" id="ordersPagination"></div>
+          </div>
+        </div>
+        <!-- Chefs -->
+        <div id="view-chefs" class="view">
+          <div class="filters">
+            <select id="chefsStatus"><option value="">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+            <button type="button" class="btn-sm" id="chefsFilterBtn">Apply</button>
+          </div>
+          <div class="table-card">
+            <h3>Chefs</h3>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Speciality</th><th>Status</th></tr></thead><tbody id="chefsBody"></tbody></table></div>
+            <div class="pagination" id="chefsPagination"></div>
+          </div>
+        </div>
+        <!-- Logistics -->
+        <div id="view-logistics" class="view">
+          <div class="filters">
+            <select id="logisticsStatus"><option value="">All</option><option value="scheduled">Scheduled</option><option value="in_transit">In transit</option><option value="delivered">Delivered</option></select>
+            <button type="button" class="btn-sm" id="logisticsFilterBtn">Apply</button>
+          </div>
+          <div class="table-card">
+            <h3>Deliveries</h3>
+            <div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Driver</th><th>Estimated</th></tr></thead><tbody id="logisticsBody"></tbody></table></div>
+            <div class="pagination" id="logisticsPagination"></div>
+          </div>
+        </div>
+        <!-- Customers -->
+        <div id="view-customers" class="view">
+          <div class="filters">
+            <input type="text" id="customersSearch" placeholder="Search email, name, city">
+            <button type="button" class="btn-sm" id="customersFilterBtn">Search</button>
+          </div>
+          <div class="table-card">
+            <h3>Customers</h3>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Source</th></tr></thead><tbody id="customersBody"></tbody></table></div>
+            <div class="pagination" id="customersPagination"></div>
+          </div>
+        </div>
+        <!-- Leads -->
+        <div id="view-leads" class="view">
+          <div class="filters">
+            <select id="leadsStatus"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="converted">Converted</option></select>
+            <button type="button" class="btn-sm" id="leadsFilterBtn">Apply</button>
+          </div>
+          <div class="table-card">
+            <h3>Leads</h3>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Status</th><th>Created</th></tr></thead><tbody id="leadsBody"></tbody></table></div>
+            <div class="pagination" id="leadsPagination"></div>
+          </div>
+        </div>
+        <!-- Finance -->
+        <div id="view-finance" class="view">
+          <div class="kpi-grid" id="financeKpis"></div>
+          <div class="chart-card">
+            <h3>Revenue by day</h3>
+            <div class="chart-placeholder" id="financeChart"></div>
+          </div>
+          <div class="table-card" style="margin-top: 24px;">
+            <h3>Recent payments</h3>
+            <div class="table-wrap"><table><thead><tr><th>Order</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="paymentsBody"></tbody></table></div>
+            <div class="pagination" id="paymentsPagination"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/admin.js"></script>
+  <script>
+(function() {
+  var API = (typeof API_BASE !== 'undefined' ? API_BASE : '') + '/api/admin';
+  var token = localStorage.getItem('adminToken');
+  if (!token) { window.location.href = 'index.html'; return; }
+  var user = JSON.parse(localStorage.getItem('adminUser') || '{}');
+  document.getElementById('userName').textContent = user.full_name || user.email || 'Admin';
+  document.getElementById('logoutLink').addEventListener('click', function(e) { e.preventDefault(); adminLogout(); });
+  document.getElementById('logoutBtn').addEventListener('click', adminLogout);
+
+  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', leads: 'Leads', finance: 'Finance' };
+  document.querySelectorAll('.nav-link').forEach(function(a) {
+    if (a.id === 'logoutLink') return;
+    a.addEventListener('click', function(e) { e.preventDefault(); switchView(a.getAttribute('data-view')); });
+  });
+  function switchView(name) {
+    document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
+    document.querySelectorAll('.nav-link').forEach(function(n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
+    var el = document.getElementById('view-' + name);
+    if (el) el.classList.add('active');
+    document.getElementById('viewTitle').textContent = titles[name] || 'Dashboard';
+    if (name === 'overview') loadOverview();
+    else if (name === 'orders') loadOrders();
+    else if (name === 'chefs') loadChefs();
+    else if (name === 'logistics') loadLogistics();
+    else if (name === 'customers') loadCustomers();
+    else if (name === 'leads') loadLeads();
+    else if (name === 'finance') loadFinance();
+  }
+  function authHeaders() { return getAuthHeaders(); }
+  function qs(params) { return Object.keys(params).filter(function(k) { return params[k] != null && params[k] !== ''; }).map(function(k) { return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]); }).join('&'); }
+
+  function loadOverview() {
+    fetch(API + '/dashboard/kpis', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
+      var g = document.getElementById('kpiGrid');
+      g.innerHTML = '';
+      ['total_orders', 'total_revenue', 'total_customers', 'total_chefs', 'new_leads', 'pending_deliveries'].forEach(function(k) {
+        var labels = { total_orders: 'Orders', total_revenue: 'Revenue (₹)', total_customers: 'Customers', total_chefs: 'Chefs', new_leads: 'New leads', pending_deliveries: 'Pending deliveries' };
+        var v = k === 'total_revenue' ? (Number(d[k]) || 0).toFixed(2) : (d[k] || 0);
+        g.innerHTML += '<div class="kpi-card"><div class="label">' + labels[k] + '</div><div class="value">' + v + '</div></div>';
+      });
+    }).catch(function() { document.getElementById('kpiGrid').innerHTML = '<div class="loading">Failed to load KPIs</div>'; });
+    fetch(API + '/dashboard/revenue-chart?period=30', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(arr) {
+      var container = document.getElementById('revenueChart');
+      if (!arr || arr.length === 0) { container.innerHTML = '<div class="empty">No revenue data</div>'; return; }
+      var max = Math.max.apply(null, arr.map(function(x) { return x.revenue; })) || 1;
+      container.innerHTML = arr.map(function(x) {
+        var h = (100 * x.revenue / max).toFixed(1);
+        return '<div class="chart-bar" style="height:' + h + '%" title="' + x.date + ': ' + x.revenue + '"></div>';
+      }).join('');
+    }).catch(function() { document.getElementById('revenueChart').innerHTML = '<div class="empty">Failed to load chart</div>'; });
+  }
+
+  var ordersPage = 1, ordersTotal = 0, ordersLimit = 10;
+  function loadOrders() {
+    var status = document.getElementById('ordersStatus').value;
+    var url = API + '/orders?page=' + ordersPage + '&limit=' + ordersLimit + (status ? '&status=' + encodeURIComponent(status) : '');
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      ordersTotal = res.total || 0;
+      var body = document.getElementById('ordersBody');
+      if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="6" class="empty">No orders</td></tr>'; }
+      else body.innerHTML = res.data.map(function(o) {
+        return '<tr><td>' + (o.order_number || '') + '</td><td>' + (o.customer_name || '-') + '</td><td>' + (o.chef_name || '-') + '</td><td>' + (o.status || '') + '</td><td>' + (o.total_amount != null ? o.total_amount : '-') + '</td><td>' + (o.order_date || '') + '</td></tr>';
+      }).join('');
+      renderPagination('ordersPagination', ordersPage, res.total || 0, ordersLimit, function(p) { ordersPage = p; loadOrders(); });
+    }).catch(function() { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="6" class="loading">Error loading orders</td></tr>'; });
+  }
+  document.getElementById('ordersFilterBtn').addEventListener('click', function() { ordersPage = 1; loadOrders(); });
+
+  var chefsPage = 1;
+  function loadChefs() {
+    var status = document.getElementById('chefsStatus').value;
+    var url = API + '/chefs?page=' + chefsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('chefsBody');
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No chefs</td></tr>';
+      else body.innerHTML = res.data.map(function(c) {
+        return '<tr><td>' + (c.full_name || '') + '</td><td>' + (c.email || '') + '</td><td>' + (c.phone || '-') + '</td><td>' + (c.speciality || '-') + '</td><td>' + (c.status || '') + '</td></tr>';
+      }).join('');
+      renderPagination('chefsPagination', chefsPage, res.total || 0, 10, function(p) { chefsPage = p; loadChefs(); });
+    });
+  }
+  document.getElementById('chefsFilterBtn').addEventListener('click', function() { chefsPage = 1; loadChefs(); });
+
+  var logisticsPage = 1;
+  function loadLogistics() {
+    var status = document.getElementById('logisticsStatus').value;
+    var url = API + '/logistics?page=' + logisticsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('logisticsBody');
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No deliveries</td></tr>';
+      else body.innerHTML = res.data.map(function(d) {
+        return '<tr><td>' + (d.order_number || '') + '</td><td>' + (d.customer_name || '-') + '</td><td>' + (d.status || '') + '</td><td>' + (d.driver_name || '-') + '</td><td>' + (d.estimated_at ? new Date(d.estimated_at).toLocaleDateString() : '-') + '</td></tr>';
+      }).join('');
+      renderPagination('logisticsPagination', logisticsPage, res.total || 0, 10, function(p) { logisticsPage = p; loadLogistics(); });
+    });
+  }
+  document.getElementById('logisticsFilterBtn').addEventListener('click', function() { logisticsPage = 1; loadLogistics(); });
+
+  var customersPage = 1;
+  function loadCustomers() {
+    var search = document.getElementById('customersSearch').value.trim();
+    var url = API + '/customers?page=' + customersPage + '&limit=10' + (search ? '&search=' + encodeURIComponent(search) : '');
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('customersBody');
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No customers</td></tr>';
+      else body.innerHTML = res.data.map(function(c) {
+        return '<tr><td>' + (c.full_name || '-') + '</td><td>' + (c.email || '') + '</td><td>' + (c.phone || '-') + '</td><td>' + (c.city || '-') + '</td><td>' + (c.source || '') + '</td></tr>';
+      }).join('');
+      renderPagination('customersPagination', customersPage, res.total || 0, 10, function(p) { customersPage = p; loadCustomers(); });
+    });
+  }
+  document.getElementById('customersFilterBtn').addEventListener('click', function() { customersPage = 1; loadCustomers(); });
+
+  var leadsPage = 1;
+  function loadLeads() {
+    var status = document.getElementById('leadsStatus').value;
+    var url = API + '/leads?page=' + leadsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('leadsBody');
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No leads</td></tr>';
+      else body.innerHTML = res.data.map(function(l) {
+        return '<tr><td>' + (l.full_name || '-') + '</td><td>' + (l.email || '') + '</td><td>' + (l.source || '') + '</td><td>' + (l.status || '') + '</td><td>' + (l.created_at ? new Date(l.created_at).toLocaleDateString() : '') + '</td></tr>';
+      }).join('');
+      renderPagination('leadsPagination', leadsPage, res.total || 0, 10, function(p) { leadsPage = p; loadLeads(); });
+    });
+  }
+  document.getElementById('leadsFilterBtn').addEventListener('click', function() { leadsPage = 1; loadLeads(); });
+
+  function loadFinance() {
+    fetch(API + '/finance/analytics?period=30', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
+      var g = document.getElementById('financeKpis');
+      g.innerHTML = '<div class="kpi-card"><div class="label">Total revenue</div><div class="value">' + (d.total_revenue != null ? d.total_revenue.toFixed(2) : '0') + '</div></div><div class="kpi-card"><div class="label">Orders</div><div class="value">' + (d.total_orders || 0) + '</div></div><div class="kpi-card"><div class="label">Avg order value</div><div class="value">' + (d.avg_order_value != null ? d.avg_order_value.toFixed(2) : '0') + '</div></div>';
+      var arr = d.revenue_by_day || [];
+      var chart = document.getElementById('financeChart');
+      if (arr.length === 0) chart.innerHTML = '<div class="empty">No data</div>';
+      else {
+        var max = Math.max.apply(null, arr.map(function(x) { return x.total; })) || 1;
+        chart.innerHTML = arr.map(function(x) { var h = (100 * x.total / max).toFixed(1); return '<div class="chart-bar" style="height:' + h + '%"></div>'; }).join('');
+      }
+    });
+    fetch(API + '/finance/payments?page=1&limit=10', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('paymentsBody');
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No payments</td></tr>';
+      else body.innerHTML = res.data.map(function(p) {
+        return '<tr><td>' + (p.order_number || '-') + '</td><td>' + (p.amount != null ? p.amount : '') + '</td><td>' + (p.method || '-') + '</td><td>' + (p.status || '') + '</td><td>' + (p.paid_at ? new Date(p.paid_at).toLocaleString() : '') + '</td></tr>';
+      }).join('');
+      renderPagination('paymentsPagination', 1, res.total || 0, 10, function() {});
+    });
+  }
+
+  function renderPagination(id, page, total, limit, onPage) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var pages = Math.ceil(total / limit) || 1;
+    el.innerHTML = '<span class="info">' + total + ' total</span><div class="pages">' +
+      '<button type="button" data-dir="-1"' + (page <= 1 ? ' disabled' : '') + '>Prev</button>' +
+      '<span style="padding:0 8px">' + page + ' / ' + pages + '</span>' +
+      '<button type="button" data-dir="1"' + (page >= pages ? ' disabled' : '') + '>Next</button></div>';
+    el.querySelectorAll('button[data-dir]').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var dir = parseInt(btn.getAttribute('data-dir'), 10);
+        var next = page + dir;
+        if (next >= 1 && next <= pages) onPage(next);
+      });
+    });
+  }
+
+  loadOverview();
+})();
+  </script>
+</body>
+</html>

@@ -1,0 +1,99 @@
+/* FitChef Admin – Login & Dashboard */
+:root {
+  --primary: #1a472a;
+  --primary-light: #2d5a3d;
+  --accent: #c9a227;
+  --bg: #f4f5f7;
+  --card: #fff;
+  --text: #1f2937;
+  --text-muted: #6b7280;
+  --border: #e5e7eb;
+  --error: #dc2626;
+  --sidebar-width: 220px;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+/* Login */
+.login-page { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+.login-card { width: 100%; max-width: 380px; background: var(--card); border-radius: 12px; box-shadow: 0 4px 24px rgba(0,0,0,.08); padding: 32px; }
+.login-header { text-align: center; margin-bottom: 24px; }
+.login-header h1 { margin: 0; color: var(--primary); font-size: 1.75rem; }
+.login-header p { margin: 4px 0 0; color: var(--text-muted); font-size: 0.9rem; }
+.login-form .form-group { margin-bottom: 16px; }
+.login-form label { display: block; margin-bottom: 6px; font-weight: 500; font-size: 0.875rem; }
+.login-form input { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 1rem; }
+.login-form input:focus { outline: none; border-color: var(--primary); }
+.error-message { color: var(--error); font-size: 0.875rem; margin-bottom: 12px; }
+.btn { padding: 10px 20px; border: none; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; width: 100%; }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover:not(:disabled) { background: var(--primary-light); }
+.btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
+
+/* Dashboard layout */
+.dash-wrap { display: flex; min-height: 100vh; }
+.sidebar { width: var(--sidebar-width); background: var(--primary); color: #fff; flex-shrink: 0; }
+.sidebar-brand { padding: 20px; font-weight: 700; font-size: 1.1rem; border-bottom: 1px solid rgba(255,255,255,.1); }
+.sidebar-nav { padding: 12px 0; }
+.sidebar-nav a { display: block; padding: 12px 20px; color: rgba(255,255,255,.85); text-decoration: none; font-size: 0.9rem; }
+.sidebar-nav a:hover { background: rgba(255,255,255,.1); color: #fff; }
+.sidebar-nav a.active { background: var(--accent); color: #1a472a; font-weight: 500; }
+.main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.navbar { height: 56px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; }
+.navbar h2 { margin: 0; font-size: 1.15rem; font-weight: 600; }
+.navbar-right { display: flex; align-items: center; gap: 12px; }
+.navbar-right .user { font-size: 0.875rem; color: var(--text-muted); }
+.navbar-right .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.875rem; }
+.navbar-right .btn-outline:hover { background: var(--bg); }
+.content { flex: 1; padding: 24px; overflow-auto; }
+
+/* KPI cards */
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin-bottom: 24px; }
+.kpi-card { background: var(--card); border-radius: 10px; padding: 20px; border: 1px solid var(--border); }
+.kpi-card .label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.02em; margin-bottom: 4px; }
+.kpi-card .value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+
+/* Chart */
+.chart-card { background: var(--card); border-radius: 10px; padding: 20px; border: 1px solid var(--border); margin-bottom: 24px; }
+.chart-card h3 { margin: 0 0 16px; font-size: 1rem; }
+.chart-placeholder { height: 240px; display: flex; align-items: flex-end; gap: 4px; padding: 16px 0; }
+.chart-bar { flex: 1; min-width: 8px; background: var(--primary); border-radius: 4px 4px 0 0; transition: height .2s; }
+
+/* Tables */
+.table-card { background: var(--card); border-radius: 10px; border: 1px solid var(--border); overflow: hidden; }
+.table-card h3 { margin: 0; padding: 16px 20px; font-size: 1rem; border-bottom: 1px solid var(--border); }
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+th, td { padding: 12px 20px; text-align: left; border-bottom: 1px solid var(--border); }
+th { background: var(--bg); font-weight: 600; color: var(--text-muted); }
+tr:hover { background: var(--bg); }
+.pagination { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-top: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
+.pagination .info { color: var(--text-muted); font-size: 0.875rem; }
+.pagination .pages { display: flex; gap: 4px; }
+.pagination button { padding: 6px 12px; border: 1px solid var(--border); background: var(--card); border-radius: 6px; cursor: pointer; font-size: 0.875rem; }
+.pagination button:hover:not(:disabled) { background: var(--bg); }
+.pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+.pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* Filters */
+.filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 16px; }
+.filters input, .filters select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.875rem; }
+.filters .btn-sm { padding: 8px 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; }
+.filters .btn-sm:hover { background: var(--primary-light); }
+
+/* Views */
+.view { display: none; }
+.view.active { display: block; }
+.loading { text-align: center; padding: 40px; color: var(--text-muted); }
+.empty { text-align: center; padding: 40px; color: var(--text-muted); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dash-wrap { flex-direction: column; }
+  .sidebar { width: 100%; display: flex; flex-wrap: wrap; }
+  .sidebar-brand { width: 100%; }
+  .sidebar-nav { display: flex; flex-wrap: wrap; gap: 0; }
+  .sidebar-nav a { flex: 1 1 auto; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+}
