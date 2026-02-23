@@ -4,6 +4,7 @@ const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 
+const { ensureDb } = require('./config/ensureDb');
 const earlyAccessRoutes = require('./routes/earlyAccess');
 const consultationRoutes = require('./routes/consultation');
 const adminAuthRoutes = require('./routes/adminAuth');
@@ -28,6 +29,15 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(PORT, () => {
-  console.log(`FitChef.fit server running on port ${PORT}`);
-});
+ensureDb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`FitChef.fit server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('DB setup failed:', err.message);
+    app.listen(PORT, () => {
+      console.log(`FitChef.fit server running on port ${PORT} (DB may need DATABASE_URL)`);
+    });
+  });

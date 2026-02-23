@@ -1,0 +1,33 @@
+# FitChef.fit – Render Blueprint
+# Deploy: Dashboard → New → Blueprint → Connect repo → Select this file
+# Docs: https://render.com/docs/blueprint-spec
+
+databases:
+  - name: fitchef-db
+    databaseName: fitchef_db
+    user: fitchef
+    plan: free
+
+services:
+  - type: web
+    name: fitchef-fit
+    runtime: node
+    plan: free
+
+    buildCommand: npm install
+    startCommand: npm start
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fitchef-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      # Optional: set in Dashboard after first deploy for custom admin
+      # - key: INITIAL_ADMIN_EMAIL
+      #   sync: false
+      # - key: INITIAL_ADMIN_PASSWORD
+      #   sync: false
