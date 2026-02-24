@@ -115,28 +115,6 @@ body {
 }
 .btn-primary:active:not(:disabled) { transform: scale(0.99); }
 .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
-.login-whatsapp { margin: 16px 0 0; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
-.login-whatsapp a { color: #25d366; text-decoration: none; font-weight: 500; }
-.login-whatsapp a:hover { text-decoration: underline; }
-.whatsapp-fab {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  z-index: 9998;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background: #25d366;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.45);
-  text-decoration: none;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.whatsapp-fab:hover { transform: scale(1.06); box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5); }
-.whatsapp-fab-icon svg { width: 28px; height: 28px; }
 
 /* ========== Dashboard layout ========== */
 .dash-wrap {
