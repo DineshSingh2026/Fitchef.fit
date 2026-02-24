@@ -1,5 +1,6 @@
 const pool = require('../../config/database');
 
+/** List all user_orders with current status (optional status filter). */
 async function list(req, res) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
@@ -7,28 +8,23 @@ async function list(req, res) {
     const offset = (page - 1) * limit;
     const status = req.query.status ? String(req.query.status).trim() : null;
 
-    let where = '';
     const params = [limit, offset];
+    let where = ' FROM user_orders o INNER JOIN site_users u ON u.id = o.user_id LEFT JOIN chefs ch ON ch.id = o.chef_id';
     if (status) {
-      where = ' WHERE o.status = $3';
+      where += ' WHERE o.status = $3';
       params.push(status);
     }
-    const countParams = status ? [status] : [];
     const countWhere = status ? ' WHERE o.status = $1' : '';
     const countResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM admin_orders o ${countWhere}`,
-      countParams
+      `SELECT COUNT(*) AS total FROM user_orders o ${countWhere}`,
+      status ? [status] : []
     );
     const total = parseInt(countResult.rows[0].total, 10);
 
     const result = await pool.query(
-      `SELECT o.id, o.order_number, o.customer_id, o.chef_id, o.status, o.total_amount,
-              o.order_date, o.delivery_date, o.notes, o.created_at,
-              c.full_name AS customer_name, c.email AS customer_email,
-              ch.full_name AS chef_name
-       FROM admin_orders o
-       LEFT JOIN admin_customers c ON c.id = o.customer_id
-       LEFT JOIN admin_chefs ch ON ch.id = o.chef_id
+      `SELECT o.id, o.status, o.total_amount, o.created_at,
+              COALESCE(u.full_name, 'Customer') AS customer_name, u.email AS customer_email,
+              ch.name AS chef_name
        ${where}
        ORDER BY o.created_at DESC
        LIMIT $1 OFFSET $2`,

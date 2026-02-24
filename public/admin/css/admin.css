@@ -660,6 +660,15 @@ tr:last-child td { border-bottom: none; }
   .dish-form-modal .form-grid-3 { grid-template-columns: 1fr; }
   .navbar-right { flex-shrink: 0; min-width: 0; }
   .navbar-right .user { max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  /* Notification dropdown: right-align on mobile so it doesn't overlap title/user */
+  .nav-notif-dropdown {
+    position: fixed !important;
+    top: 56px !important;
+    right: 12px !important;
+    left: auto !important;
+    width: min(320px, calc(100vw - 24px)) !important;
+    margin-top: 0 !important;
+  }
 }
 
 @media (max-width: 480px) {

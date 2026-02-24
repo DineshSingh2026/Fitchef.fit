@@ -6,6 +6,14 @@
   var API_USER = API_BASE + '/api/user';
   var API_DISHES = API_BASE + '/api/dishes';
 
+  function dishImageSrc(url) {
+    if (!url || !String(url).trim()) return '';
+    var p = String(url).trim();
+    if (p.indexOf('http://') === 0 || p.indexOf('https://') === 0) return p;
+    var path = p.indexOf('/') === 0 ? p : '/' + p;
+    return (window.location.origin || '') + path;
+  }
+
   function getToken() { return localStorage.getItem(TOKEN_KEY); }
   function getAuthHeaders() {
     var t = getToken();
@@ -18,7 +26,7 @@
     var price = d.discount_price != null ? d.discount_price : d.base_price;
     var meta = [d.category || '', (d.calories != null ? d.calories + ' kcal' : ''), (d.protein != null ? 'P ' + d.protein + 'g' : ''), (d.carbs != null ? 'C ' + d.carbs + 'g' : ''), (d.fats != null ? 'F ' + d.fats + 'g' : '')].filter(Boolean).join(' · ');
     return '<div class="dish-card">' +
-      '<img class="dish-card-image" src="' + (d.image_url || '') + '" alt="" onerror="this.style.display=\'none\'">' +
+      '<img class="dish-card-image" src="' + dishImageSrc(d.image_url) + '" alt="" onerror="this.style.display=\'none\'">' +
       '<div class="dish-card-body">' +
       '<h3 class="dish-card-title">' + (d.name || '') + '</h3>' +
       '<p class="dish-card-meta">' + meta + '</p>' +
@@ -330,7 +338,7 @@
       if (d.fiber != null) macros.push('Fiber ' + d.fiber + 'g');
       if (d.sugar != null) macros.push('Sugar ' + d.sugar + 'g');
       if (d.sodium != null) macros.push('Sodium ' + d.sodium + 'mg');
-      var html = (d.image_url ? '<img class="dish-detail-image" src="' + d.image_url + '" alt="">' : '') +
+      var html = (d.image_url ? '<img class="dish-detail-image" src="' + dishImageSrc(d.image_url) + '" alt="">' : '') +
         '<div class="dish-detail-body"><h3 class="dish-detail-title">' + (d.name || '') + '</h3><p class="dish-detail-meta">' + (d.category || '') + (d.portion_size ? ' · ' + d.portion_size : '') + '</p>' +
         (macros.length ? '<div class="dish-detail-macros">' + macros.map(function (m) { return '<span>' + m + '</span>'; }).join('') + '</div>' : '') +
         (d.description ? '<p class="dish-detail-description">' + (d.description || '').replace(/</g, '&lt;') + '</p>' : '') +

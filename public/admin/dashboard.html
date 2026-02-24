@@ -59,15 +59,16 @@
             <div class="chart-placeholder" id="revenueChart"></div>
           </div>
         </div>
-        <!-- Orders -->
+        <!-- Orders: all user orders with current status -->
         <div id="view-orders" class="view">
           <div class="filters">
-            <select id="ordersStatus"><option value="">All statuses</option><option value="pending">Pending</option><option value="confirmed">Confirmed</option><option value="delivered">Delivered</option><option value="cancelled">Cancelled</option></select>
+            <select id="ordersStatus"><option value="">All statuses</option><option value="Open">Open</option><option value="Confirmed">Confirmed</option><option value="Ready for Dispatch">Ready for Dispatch</option><option value="Out for Delivery">Out for Delivery</option><option value="Delivered">Delivered</option></select>
             <button type="button" class="btn-sm" id="ordersFilterBtn">Apply</button>
           </div>
           <div class="table-card">
             <h3>Orders</h3>
-            <div class="table-wrap"><table><thead><tr><th>Order #</th><th>Customer</th><th>Chef</th><th>Status</th><th>Amount</th><th>Date</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+            <p class="table-hint">All orders with current status.</p>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Chef</th><th>Status</th><th>Amount</th><th>Date</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
             <div class="pagination" id="ordersPagination"></div>
           </div>
         </div>
@@ -286,6 +287,13 @@
   <script>
 (function() {
   var API = (typeof API_BASE !== 'undefined' ? API_BASE : '') + '/api/admin';
+  function dishImageSrc(url) {
+    if (!url || !String(url).trim()) return '';
+    var p = String(url).trim();
+    if (p.indexOf('http://') === 0 || p.indexOf('https://') === 0) return p;
+    var path = p.indexOf('/') === 0 ? p : '/' + p;
+    return (window.location.origin || '') + path;
+  }
   var token = localStorage.getItem('adminToken');
   if (!token) { window.location.href = 'index.html'; return; }
   var user = JSON.parse(localStorage.getItem('adminUser') || '{}');
@@ -343,8 +351,18 @@
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
     document.getElementById('viewTitle').textContent = titles[name] || 'Dashboard';
-    if (name === 'overview') loadOverview();
-    else if (name === 'orders') loadOrders();
+    if (name === 'overview') {
+      var orderModal = document.getElementById('openOrderDetailModal');
+      if (orderModal) { orderModal.classList.remove('open'); orderModal.setAttribute('aria-hidden', 'true'); }
+      openOrderDetailId = null;
+      loadOverview();
+    }
+    else if (name === 'orders') {
+      var orderModal = document.getElementById('openOrderDetailModal');
+      if (orderModal) { orderModal.classList.remove('open'); orderModal.setAttribute('aria-hidden', 'true'); }
+      openOrderDetailId = null;
+      loadOrders();
+    }
     else if (name === 'openOrders') { loadOpenOrders(); updateAdminNotifBadge(); }
     else if (name === 'chefs') loadChefs();
     else if (name === 'logistics') loadLogistics();
@@ -360,8 +378,8 @@
     fetch(API + '/dashboard/kpis', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
       var g = document.getElementById('kpiGrid');
       g.innerHTML = '';
-      ['total_orders', 'total_revenue', 'active_users', 'total_customers', 'total_chefs', 'new_leads', 'pending_deliveries'].forEach(function(k) {
-        var labels = { total_orders: 'Orders', total_revenue: 'Revenue (₹)', active_users: 'Active users', total_customers: 'Customers', total_chefs: 'Chefs', new_leads: 'New leads', pending_deliveries: 'Pending deliveries' };
+      ['total_orders', 'total_revenue', 'active_users', 'total_chefs', 'pending_deliveries', 'completed_deliveries'].forEach(function(k) {
+        var labels = { total_orders: 'Orders', total_revenue: 'Revenue (₹)', active_users: 'Active users', total_chefs: 'Chefs', pending_deliveries: 'Pending deliveries', completed_deliveries: 'Completed deliveries' };
         var v = k === 'total_revenue' ? (Number(d[k]) || 0).toFixed(2) : (d[k] || 0);
         g.innerHTML += '<div class="kpi-card"><div class="label">' + labels[k] + '</div><div class="value">' + v + '</div></div>';
       });
@@ -386,7 +404,9 @@
       var body = document.getElementById('ordersBody');
       if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="6" class="empty">No orders</td></tr>'; }
       else body.innerHTML = res.data.map(function(o) {
-        return '<tr><td>' + (o.order_number || '') + '</td><td>' + (o.customer_name || '-') + '</td><td>' + (o.chef_name || '-') + '</td><td>' + (o.status || '') + '</td><td>' + (o.total_amount != null ? o.total_amount : '-') + '</td><td>' + (o.order_date || '') + '</td></tr>';
+        var dateStr = o.created_at ? new Date(o.created_at).toLocaleString() : '-';
+        var amt = o.total_amount != null ? Number(o.total_amount).toFixed(2) : '-';
+        return '<tr><td>' + (o.id || '-') + '</td><td>' + (o.customer_name || '-') + '</td><td>' + (o.chef_name || '-') + '</td><td>' + (o.status || '') + '</td><td>' + amt + '</td><td>' + dateStr + '</td></tr>';
       }).join('');
       renderPagination('ordersPagination', ordersPage, res.total || 0, ordersLimit, function(p) { ordersPage = p; loadOrders(); });
     }).catch(function() { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="6" class="loading">Error loading orders</td></tr>'; });
@@ -620,7 +640,7 @@
       if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="9" class="empty">No dishes yet. Add your first dish.</td></tr>'; }
       else {
         body.innerHTML = res.data.map(function(d) {
-          var img = d.image_url ? '<img src="' + d.image_url + '" alt="" class="dish-thumb">' : '<span class="dish-thumb-placeholder">—</span>';
+          var img = d.image_url ? '<img src="' + dishImageSrc(d.image_url) + '" alt="" class="dish-thumb">' : '<span class="dish-thumb-placeholder">—</span>';
           var price = d.discount_price != null && d.discount_price > 0 ? '<span class="discount-price">₹' + d.base_price + '</span> ₹' + d.discount_price : '₹' + (d.base_price != null ? d.base_price : '0');
           var status = d.available ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-inactive">Inactive</span>';
           var feat = d.featured ? '<span class="status-badge status-featured">Featured</span>' : '<span class="status-muted">—</span>';
@@ -667,7 +687,7 @@
         document.getElementById('dishFeatured').checked = d.featured === true;
         var allergens = (d.allergens || '').split(/[,\s]+/).filter(Boolean);
         document.querySelectorAll('#dishForm input[name="allergen"]').forEach(function(cb) { cb.checked = allergens.indexOf(cb.value) !== -1; });
-        if (d.image_url) document.getElementById('dishImagePreview').innerHTML = '<img src="' + d.image_url + '" alt="Current">';
+        if (d.image_url) document.getElementById('dishImagePreview').innerHTML = '<img src="' + dishImageSrc(d.image_url) + '" alt="Current">';
         showDishFormModal();
       }).catch(function() { showDishFormModal(); });
     } else { showDishFormModal(); }

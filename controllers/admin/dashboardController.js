@@ -6,27 +6,24 @@ async function getKpis(req, res) {
       ordersCount,
       ordersRevenue,
       activeUsersCount,
-      customersCount,
       chefsCount,
-      leadsCount,
-      deliveriesPending,
+      pendingDeliveries,
+      completedDeliveries,
     ] = await Promise.all([
       pool.query('SELECT COUNT(*) AS c FROM user_orders'),
       pool.query("SELECT COALESCE(SUM(total_amount), 0)::numeric AS total FROM user_orders WHERE status = 'Confirmed' AND admin_approved = true"),
       pool.query('SELECT COUNT(*) AS c FROM site_users'),
-      pool.query('SELECT COUNT(*) AS c FROM admin_customers'),
       pool.query("SELECT COUNT(*) AS c FROM admin_chefs WHERE status = 'active'"),
-      pool.query("SELECT COUNT(*) AS c FROM admin_leads WHERE status = 'new'"),
-      pool.query("SELECT COUNT(*) AS c FROM admin_deliveries WHERE status IN ('scheduled', 'in_transit')"),
+      pool.query("SELECT COUNT(*) AS c FROM user_orders WHERE status = 'Ready for Dispatch'"),
+      pool.query("SELECT COUNT(*) AS c FROM user_orders WHERE status = 'Delivered'"),
     ]);
     res.json({
       total_orders: parseInt(ordersCount.rows[0].c, 10),
       total_revenue: parseFloat(ordersRevenue.rows[0].total),
       active_users: parseInt(activeUsersCount.rows[0].c, 10),
-      total_customers: parseInt(customersCount.rows[0].c, 10),
       total_chefs: parseInt(chefsCount.rows[0].c, 10),
-      new_leads: parseInt(leadsCount.rows[0].c, 10),
-      pending_deliveries: parseInt(deliveriesPending.rows[0].c, 10),
+      pending_deliveries: parseInt(pendingDeliveries.rows[0].c, 10),
+      completed_deliveries: parseInt(completedDeliveries.rows[0].c, 10),
     });
   } catch (err) {
     console.error('Dashboard KPIs error:', err);

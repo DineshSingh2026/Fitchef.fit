@@ -271,6 +271,15 @@ body {
   .form-grid-2 { grid-template-columns: 1fr; }
   .dish-grid { grid-template-columns: 1fr; }
   .filters input, .filters select { flex: 1 1 auto; min-width: 0; }
+  /* Notification dropdown: right-align on mobile so it doesn't overlap title/user */
+  .nav-notif-dropdown {
+    position: fixed !important;
+    top: 56px !important;
+    right: 12px !important;
+    left: auto !important;
+    width: min(320px, calc(100vw - 24px)) !important;
+    margin-top: 0 !important;
+  }
 }
 
 @media (max-width: 480px) {
