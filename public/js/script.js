@@ -115,6 +115,39 @@
     return window.location.origin;
   }
 
+  /** Themed popup (success/info/error) – dark + gold, matches site. Options: { title, message, type: 'success'|'error'|'info' }. */
+  function showPopup(options) {
+    var overlay = document.getElementById('theme-popup');
+    var titleEl = document.getElementById('popup-title');
+    var messageEl = document.getElementById('popup-message');
+    var iconEl = document.getElementById('popup-icon');
+    var okBtn = document.getElementById('popup-ok');
+    if (!overlay || !titleEl || !messageEl || !iconEl || !okBtn) return;
+    var title = (options && options.title) || 'Done';
+    var message = (options && options.message) || '';
+    var type = (options && options.type) || 'success';
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    iconEl.className = 'popup-icon ' + type;
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    function closePopup() {
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+    okBtn.onclick = closePopup;
+    overlay.querySelector('.popup-backdrop').onclick = closePopup;
+    document.addEventListener('keydown', function onEsc(e) {
+      if (e.key === 'Escape') {
+        closePopup();
+        document.removeEventListener('keydown', onEsc);
+      }
+    });
+  }
+  window.fitchefShowPopup = showPopup;
+
   function initEarlyAccessForm() {
     var form = document.getElementById('early-access-form');
     var emailInput = document.getElementById('email');
@@ -172,8 +205,12 @@
           var data = _ref.data;
 
           if (ok && data.success) {
-            setMessage("You're on the list. Welcome to refined wellness.", false);
             emailInput.value = '';
+            showPopup({
+              title: "You're on the list!",
+              message: "Welcome to refined wellness. We'll be in touch soon.",
+              type: 'success'
+            });
           } else if (data.message) {
             setMessage(data.message, !data.success);
           } else {
@@ -361,7 +398,6 @@
           var ok = _ref.ok;
           var data = _ref.data;
           if (ok && data.success) {
-            setMessage('Thank you. Your culinary consultation has been received.', false);
             form.reset();
             var modal = document.getElementById('consultation-modal');
             if (modal) {
@@ -369,6 +405,11 @@
               modal.setAttribute('aria-hidden', 'true');
               document.body.style.overflow = '';
             }
+            showPopup({
+              title: 'Thank you!',
+              message: 'Your culinary consultation has been received. We will get back to you soon.',
+              type: 'success'
+            });
           } else {
             setMessage(data.message || 'Something went wrong. Please try again.', true);
           }
@@ -650,12 +691,13 @@
           .then(function (r) { return r.json(); })
           .then(function (data) {
             if (data.success) {
-              if (msgEl) msgEl.textContent = data.message || 'Signup successful. Your account is waiting for admin approval.';
-              if (msgEl) msgEl.className = 'auth-message success';
               signupForm.reset();
-              setTimeout(function() {
-                closeAuthModal(signupModal);
-              }, 1500);
+              closeAuthModal(signupModal);
+              showPopup({
+                title: 'Signup Successful!',
+                message: 'Waiting for Admin approval. You will be able to log in once approved. For instant approval, reach out to Admin on WhatsApp.',
+                type: 'success'
+              });
             } else {
               if (msgEl) msgEl.textContent = data.message || 'Sign up failed.';
               if (msgEl) msgEl.className = 'auth-message error';

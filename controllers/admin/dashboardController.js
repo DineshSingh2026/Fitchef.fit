@@ -5,14 +5,16 @@ async function getKpis(req, res) {
     const [
       ordersCount,
       ordersRevenue,
+      activeUsersCount,
       customersCount,
       chefsCount,
       leadsCount,
       deliveriesPending,
     ] = await Promise.all([
-      pool.query("SELECT COUNT(*) AS c FROM admin_orders"),
-      pool.query("SELECT COALESCE(SUM(total_amount), 0)::numeric AS total FROM admin_orders WHERE status != 'cancelled'"),
-      pool.query("SELECT COUNT(*) AS c FROM admin_customers"),
+      pool.query('SELECT COUNT(*) AS c FROM user_orders'),
+      pool.query("SELECT COALESCE(SUM(total_amount), 0)::numeric AS total FROM user_orders WHERE status = 'Confirmed' AND admin_approved = true"),
+      pool.query('SELECT COUNT(*) AS c FROM site_users'),
+      pool.query('SELECT COUNT(*) AS c FROM admin_customers'),
       pool.query("SELECT COUNT(*) AS c FROM admin_chefs WHERE status = 'active'"),
       pool.query("SELECT COUNT(*) AS c FROM admin_leads WHERE status = 'new'"),
       pool.query("SELECT COUNT(*) AS c FROM admin_deliveries WHERE status IN ('scheduled', 'in_transit')"),
@@ -20,6 +22,7 @@ async function getKpis(req, res) {
     res.json({
       total_orders: parseInt(ordersCount.rows[0].c, 10),
       total_revenue: parseFloat(ordersRevenue.rows[0].total),
+      active_users: parseInt(activeUsersCount.rows[0].c, 10),
       total_customers: parseInt(customersCount.rows[0].c, 10),
       total_chefs: parseInt(chefsCount.rows[0].c, 10),
       new_leads: parseInt(leadsCount.rows[0].c, 10),
@@ -35,10 +38,10 @@ async function getRevenueChart(req, res) {
   try {
     const { period = '30' } = req.query; // days
     const result = await pool.query(
-      `SELECT DATE(order_date) AS date, COALESCE(SUM(total_amount), 0)::numeric AS revenue
-       FROM admin_orders
-       WHERE status != 'cancelled' AND order_date >= CURRENT_DATE - $1::integer
-       GROUP BY DATE(order_date)
+      `SELECT DATE(created_at) AS date, COALESCE(SUM(total_amount), 0)::numeric AS revenue
+       FROM user_orders
+       WHERE status = 'Confirmed' AND admin_approved = true AND created_at >= CURRENT_DATE - $1::integer
+       GROUP BY DATE(created_at)
        ORDER BY date`,
       [period]
     );

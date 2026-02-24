@@ -20,9 +20,7 @@
         <a href="#" class="nav-link" data-view="openOrders"><span class="nav-icon" aria-hidden="true">🛒</span>Open Orders</a>
         <a href="#" class="nav-link" data-view="chefs"><span class="nav-icon" aria-hidden="true">👨‍🍳</span>Chefs</a>
         <a href="#" class="nav-link" data-view="logistics"><span class="nav-icon" aria-hidden="true">🚚</span>Logistics</a>
-        <a href="#" class="nav-link" data-view="customers"><span class="nav-icon" aria-hidden="true">👥</span>Customers</a>
         <a href="#" class="nav-link" data-view="dishes"><span class="nav-icon" aria-hidden="true">🍽️</span>Dishes</a>
-        <a href="#" class="nav-link" data-view="leads"><span class="nav-icon" aria-hidden="true">📋</span>Leads</a>
         <a href="#" class="nav-link" data-view="consultations"><span class="nav-icon" aria-hidden="true">📝</span>Consultations</a>
         <a href="#" class="nav-link" data-view="pendingSignups"><span class="nav-icon" aria-hidden="true">⏳</span>Pending Signups</a>
         <a href="#" class="nav-link" data-view="finance"><span class="nav-icon" aria-hidden="true">💰</span>Finance</a>
@@ -94,52 +92,30 @@
             </div>
           </div>
         </div>
-        <!-- Chefs -->
+        <!-- Chefs: Open orders pending at chefs with status -->
         <div id="view-chefs" class="view">
           <div class="filters">
-            <select id="chefsStatus"><option value="">All</option><option value="active">Active</option><option value="inactive">Inactive</option></select>
+            <select id="chefsStatus"><option value="">All</option><option value="Confirmed">Confirmed</option><option value="Ready for Dispatch">Ready for Dispatch</option></select>
             <button type="button" class="btn-sm" id="chefsFilterBtn">Apply</button>
           </div>
           <div class="table-card">
-            <h3>Chefs</h3>
-            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Speciality</th><th>Status</th></tr></thead><tbody id="chefsBody"></tbody></table></div>
+            <h3>Chef open orders</h3>
+            <p class="table-hint">Orders currently with chefs and their present status.</p>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Chef</th><th>Customer</th><th>Status</th><th>Items</th><th>Created</th></tr></thead><tbody id="chefsBody"></tbody></table></div>
             <div class="pagination" id="chefsPagination"></div>
           </div>
         </div>
-        <!-- Logistics -->
+        <!-- Logistics: Out for Delivery & Delivered user orders -->
         <div id="view-logistics" class="view">
           <div class="filters">
-            <select id="logisticsStatus"><option value="">All</option><option value="scheduled">Scheduled</option><option value="in_transit">In transit</option><option value="delivered">Delivered</option></select>
+            <select id="logisticsStatus"><option value="">All</option><option value="Out for Delivery">Out for Delivery</option><option value="Delivered">Delivered</option></select>
             <button type="button" class="btn-sm" id="logisticsFilterBtn">Apply</button>
           </div>
           <div class="table-card">
             <h3>Deliveries</h3>
-            <div class="table-wrap"><table><thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Driver</th><th>Estimated</th></tr></thead><tbody id="logisticsBody"></tbody></table></div>
+            <p class="table-hint">Orders currently out for delivery and delivered orders.</p>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Status</th><th>Driver</th><th>Dispatched</th><th>Delivered</th></tr></thead><tbody id="logisticsBody"></tbody></table></div>
             <div class="pagination" id="logisticsPagination"></div>
-          </div>
-        </div>
-        <!-- Customers -->
-        <div id="view-customers" class="view">
-          <div class="filters">
-            <input type="text" id="customersSearch" placeholder="Search email, name, city">
-            <button type="button" class="btn-sm" id="customersFilterBtn">Search</button>
-          </div>
-          <div class="table-card">
-            <h3>Customers</h3>
-            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Source</th></tr></thead><tbody id="customersBody"></tbody></table></div>
-            <div class="pagination" id="customersPagination"></div>
-          </div>
-        </div>
-        <!-- Leads -->
-        <div id="view-leads" class="view">
-          <div class="filters">
-            <select id="leadsStatus"><option value="">All</option><option value="new">New</option><option value="contacted">Contacted</option><option value="converted">Converted</option></select>
-            <button type="button" class="btn-sm" id="leadsFilterBtn">Apply</button>
-          </div>
-          <div class="table-card">
-            <h3>Leads</h3>
-            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Status</th><th>Created</th></tr></thead><tbody id="leadsBody"></tbody></table></div>
-            <div class="pagination" id="leadsPagination"></div>
           </div>
         </div>
         <!-- Dishes (Dish Management) -->
@@ -343,7 +319,7 @@
   document.addEventListener('click', function(e) { if (adminNotifDropdown && adminNotifDropdown.classList.contains('open') && !e.target.closest('.nav-notif-wrap')) closeAdminNotifDropdown(); });
   updateAdminNotifBadge();
 
-  var titles = { overview: 'Dashboard', orders: 'Orders', openOrders: 'Open Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', dishes: 'Dishes', leads: 'Leads', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
+  var titles = { overview: 'Dashboard', orders: 'Orders', openOrders: 'Open Orders', chefs: 'Chefs', logistics: 'Logistics', dishes: 'Dishes', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
   var sidebarEl = document.getElementById('sidebar');
   var overlayEl = document.getElementById('sidebarOverlay');
   var navbarToggleEl = document.getElementById('navbarToggle');
@@ -372,9 +348,7 @@
     else if (name === 'openOrders') { loadOpenOrders(); updateAdminNotifBadge(); }
     else if (name === 'chefs') loadChefs();
     else if (name === 'logistics') loadLogistics();
-    else if (name === 'customers') loadCustomers();
     else if (name === 'dishes') { loadDishStats(); loadDishes(); }
-    else if (name === 'leads') loadLeads();
     else if (name === 'consultations') loadConsultations();
     else if (name === 'pendingSignups') loadPendingSignups();
     else if (name === 'finance') loadFinance();
@@ -386,8 +360,8 @@
     fetch(API + '/dashboard/kpis', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
       var g = document.getElementById('kpiGrid');
       g.innerHTML = '';
-      ['total_orders', 'total_revenue', 'total_customers', 'total_chefs', 'new_leads', 'pending_deliveries'].forEach(function(k) {
-        var labels = { total_orders: 'Orders', total_revenue: 'Revenue (₹)', total_customers: 'Customers', total_chefs: 'Chefs', new_leads: 'New leads', pending_deliveries: 'Pending deliveries' };
+      ['total_orders', 'total_revenue', 'active_users', 'total_customers', 'total_chefs', 'new_leads', 'pending_deliveries'].forEach(function(k) {
+        var labels = { total_orders: 'Orders', total_revenue: 'Revenue (₹)', active_users: 'Active users', total_customers: 'Customers', total_chefs: 'Chefs', new_leads: 'New leads', pending_deliveries: 'Pending deliveries' };
         var v = k === 'total_revenue' ? (Number(d[k]) || 0).toFixed(2) : (d[k] || 0);
         g.innerHTML += '<div class="kpi-card"><div class="label">' + labels[k] + '</div><div class="value">' + v + '</div></div>';
       });
@@ -460,12 +434,13 @@
   var chefsPage = 1;
   function loadChefs() {
     var status = document.getElementById('chefsStatus').value;
-    var url = API + '/chefs?page=' + chefsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
+    var url = API + '/chefs/open-orders?page=' + chefsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('chefsBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No chefs</td></tr>';
-      else body.innerHTML = res.data.map(function(c) {
-        return '<tr><td>' + (c.full_name || '') + '</td><td>' + (c.email || '') + '</td><td>' + (c.phone || '-') + '</td><td>' + (c.speciality || '-') + '</td><td>' + (c.status || '') + '</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No open orders at chefs</td></tr>';
+      else body.innerHTML = res.data.map(function(o) {
+        var created = o.created_at ? new Date(o.created_at).toLocaleString() : '-';
+        return '<tr><td>' + (o.order_id || '') + '</td><td>' + (o.chef_name || '-') + '</td><td>' + (o.customer_name || '-') + '</td><td>' + (o.status || '') + '</td><td>' + (o.items_summary || '-') + '</td><td>' + created + '</td></tr>';
       }).join('');
       renderPagination('chefsPagination', chefsPage, res.total || 0, 10, function(p) { chefsPage = p; loadChefs(); });
     });
@@ -478,44 +453,16 @@
     var url = API + '/logistics?page=' + logisticsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('logisticsBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No deliveries</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No out-for-delivery or delivered orders</td></tr>';
       else body.innerHTML = res.data.map(function(d) {
-        return '<tr><td>' + (d.order_number || '') + '</td><td>' + (d.customer_name || '-') + '</td><td>' + (d.status || '') + '</td><td>' + (d.driver_name || '-') + '</td><td>' + (d.estimated_at ? new Date(d.estimated_at).toLocaleDateString() : '-') + '</td></tr>';
+        var dispatched = d.dispatch_time ? new Date(d.dispatch_time).toLocaleString() : '-';
+        var delivered = d.delivered_time ? new Date(d.delivered_time).toLocaleString() : '-';
+        return '<tr><td>' + (d.order_id || '') + '</td><td>' + (d.customer_name || '-') + '</td><td>' + (d.status || '') + '</td><td>' + (d.driver_name || '-') + '</td><td>' + dispatched + '</td><td>' + delivered + '</td></tr>';
       }).join('');
       renderPagination('logisticsPagination', logisticsPage, res.total || 0, 10, function(p) { logisticsPage = p; loadLogistics(); });
     });
   }
   document.getElementById('logisticsFilterBtn').addEventListener('click', function() { logisticsPage = 1; loadLogistics(); });
-
-  var customersPage = 1;
-  function loadCustomers() {
-    var search = document.getElementById('customersSearch').value.trim();
-    var url = API + '/customers?page=' + customersPage + '&limit=10' + (search ? '&search=' + encodeURIComponent(search) : '');
-    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
-      var body = document.getElementById('customersBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No customers</td></tr>';
-      else body.innerHTML = res.data.map(function(c) {
-        return '<tr><td>' + (c.full_name || '-') + '</td><td>' + (c.email || '') + '</td><td>' + (c.phone || '-') + '</td><td>' + (c.city || '-') + '</td><td>' + (c.source || '') + '</td></tr>';
-      }).join('');
-      renderPagination('customersPagination', customersPage, res.total || 0, 10, function(p) { customersPage = p; loadCustomers(); });
-    });
-  }
-  document.getElementById('customersFilterBtn').addEventListener('click', function() { customersPage = 1; loadCustomers(); });
-
-  var leadsPage = 1;
-  function loadLeads() {
-    var status = document.getElementById('leadsStatus').value;
-    var url = API + '/leads?page=' + leadsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
-    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
-      var body = document.getElementById('leadsBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No leads</td></tr>';
-      else body.innerHTML = res.data.map(function(l) {
-        return '<tr><td>' + (l.full_name || '-') + '</td><td>' + (l.email || '') + '</td><td>' + (l.source || '') + '</td><td>' + (l.status || '') + '</td><td>' + (l.created_at ? new Date(l.created_at).toLocaleDateString() : '') + '</td></tr>';
-      }).join('');
-      renderPagination('leadsPagination', leadsPage, res.total || 0, 10, function(p) { leadsPage = p; loadLeads(); });
-    });
-  }
-  document.getElementById('leadsFilterBtn').addEventListener('click', function() { leadsPage = 1; loadLeads(); });
 
   var consultationsPage = 1;
   function loadConsultations() {

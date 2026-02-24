@@ -3,6 +3,7 @@ const pool = require('../../config/database');
 async function getAnalytics(req, res) {
   try {
     const { period = '30' } = req.query;
+    const periodDays = Math.max(1, parseInt(period, 10) || 30);
     const [
       revenueByDay,
       paymentMethods,
@@ -11,29 +12,31 @@ async function getAnalytics(req, res) {
       avgOrderValue,
     ] = await Promise.all([
       pool.query(
-        `SELECT DATE(paid_at) AS date, COALESCE(SUM(amount), 0)::numeric AS total
-         FROM admin_payments WHERE status = 'completed' AND paid_at >= CURRENT_DATE - $1::integer
-         GROUP BY DATE(paid_at) ORDER BY date`,
-        [period]
+        `SELECT DATE(created_at) AS date, COALESCE(SUM(total_amount), 0)::numeric AS total
+         FROM user_orders
+         WHERE status = 'Confirmed' AND admin_approved = true AND created_at >= CURRENT_DATE - $1::integer
+         GROUP BY DATE(created_at) ORDER BY date`,
+        [periodDays]
       ),
       pool.query(
         `SELECT method, COALESCE(SUM(amount), 0)::numeric AS total, COUNT(*) AS count
          FROM admin_payments WHERE status = 'completed' AND paid_at >= CURRENT_DATE - $1::integer
          GROUP BY method`,
-        [period]
+        [periodDays]
       ),
       pool.query(
-        "SELECT COALESCE(SUM(amount), 0)::numeric AS total FROM admin_payments WHERE status = 'completed' AND paid_at >= CURRENT_DATE - $1::integer",
-        [period]
+        `SELECT COALESCE(SUM(total_amount), 0)::numeric AS total FROM user_orders
+         WHERE status = 'Confirmed' AND admin_approved = true AND created_at >= CURRENT_DATE - $1::integer`,
+        [periodDays]
       ),
       pool.query(
-        "SELECT COUNT(*) AS c FROM admin_orders WHERE status != 'cancelled' AND order_date >= CURRENT_DATE - $1::integer",
-        [period]
+        'SELECT COUNT(*) AS c FROM user_orders WHERE created_at >= CURRENT_DATE - $1::integer',
+        [periodDays]
       ),
       pool.query(
-        `SELECT COALESCE(AVG(total_amount), 0)::numeric AS avg
-         FROM admin_orders WHERE status != 'cancelled' AND order_date >= CURRENT_DATE - $1::integer`,
-        [period]
+        `SELECT COALESCE(AVG(total_amount), 0)::numeric AS avg FROM user_orders
+         WHERE status = 'Confirmed' AND admin_approved = true AND created_at >= CURRENT_DATE - $1::integer`,
+        [periodDays]
       ),
     ]);
     res.json({
@@ -46,7 +49,7 @@ async function getAnalytics(req, res) {
       total_revenue: parseFloat(totalRevenue.rows[0].total),
       total_orders: parseInt(totalOrders.rows[0].c, 10),
       avg_order_value: parseFloat(avgOrderValue.rows[0].avg),
-      period_days: parseInt(period, 10),
+      period_days: periodDays,
     });
   } catch (err) {
     console.error('Finance analytics error:', err);

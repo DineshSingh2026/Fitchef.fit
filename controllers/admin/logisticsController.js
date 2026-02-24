@@ -1,31 +1,35 @@
 const pool = require('../../config/database');
 
+/** List user_orders with status 'Out for Delivery' or 'Delivered' for admin logistics view. */
 async function list(req, res) {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = Math.min(50, Math.max(1, parseInt(req.query.limit, 10) || 10));
     const offset = (page - 1) * limit;
     const status = req.query.status ? String(req.query.status).trim() : null;
+    const statusFilter = status && ['Out for Delivery', 'Delivered'].includes(status) ? status : null;
     const params = [limit, offset];
-    let where = '';
-    if (status) {
-      where = ' WHERE d.status = $3';
-      params.push(status);
+    let where = " WHERE o.status IN ('Out for Delivery', 'Delivered')";
+    if (statusFilter) {
+      where += ' AND o.status = $3';
+      params.push(statusFilter);
     }
-    const countWhere = status ? ' WHERE d.status = $1' : '';
     const countResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM admin_deliveries d ${countWhere}`,
-      status ? [status] : []
+      statusFilter
+        ? `SELECT COUNT(*) AS total FROM user_orders o WHERE o.status = $1`
+        : `SELECT COUNT(*) AS total FROM user_orders o WHERE o.status IN ('Out for Delivery', 'Delivered')`,
+      statusFilter ? [statusFilter] : []
     );
     const total = parseInt(countResult.rows[0].total, 10);
     const result = await pool.query(
-      `SELECT d.*, o.order_number, o.order_date, o.total_amount, o.status AS order_status,
-              c.full_name AS customer_name, c.email AS customer_email
-       FROM admin_deliveries d
-       JOIN admin_orders o ON o.id = d.order_id
-       LEFT JOIN admin_customers c ON c.id = o.customer_id
+      `SELECT o.id AS order_id, o.status, o.total_amount, o.created_at, o.dispatch_time, o.delivered_time,
+              COALESCE(u.full_name, 'Customer') AS customer_name, u.email AS customer_email,
+              a.name AS driver_name
+       FROM user_orders o
+       INNER JOIN site_users u ON u.id = o.user_id
+       LEFT JOIN delivery_agents a ON a.id = o.assigned_agent_id
        ${where}
-       ORDER BY d.created_at DESC
+       ORDER BY o.delivered_time DESC NULLS LAST, o.dispatch_time DESC NULLS LAST, o.created_at DESC
        LIMIT $1 OFFSET $2`,
       params
     );
@@ -36,20 +40,22 @@ async function list(req, res) {
   }
 }
 
+/** Get one user_order (by order id) for logistics detail. */
 async function getOne(req, res) {
   try {
-    const id = parseInt(req.params.id, 10);
-    if (isNaN(id)) return res.status(400).json({ error: 'Invalid delivery id' });
+    const id = req.params.id;
     const result = await pool.query(
-      `SELECT d.*, o.order_number, o.order_date, o.total_amount, o.status AS order_status,
-              c.full_name AS customer_name, c.email AS customer_email, c.phone AS customer_phone
-       FROM admin_deliveries d
-       JOIN admin_orders o ON o.id = d.order_id
-       LEFT JOIN admin_customers c ON c.id = o.customer_id
-       WHERE d.id = $1`,
+      `SELECT o.id AS order_id, o.status, o.total_amount, o.created_at, o.dispatch_time, o.delivered_time,
+              o.delivery_address, o.delivery_instructions,
+              COALESCE(u.full_name, 'Customer') AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
+              a.name AS driver_name, a.mobile AS driver_phone
+       FROM user_orders o
+       INNER JOIN site_users u ON u.id = o.user_id
+       LEFT JOIN delivery_agents a ON a.id = o.assigned_agent_id
+       WHERE o.id = $1 AND o.status IN ('Out for Delivery', 'Delivered')`,
       [id]
     );
-    if (result.rows.length === 0) return res.status(404).json({ error: 'Delivery not found' });
+    if (result.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
     res.json(result.rows[0]);
   } catch (err) {
     console.error('Delivery get error:', err);

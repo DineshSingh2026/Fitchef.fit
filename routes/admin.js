@@ -37,6 +37,7 @@ router.get('/chefs-for-assign', userOrdersController.listChefsForAssign);
 
 // Chefs
 router.get('/chefs', chefsController.list);
+router.get('/chefs/open-orders', chefsController.listOpenOrders);
 router.get('/chefs/:id', chefsController.getOne);
 router.post('/chefs', chefsController.create);
 router.patch('/chefs/:id', chefsController.update);
