@@ -58,6 +58,14 @@
             <h3>Revenue (last 30 days)</h3>
             <div class="chart-placeholder" id="revenueChart"></div>
           </div>
+          <div class="table-card overview-open-orders-card">
+            <h3>Order details</h3>
+            <p class="table-hint">Recent open orders awaiting confirmation.</p>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>User</th><th>Amount</th><th>Delivery date</th><th>Date</th><th></th></tr></thead><tbody id="overviewOpenOrdersBody"></tbody></table></div>
+            <div class="overview-open-orders-actions" style="margin-top:16px">
+              <button type="button" class="btn-sm btn-primary" id="overviewConfirmOrderBtn">Confirm Order / View Open Orders</button>
+            </div>
+          </div>
         </div>
         <!-- Orders: all user orders with current status -->
         <div id="view-orders" class="view">
@@ -393,7 +401,25 @@
         return '<div class="chart-bar" style="height:' + h + '%" title="' + x.date + ': ' + x.revenue + '"></div>';
       }).join('');
     }).catch(function() { document.getElementById('revenueChart').innerHTML = '<div class="empty">Failed to load chart</div>'; });
+    fetch(API + '/open-orders?status=Open&page=1&limit=5', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('overviewOpenOrdersBody');
+      if (!body) return;
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No open orders</td></tr>';
+      else body.innerHTML = res.data.map(function(o) {
+        var date = o.created_at ? new Date(o.created_at).toLocaleString() : '';
+        var deliveryStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '-';
+        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td>' + deliveryStr + '</td><td>' + date + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
+      }).join('');
+      body.querySelectorAll('.view-open-order-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { openOpenOrderDetail(btn.getAttribute('data-id')); });
+      });
+    }).catch(function() {
+      var body = document.getElementById('overviewOpenOrdersBody');
+      if (body) body.innerHTML = '<tr><td colspan="6" class="loading">Error loading open orders</td></tr>';
+    });
   }
+  var overviewConfirmBtn = document.getElementById('overviewConfirmOrderBtn');
+  if (overviewConfirmBtn) overviewConfirmBtn.addEventListener('click', function() { switchView('openOrders'); });
 
   var ordersPage = 1, ordersTotal = 0, ordersLimit = 10;
   function loadOrders() {

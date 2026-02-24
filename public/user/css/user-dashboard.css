@@ -99,7 +99,7 @@ body {
 .btn-primary:hover:not(:disabled) { background: var(--primary-light); }
 .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
-.content { flex: 1; padding: 24px; overflow-x: hidden; overflow-y: auto; min-width: 0; max-width: 100%; width: 100%; }
+.content { flex: 1; padding: 20px 24px; overflow-x: hidden; overflow-y: auto; min-width: 0; max-width: 100%; width: 100%; }
 .view { display: none; }
 .view.active { display: block; }
 
@@ -117,23 +117,26 @@ body {
 .stat-card .label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; font-weight: 600; }
 .stat-card .value { font-size: 1.75rem; font-weight: 700; color: var(--primary-mid); }
 .section-title { font-size: 1rem; font-weight: 600; margin: 24px 0 12px; color: var(--text); }
-.meal-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
-
-/* Web: use horizontal space so recommended dishes fit without scrolling */
-@media (min-width: 769px) {
-  .meal-cards {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 20px;
-  }
-  .meal-cards .dish-card-image { height: 140px; }
-  .meal-cards .dish-card-body { padding: 14px; }
-  .meal-cards .dish-card-title { font-size: 1rem; margin-bottom: 6px; }
-  .meal-cards .dish-card-meta { font-size: 0.75rem; margin-bottom: 6px; }
-  .meal-cards .dish-card-benefits { font-size: 0.8rem; max-height: 2.4em; margin-bottom: 10px; }
-  .meal-cards .dish-card-footer { gap: 8px; }
-  .meal-cards .dish-card-actions .btn-outline,
-  .meal-cards .dish-card-actions .btn-primary { padding: 8px 14px; font-size: 0.85rem; }
+/* 3 per row on desktop to avoid vertical scroll and use space */
+.meal-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
 }
+@media (min-width: 600px) {
+  .meal-cards { grid-template-columns: repeat(2, 1fr); gap: 16px; }
+}
+@media (min-width: 960px) {
+  .meal-cards { grid-template-columns: repeat(3, 1fr); gap: 18px; }
+}
+.meal-cards .dish-card-image { height: 140px; }
+.meal-cards .dish-card-body { padding: 12px 14px; }
+.meal-cards .dish-card-title { font-size: 0.98rem; margin-bottom: 6px; }
+.meal-cards .dish-card-meta { font-size: 0.75rem; margin-bottom: 6px; }
+.meal-cards .dish-card-benefits { font-size: 0.8rem; max-height: 2.4em; margin-bottom: 8px; }
+.meal-cards .dish-card-footer { gap: 8px; }
+.meal-cards .dish-card-actions .btn-outline,
+.meal-cards .dish-card-actions .btn-primary { padding: 8px 12px; font-size: 0.85rem; }
 
 /* Profile form */
 .profile-form { max-width: 560px; }
@@ -157,7 +160,18 @@ body {
 /* FitChef Kitchen (menu) */
 .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 20px; max-width: 100%; }
 .filters input, .filters select { padding: 10px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 0.875rem; min-width: 0; }
-.dish-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; }
+/* 3 per row on desktop, 2 on tablet, 1 on mobile – less vertical scroll, use horizontal space */
+.dish-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+@media (min-width: 600px) {
+  .dish-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+}
+@media (min-width: 960px) {
+  .dish-grid { grid-template-columns: repeat(3, 1fr); gap: 20px; }
+}
 .dish-card {
   background: var(--card);
   border-radius: var(--radius);
@@ -167,14 +181,15 @@ body {
   transition: transform .2s, box-shadow .2s;
 }
 .dish-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
-.dish-card-image { width: 100%; height: 180px; object-fit: cover; background: var(--bg); }
-.dish-card-body { padding: 20px; }
-.dish-card-title { margin: 0 0 8px; font-size: 1.1rem; font-weight: 600; color: var(--text); }
-.dish-card-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 8px; }
-.dish-card-benefits { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4; max-height: 2.8em; overflow: hidden; text-overflow: ellipsis; }
-.dish-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-.dish-card-price { font-size: 1.25rem; font-weight: 700; color: var(--primary-mid); }
-.dish-card-actions { display: flex; gap: 8px; }
+.dish-card-image { width: 100%; height: 160px; object-fit: cover; background: var(--bg); }
+.dish-card-body { padding: 14px 16px; }
+.dish-card-title { margin: 0 0 6px; font-size: 1rem; font-weight: 600; color: var(--text); }
+.dish-card-meta { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 6px; }
+.dish-card-benefits { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 10px; line-height: 1.35; max-height: 2.6em; overflow: hidden; text-overflow: ellipsis; }
+.dish-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.dish-card-price { font-size: 1.1rem; font-weight: 700; color: var(--primary-mid); }
+.dish-card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.dish-card-actions .btn-outline, .dish-card-actions .btn-primary { padding: 8px 12px; font-size: 0.85rem; }
 .skeleton { background: linear-gradient(90deg, var(--border) 25%, var(--bg) 50%, var(--border) 75%); background-size: 200% 100%; animation: skeleton 1.2s ease-in-out infinite; border-radius: var(--radius-sm); }
 @keyframes skeleton { to { background-position: 200% 0; } }
 
