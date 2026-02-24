@@ -14,7 +14,7 @@ async function list(req, res) {
     }
     const countResult = await pool.query(
       `SELECT COUNT(*) AS total FROM admin_customers ${where}`,
-      search ? [search] : []
+      search ? [`%${search}%`] : []
     );
     const total = parseInt(countResult.rows[0].total, 10);
     const result = await pool.query(

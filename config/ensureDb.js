@@ -43,6 +43,7 @@ async function ensureTables() {
     await pool.query('ALTER TABLE site_users ADD COLUMN IF NOT EXISTS phone VARCHAR(20)');
     await pool.query('ALTER TABLE site_users ADD COLUMN IF NOT EXISTS city VARCHAR(100)');
     await pool.query('ALTER TABLE site_users ADD COLUMN IF NOT EXISTS status VARCHAR(20)');
+    await pool.query("ALTER TABLE site_users ALTER COLUMN status SET DEFAULT 'pending'");
     await pool.query('UPDATE site_users SET status = \'approved\' WHERE status IS NULL');
   } catch (e) {
     if (e.code !== '42P01') console.warn('ensureDb: site_users columns', e.message);
@@ -52,6 +53,12 @@ async function ensureTables() {
     console.log('ensureDb: admin tables OK');
   } catch (e) {
     if (e.code !== '42P01') console.warn('ensureDb: admin tables', e.message);
+  }
+  try {
+    await pool.query(loadSql('init-dishes.sql'));
+    console.log('ensureDb: dishes OK');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: dishes', e.message);
   }
 }
 

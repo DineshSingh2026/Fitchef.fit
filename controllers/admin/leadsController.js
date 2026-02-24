@@ -19,9 +19,12 @@ async function list(req, res) {
     }
     const where = conditions.length ? ' WHERE ' + conditions.join(' AND ') : '';
     const countParams = params.slice(2);
+    const countWhere = conditions.length
+      ? ' WHERE ' + conditions.map(function (_, i) { return conditions[i].replace(/\$\d+/, '$' + (i + 1)); }).join(' AND ')
+      : '';
     const countResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM admin_leads ${where}`,
-      countParams.length ? countParams : []
+      `SELECT COUNT(*) AS total FROM admin_leads ${countWhere}`,
+      countParams
     );
     const total = parseInt(countResult.rows[0].total, 10);
     const result = await pool.query(

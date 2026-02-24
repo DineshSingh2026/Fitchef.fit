@@ -12,8 +12,9 @@ async function list(req, res) {
       where = ' WHERE d.status = $3';
       params.push(status);
     }
+    const countWhere = status ? ' WHERE d.status = $1' : '';
     const countResult = await pool.query(
-      `SELECT COUNT(*) AS total FROM admin_deliveries d ${where}`,
+      `SELECT COUNT(*) AS total FROM admin_deliveries d ${countWhere}`,
       status ? [status] : []
     );
     const total = parseInt(countResult.rows[0].total, 10);

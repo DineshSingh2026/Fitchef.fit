@@ -12,7 +12,8 @@ async function list(req, res) {
       where = ' WHERE status = $3';
       params.push(status);
     }
-    const countResult = await pool.query(`SELECT COUNT(*) AS total FROM admin_chefs ${where}`, status ? [status] : []);
+    const countWhere = status ? ' WHERE status = $1' : '';
+    const countResult = await pool.query(`SELECT COUNT(*) AS total FROM admin_chefs ${countWhere}`, status ? [status] : []);
     const total = parseInt(countResult.rows[0].total, 10);
     const result = await pool.query(
       `SELECT * FROM admin_chefs ${where} ORDER BY created_at DESC LIMIT $1 OFFSET $2`,

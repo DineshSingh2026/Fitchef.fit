@@ -109,6 +109,41 @@ tr:hover { background: var(--bg); }
 .detail-table th, .detail-table td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: top; }
 .detail-table th { color: var(--text-muted); font-weight: 500; width: 140px; }
 
+/* Dish form modal */
+.dish-form-modal .dish-form-content { max-width: 640px; max-height: 90vh; }
+.dish-form-modal .form-section { margin-bottom: 20px; }
+.dish-form-modal .form-section h4 { margin: 0 0 10px; font-size: 0.9rem; color: var(--primary); }
+.dish-form-modal .form-row { margin-bottom: 10px; }
+.dish-form-modal .form-row label { display: block; margin-bottom: 4px; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
+.dish-form-modal .form-row input[type="text"],
+.dish-form-modal .form-row input[type="number"],
+.dish-form-modal .form-row select,
+.dish-form-modal .form-row textarea { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+.dish-form-modal .form-row input:focus,
+.dish-form-modal .form-row select:focus,
+.dish-form-modal .form-row textarea:focus { outline: none; border-color: var(--primary); }
+.dish-form-modal .form-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.dish-form-modal .form-row-full { grid-column: 1 / -1; }
+.dish-form-modal .allergen-checkboxes { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+.dish-form-modal .allergen-checkboxes label { display: flex; align-items: center; gap: 6px; font-weight: normal; cursor: pointer; }
+.dish-image-preview { margin-top: 8px; }
+.dish-image-preview img { max-width: 160px; max-height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+.dish-form-modal .form-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+.dish-form-modal .form-actions .btn { width: auto; }
+.filters .btn-primary-dishes { background: var(--primary); color: #fff; }
+
+/* Dish table */
+.dish-thumb { width: 48px; height: 48px; object-fit: cover; border-radius: 6px; vertical-align: middle; }
+.dish-thumb-placeholder { display: inline-block; width: 48px; height: 48px; line-height: 48px; text-align: center; background: var(--bg); border-radius: 6px; font-size: 0.75rem; color: var(--text-muted); }
+.status-badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+.status-active { background: #d1fae5; color: #065f46; }
+.status-inactive { background: #fee2e2; color: #991b1b; }
+.status-featured { background: #fef3c7; color: #92400e; }
+.status-muted { color: var(--text-muted); font-size: 0.8rem; }
+.discount-price { text-decoration: line-through; color: var(--text-muted); margin-right: 4px; }
+.table-card .btn-edit-dish { background: var(--primary); color: #fff; }
+.table-card .btn-edit-dish:hover:not(:disabled) { background: var(--primary-light); }
+
 /* Responsive */
 @media (max-width: 768px) {
   .dash-wrap { flex-direction: column; }
@@ -117,4 +152,5 @@ tr:hover { background: var(--bg); }
   .sidebar-nav { display: flex; flex-wrap: wrap; gap: 0; }
   .sidebar-nav a { flex: 1 1 auto; }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .dish-form-modal .form-grid-3 { grid-template-columns: 1fr; }
 }

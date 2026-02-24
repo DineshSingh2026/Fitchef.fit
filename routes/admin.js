@@ -10,6 +10,8 @@ const leadsController = require('../controllers/admin/leadsController');
 const financeController = require('../controllers/admin/financeController');
 const consultationsController = require('../controllers/admin/consultationsController');
 const pendingSignupsController = require('../controllers/admin/pendingSignupsController');
+const dishesController = require('../controllers/admin/dishesController');
+const { uploadDishImage } = require('../config/upload');
 
 const router = express.Router();
 router.use(authenticate);
@@ -63,5 +65,25 @@ router.get('/pending-signups', pendingSignupsController.list);
 router.get('/pending-signups/:id', pendingSignupsController.getOne);
 router.post('/pending-signups/:id/approve', pendingSignupsController.approve);
 router.post('/pending-signups/:id/reject', pendingSignupsController.reject);
+
+// Dishes (Dish Management)
+router.get('/dishes/stats', dishesController.getStats);
+router.get('/dishes', dishesController.list);
+router.get('/dishes/:id', dishesController.getOne);
+router.post('/dishes', function (req, res, next) {
+  uploadDishImage(req, res, function (err) {
+    if (err) return res.status(400).json({ error: err.message || 'Image upload failed' });
+    next();
+  });
+}, dishesController.create);
+router.put('/dishes/:id', function (req, res, next) {
+  uploadDishImage(req, res, function (err) {
+    if (err) return res.status(400).json({ error: err.message || 'Image upload failed' });
+    next();
+  });
+}, dishesController.update);
+router.delete('/dishes/:id', dishesController.remove);
+router.patch('/dishes/:id/feature', dishesController.toggleFeatured);
+router.patch('/dishes/:id/availability', dishesController.toggleAvailable);
 
 module.exports = router;

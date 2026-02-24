@@ -17,7 +17,7 @@ async function getOne(req, res) {
     if (isNaN(id)) return res.status(400).json({ error: 'Invalid id' });
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ error: 'Signup not found' });
-    if (user.status !== 'pending') return res.status(400).json({ error: 'Signup is no longer pending' });
+    if (!user.status || user.status.toLowerCase().trim() !== 'pending') return res.status(400).json({ error: 'Signup is no longer pending' });
     res.json(user);
   } catch (err) {
     console.error('Pending signup get error:', err);

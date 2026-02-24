@@ -236,6 +236,15 @@ async function postConsultation(req, res) {
     } catch (leadErr) {
       if (leadErr.code !== '42P01') console.error('Admin leads sync:', leadErr.message);
     }
+    try {
+      await pool.query(
+        `INSERT INTO admin_customers (email, full_name, phone, city, source)
+         VALUES ($1, $2, $3, $4, 'consultation')`,
+        [data.email, data.full_name, data.phone || null, data.city || null]
+      );
+    } catch (custErr) {
+      if (custErr.code !== '42P01') console.error('Admin customers sync:', custErr.message);
+    }
 
     return res.status(201).json({
       success: true,

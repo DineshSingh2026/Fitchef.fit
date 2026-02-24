@@ -16,6 +16,7 @@
         <a href="#" class="nav-link" data-view="chefs">Chefs</a>
         <a href="#" class="nav-link" data-view="logistics">Logistics</a>
         <a href="#" class="nav-link" data-view="customers">Customers</a>
+        <a href="#" class="nav-link" data-view="dishes">Dishes</a>
         <a href="#" class="nav-link" data-view="leads">Leads</a>
         <a href="#" class="nav-link" data-view="consultations">Consultations</a>
         <a href="#" class="nav-link" data-view="pendingSignups">Pending Signups</a>
@@ -100,6 +101,24 @@
             <div class="pagination" id="leadsPagination"></div>
           </div>
         </div>
+        <!-- Dishes (Dish Management) -->
+        <div id="view-dishes" class="view">
+          <div class="dishes-stats kpi-grid" id="dishesStats"></div>
+          <div class="filters">
+            <input type="text" id="dishesSearch" placeholder="Search dishes">
+            <select id="dishesCategory"><option value="">All categories</option><option value="Weight Loss">Weight Loss</option><option value="Muscle Gain">Muscle Gain</option><option value="Keto">Keto</option><option value="Vegan">Vegan</option><option value="Balanced">Balanced</option><option value="Custom">Custom</option></select>
+            <input type="number" id="dishesProteinMin" placeholder="Protein min (g)" min="0" step="1" style="width:120px">
+            <input type="number" id="dishesProteinMax" placeholder="Protein max (g)" min="0" step="1" style="width:120px">
+            <select id="dishesSort"><option value="created_at">Newest</option><option value="name">Name</option><option value="base_price">Price</option><option value="protein">Protein</option><option value="calories">Calories</option><option value="category">Category</option></select>
+            <button type="button" class="btn-sm" id="dishesFilterBtn">Apply</button>
+            <button type="button" class="btn-sm btn-primary-dishes" id="dishesAddBtn">+ Add Dish</button>
+          </div>
+          <div class="table-card">
+            <h3>All Dishes</h3>
+            <div class="table-wrap"><table><thead><tr><th>Image</th><th>Dish Name</th><th>Protein (g)</th><th>Calories</th><th>Price</th><th>Category</th><th>Status</th><th>Featured</th><th></th></tr></thead><tbody id="dishesBody"></tbody></table></div>
+            <div class="pagination" id="dishesPagination"></div>
+          </div>
+        </div>
         <!-- Consultations (form submissions) -->
         <div id="view-consultations" class="view">
           <div class="filters">
@@ -110,6 +129,109 @@
             <h3>Consultation form submissions</h3>
             <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>City</th><th>Submitted</th><th></th></tr></thead><tbody id="consultationsBody"></tbody></table></div>
             <div class="pagination" id="consultationsPagination"></div>
+          </div>
+        </div>
+        <!-- Dish form modal (Add / Edit) -->
+        <div id="dishFormModal" class="detail-modal dish-form-modal" role="dialog" aria-hidden="true" style="display: none;">
+          <div class="detail-modal-overlay"></div>
+          <div class="detail-modal-content dish-form-content">
+            <div class="detail-modal-header">
+              <h3 id="dishFormTitle">Add Dish</h3>
+              <button type="button" class="detail-modal-close dish-form-close" aria-label="Close">&times;</button>
+            </div>
+            <div class="detail-modal-body">
+              <form id="dishForm">
+                <input type="hidden" id="dishId" name="id">
+                <div class="form-section">
+                  <h4>Basic information</h4>
+                  <div class="form-row">
+                    <label for="dishName">Dish Name *</label>
+                    <input type="text" id="dishName" name="name" required placeholder="e.g. Grilled Chicken Bowl">
+                  </div>
+                  <div class="form-row">
+                    <label for="dishCategory">Category *</label>
+                    <select id="dishCategory" name="category" required>
+                      <option value="">Select category</option>
+                      <option value="Weight Loss">Weight Loss</option>
+                      <option value="Muscle Gain">Muscle Gain</option>
+                      <option value="Keto">Keto</option>
+                      <option value="Vegan">Vegan</option>
+                      <option value="Balanced">Balanced</option>
+                      <option value="Custom">Custom</option>
+                    </select>
+                  </div>
+                  <div class="form-row">
+                    <label for="dishDescription">Description</label>
+                    <textarea id="dishDescription" name="description" rows="3" placeholder="Short description"></textarea>
+                  </div>
+                  <div class="form-row">
+                    <label for="dishTags">Tags</label>
+                    <input type="text" id="dishTags" name="tags" placeholder="High Protein, Low Carb, Gluten Free (comma-separated)">
+                  </div>
+                </div>
+                <div class="form-section">
+                  <h4>Image</h4>
+                  <div class="form-row">
+                    <input type="file" id="dishImage" name="image" accept="image/jpeg,image/jpg,image/png,image/webp">
+                    <div id="dishImagePreview" class="dish-image-preview"></div>
+                  </div>
+                </div>
+                <div class="form-section form-grid-3">
+                  <h4>Nutrition (per portion)</h4>
+                  <div class="form-row"><label>Calories</label><input type="number" id="dishCalories" name="calories" min="0" step="1" placeholder="kcal"></div>
+                  <div class="form-row"><label>Protein (g)</label><input type="number" id="dishProtein" name="protein" min="0" step="0.1" placeholder="g"></div>
+                  <div class="form-row"><label>Carbs (g)</label><input type="number" id="dishCarbs" name="carbs" min="0" step="0.1" placeholder="g"></div>
+                  <div class="form-row"><label>Fats (g)</label><input type="number" id="dishFats" name="fats" min="0" step="0.1" placeholder="g"></div>
+                  <div class="form-row"><label>Fiber (g)</label><input type="number" id="dishFiber" name="fiber" min="0" step="0.1" placeholder="g"></div>
+                  <div class="form-row"><label>Sugar (g)</label><input type="number" id="dishSugar" name="sugar" min="0" step="0.1" placeholder="g"></div>
+                  <div class="form-row"><label>Sodium (mg)</label><input type="number" id="dishSodium" name="sodium" min="0" step="0.1" placeholder="mg"></div>
+                </div>
+                <div class="form-section">
+                  <h4>Ingredients</h4>
+                  <textarea id="dishIngredients" name="ingredients" rows="2" placeholder="One per line or comma-separated"></textarea>
+                </div>
+                <div class="form-section">
+                  <h4>Allergens</h4>
+                  <div class="allergen-checkboxes">
+                    <label><input type="checkbox" name="allergen" value="Nuts"> Nuts</label>
+                    <label><input type="checkbox" name="allergen" value="Dairy"> Dairy</label>
+                    <label><input type="checkbox" name="allergen" value="Soy"> Soy</label>
+                    <label><input type="checkbox" name="allergen" value="Gluten"> Gluten</label>
+                    <label><input type="checkbox" name="allergen" value="Eggs"> Eggs</label>
+                  </div>
+                </div>
+                <div class="form-section">
+                  <h4>Benefits</h4>
+                  <textarea id="dishBenefits" name="benefits" rows="3" placeholder="One per line, e.g. Supports lean muscle growth"></textarea>
+                </div>
+                <div class="form-section form-grid-3">
+                  <h4>Pricing &amp; portion</h4>
+                  <div class="form-row"><label>Base price (₹) *</label><input type="number" id="dishBasePrice" name="base_price" min="0" step="0.01" required placeholder="0"></div>
+                  <div class="form-row"><label>Discount price (₹)</label><input type="number" id="dishDiscountPrice" name="discount_price" min="0" step="0.01" placeholder="Optional"></div>
+                  <div class="form-row"><label>Portion size (g)</label><input type="number" id="dishPortionSize" name="portion_size" min="0" step="1" placeholder="grams"></div>
+                  <div class="form-row form-row-full">
+                    <label><input type="checkbox" id="dishSubscriptionEligible" name="subscription_eligible" value="1"> Subscription eligible</label>
+                  </div>
+                </div>
+                <div class="form-section form-grid-3">
+                  <h4>Availability &amp; status</h4>
+                  <div class="form-row form-row-full">
+                    <label><input type="checkbox" id="dishAvailable" name="available" value="1" checked> Available</label>
+                  </div>
+                  <div class="form-row form-row-full">
+                    <label><input type="checkbox" id="dishFeatured" name="featured" value="1"> Featured dish</label>
+                  </div>
+                  <div class="form-row form-row-full">
+                    <label for="dishChef">Chef assigned</label>
+                    <select id="dishChef" name="chef_id"><option value="">— None —</option></select>
+                  </div>
+                </div>
+                <div class="form-actions">
+                  <button type="button" class="btn-outline dish-form-close">Cancel</button>
+                  <button type="submit" class="btn btn-primary" id="dishSubmitBtn">Save Dish</button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
         <!-- Detail modal -->
@@ -158,7 +280,7 @@
   document.getElementById('logoutLink').addEventListener('click', function(e) { e.preventDefault(); adminLogout(); });
   document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 
-  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', leads: 'Leads', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
+  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', dishes: 'Dishes', leads: 'Leads', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
   document.querySelectorAll('.nav-link').forEach(function(a) {
     if (a.id === 'logoutLink') return;
     a.addEventListener('click', function(e) { e.preventDefault(); switchView(a.getAttribute('data-view')); });
@@ -174,6 +296,7 @@
     else if (name === 'chefs') loadChefs();
     else if (name === 'logistics') loadLogistics();
     else if (name === 'customers') loadCustomers();
+    else if (name === 'dishes') { loadDishStats(); loadDishes(); }
     else if (name === 'leads') loadLeads();
     else if (name === 'consultations') loadConsultations();
     else if (name === 'pendingSignups') loadPendingSignups();
@@ -404,6 +527,176 @@
         if (next >= 1 && next <= pages) onPage(next);
       });
     });
+  }
+
+  var dishesPage = 1, dishesLimit = 10, editingDishId = null;
+  function loadDishStats() {
+    fetch(API + '/dishes/stats', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
+      var g = document.getElementById('dishesStats');
+      if (!g) return;
+      g.innerHTML = '<div class="kpi-card"><div class="label">Total Dishes</div><div class="value">' + (d.total_dishes || 0) + '</div></div>' +
+        '<div class="kpi-card"><div class="label">Active Dishes</div><div class="value">' + (d.active_dishes || 0) + '</div></div>' +
+        '<div class="kpi-card"><div class="label">Featured Dishes</div><div class="value">' + (d.featured_dishes || 0) + '</div></div>' +
+        '<div class="kpi-card"><div class="label">Avg Protein (g)</div><div class="value">' + (d.avg_protein_per_dish != null ? Number(d.avg_protein_per_dish).toFixed(1) : '0') + '</div></div>';
+    }).catch(function() { var g = document.getElementById('dishesStats'); if (g) g.innerHTML = '<div class="loading">Failed to load stats</div>'; });
+  }
+  function loadDishes() {
+    var search = document.getElementById('dishesSearch').value.trim();
+    var category = document.getElementById('dishesCategory').value;
+    var proteinMin = document.getElementById('dishesProteinMin').value;
+    var proteinMax = document.getElementById('dishesProteinMax').value;
+    var sort = document.getElementById('dishesSort').value;
+    var url = API + '/dishes?page=' + dishesPage + '&limit=' + dishesLimit +
+      (search ? '&search=' + encodeURIComponent(search) : '') +
+      (category ? '&category=' + encodeURIComponent(category) : '') +
+      (proteinMin ? '&protein_min=' + encodeURIComponent(proteinMin) : '') +
+      (proteinMax ? '&protein_max=' + encodeURIComponent(proteinMax) : '') +
+      '&sort=' + encodeURIComponent(sort) + '&order=desc';
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('dishesBody');
+      if (!body) return;
+      if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="9" class="empty">No dishes yet. Add your first dish.</td></tr>'; }
+      else {
+        body.innerHTML = res.data.map(function(d) {
+          var img = d.image_url ? '<img src="' + d.image_url + '" alt="" class="dish-thumb">' : '<span class="dish-thumb-placeholder">—</span>';
+          var price = d.discount_price != null && d.discount_price > 0 ? '<span class="discount-price">₹' + d.base_price + '</span> ₹' + d.discount_price : '₹' + (d.base_price != null ? d.base_price : '0');
+          var status = d.available ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-inactive">Inactive</span>';
+          var feat = d.featured ? '<span class="status-badge status-featured">Featured</span>' : '<span class="status-muted">—</span>';
+          return '<tr data-id="' + d.id + '"><td>' + img + '</td><td>' + (d.name || '') + '</td><td>' + (d.protein != null ? d.protein : '—') + '</td><td>' + (d.calories != null ? d.calories : '—') + '</td><td>' + price + '</td><td>' + (d.category || '') + '</td><td>' + status + '</td><td>' + feat + '</td><td class="actions"><button type="button" class="btn-sm btn-edit-dish" data-id="' + d.id + '">Edit</button> <button type="button" class="btn-sm btn-feature-dish" data-id="' + d.id + '">' + (d.featured ? 'Unfeature' : 'Feature') + '</button> <button type="button" class="btn-sm btn-avail-dish" data-id="' + d.id + '">' + (d.available ? 'Deactivate' : 'Activate') + '</button> <button type="button" class="btn-sm btn-reject btn-delete-dish" data-id="' + d.id + '">Delete</button></td></tr>';
+        }).join('');
+        body.querySelectorAll('.btn-edit-dish').forEach(function(btn) { btn.addEventListener('click', function() { openDishForm(btn.getAttribute('data-id')); }); });
+        body.querySelectorAll('.btn-feature-dish').forEach(function(btn) { btn.addEventListener('click', function() { toggleDishFeatured(btn.getAttribute('data-id')); }); });
+        body.querySelectorAll('.btn-avail-dish').forEach(function(btn) { btn.addEventListener('click', function() { toggleDishAvailable(btn.getAttribute('data-id')); }); });
+        body.querySelectorAll('.btn-delete-dish').forEach(function(btn) { btn.addEventListener('click', function() { deleteDish(btn.getAttribute('data-id')); }); });
+      }
+      renderPagination('dishesPagination', dishesPage, res.total || 0, dishesLimit, function(p) { dishesPage = p; loadDishes(); });
+    }).catch(function() { var b = document.getElementById('dishesBody'); if (b) b.innerHTML = '<tr><td colspan="9" class="loading">Error loading dishes</td></tr>'; });
+  }
+  document.getElementById('dishesFilterBtn').addEventListener('click', function() { dishesPage = 1; loadDishes(); });
+  document.getElementById('dishesAddBtn').addEventListener('click', function() { openDishForm(null); });
+
+  function loadChefsForDishSelect() {
+    fetch(API + '/chefs?limit=200', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var sel = document.getElementById('dishChef');
+      if (!sel) return;
+      var opts = '<option value="">— None —</option>' + (res.data || []).map(function(c) { return '<option value="' + c.id + '">' + (c.full_name || c.email) + '</option>'; }).join('');
+      sel.innerHTML = opts;
+    });
+  }
+  function openDishForm(id) {
+    editingDishId = id || null;
+    document.getElementById('dishFormTitle').textContent = id ? 'Edit Dish' : 'Add Dish';
+    document.getElementById('dishForm').reset();
+    document.getElementById('dishId').value = id || '';
+    document.getElementById('dishImagePreview').innerHTML = '';
+    document.getElementById('dishAvailable').checked = true;
+    loadChefsForDishSelect();
+    if (id) {
+      fetch(API + '/dishes/' + id, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
+        document.getElementById('dishName').value = d.name || '';
+        document.getElementById('dishCategory').value = d.category || '';
+        document.getElementById('dishDescription').value = d.description || '';
+        document.getElementById('dishTags').value = d.tags || '';
+        document.getElementById('dishCalories').value = d.calories != null ? d.calories : '';
+        document.getElementById('dishProtein').value = d.protein != null ? d.protein : '';
+        document.getElementById('dishCarbs').value = d.carbs != null ? d.carbs : '';
+        document.getElementById('dishFats').value = d.fats != null ? d.fats : '';
+        document.getElementById('dishFiber').value = d.fiber != null ? d.fiber : '';
+        document.getElementById('dishSugar').value = d.sugar != null ? d.sugar : '';
+        document.getElementById('dishSodium').value = d.sodium != null ? d.sodium : '';
+        document.getElementById('dishIngredients').value = d.ingredients || '';
+        document.getElementById('dishBenefits').value = d.benefits || '';
+        document.getElementById('dishBasePrice').value = d.base_price != null ? d.base_price : '';
+        document.getElementById('dishDiscountPrice').value = d.discount_price != null ? d.discount_price : '';
+        document.getElementById('dishPortionSize').value = d.portion_size != null ? d.portion_size : '';
+        document.getElementById('dishSubscriptionEligible').checked = d.subscription_eligible === true;
+        document.getElementById('dishAvailable').checked = d.available !== false;
+        document.getElementById('dishFeatured').checked = d.featured === true;
+        document.getElementById('dishChef').value = d.chef_id != null ? d.chef_id : '';
+        var allergens = (d.allergens || '').split(/[,\s]+/).filter(Boolean);
+        document.querySelectorAll('#dishForm input[name="allergen"]').forEach(function(cb) { cb.checked = allergens.indexOf(cb.value) !== -1; });
+        if (d.image_url) document.getElementById('dishImagePreview').innerHTML = '<img src="' + d.image_url + '" alt="Current">';
+        showDishFormModal();
+      }).catch(function() { showDishFormModal(); });
+    } else { showDishFormModal(); }
+  }
+  function showDishFormModal() {
+    var modal = document.getElementById('dishFormModal');
+    if (modal) { modal.style.display = 'flex'; modal.setAttribute('aria-hidden', 'false'); }
+  }
+  function closeDishFormModal() {
+    var modal = document.getElementById('dishFormModal');
+    if (modal) { modal.style.display = 'none'; modal.setAttribute('aria-hidden', 'true'); }
+    editingDishId = null;
+  }
+  document.getElementById('dishImage').addEventListener('change', function() {
+    var preview = document.getElementById('dishImagePreview');
+    preview.innerHTML = '';
+    var file = this.files[0];
+    if (file && file.type.match(/^image\//)) {
+      var reader = new FileReader();
+      reader.onload = function(e) { preview.innerHTML = '<img src="' + e.target.result + '" alt="Preview">'; };
+      reader.readAsDataURL(file);
+    }
+  });
+  document.getElementById('dishForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var form = this;
+    var nameVal = (form.querySelector('[name="name"]') && form.querySelector('[name="name"]').value || '').trim();
+    var categoryVal = (form.querySelector('[name="category"]') && form.querySelector('[name="category"]').value || '').trim();
+    if (!nameVal) { alert('Please enter Dish Name.'); return; }
+    if (!categoryVal) { alert('Please select a Category.'); return; }
+    var id = document.getElementById('dishId').value;
+    var formData = new FormData();
+    ['name', 'category', 'description', 'tags', 'calories', 'protein', 'carbs', 'fats', 'fiber', 'sugar', 'sodium', 'ingredients', 'benefits', 'base_price', 'discount_price', 'portion_size'].forEach(function(k) {
+      var el = form.querySelector('[name="' + k + '"]');
+      if (el && el.value !== undefined) formData.append(k, el.value);
+    });
+    formData.append('subscription_eligible', form.querySelector('#dishSubscriptionEligible').checked ? '1' : '0');
+    formData.append('available', form.querySelector('#dishAvailable').checked ? '1' : '0');
+    formData.append('featured', form.querySelector('#dishFeatured').checked ? '1' : '0');
+    var chefId = form.querySelector('#dishChef').value;
+    if (chefId) formData.append('chef_id', chefId);
+    var allergens = Array.from(form.querySelectorAll('input[name="allergen"]:checked')).map(function(c) { return c.value; }).join(', ');
+    formData.append('allergens', allergens);
+    var img = form.querySelector('#dishImage');
+    if (img.files.length) formData.append('image', img.files[0]);
+    var btn = document.getElementById('dishSubmitBtn');
+    btn.disabled = true;
+    var url = id ? API + '/dishes/' + id : API + '/dishes';
+    var method = id ? 'PUT' : 'POST';
+    var headers = getAuthHeaders();
+    delete headers['Content-Type'];
+    fetch(url, { method: method, headers: headers, body: formData })
+      .then(function(r) {
+        var ct = r.headers.get('Content-Type') || '';
+        if (ct.indexOf('application/json') !== -1) {
+          return r.json().then(function(data) { return { ok: r.ok, data: data }; });
+        }
+        return r.text().then(function(text) { return { ok: false, data: { error: text || 'Server error' } }; });
+      })
+      .then(function(r) {
+        btn.disabled = false;
+        if (r.ok) { closeDishFormModal(); loadDishStats(); loadDishes(); }
+        else alert(r.data.error || r.data.message || 'Failed to save dish');
+      })
+      .catch(function(err) {
+        btn.disabled = false;
+        alert('Request failed. Check console. ' + (err && err.message ? err.message : ''));
+      });
+  });
+  document.querySelectorAll('.dish-form-close').forEach(function(el) { el.addEventListener('click', closeDishFormModal); });
+  document.getElementById('dishFormModal').querySelector('.detail-modal-overlay').addEventListener('click', closeDishFormModal);
+
+  function toggleDishFeatured(id) {
+    fetch(API + '/dishes/' + id + '/feature', { method: 'PATCH', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) { if (data.success) { loadDishStats(); loadDishes(); } });
+  }
+  function toggleDishAvailable(id) {
+    fetch(API + '/dishes/' + id + '/availability', { method: 'PATCH', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) { if (data.success) { loadDishStats(); loadDishes(); } });
+  }
+  function deleteDish(id) {
+    if (!confirm('Deactivate this dish? (Soft delete – it will no longer be available.)')) return;
+    fetch(API + '/dishes/' + id, { method: 'DELETE', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) { if (data.success) { loadDishStats(); loadDishes(); } });
   }
 
   loadOverview();
