@@ -4,30 +4,49 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FitChef Admin – Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/admin.css">
 </head>
 <body>
   <div class="dash-wrap">
-    <aside class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+    <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">FitChef Admin</div>
       <nav class="sidebar-nav">
-        <a href="#" class="nav-link active" data-view="overview">Dashboard</a>
-        <a href="#" class="nav-link" data-view="orders">Orders</a>
-        <a href="#" class="nav-link" data-view="chefs">Chefs</a>
-        <a href="#" class="nav-link" data-view="logistics">Logistics</a>
-        <a href="#" class="nav-link" data-view="customers">Customers</a>
-        <a href="#" class="nav-link" data-view="dishes">Dishes</a>
-        <a href="#" class="nav-link" data-view="leads">Leads</a>
-        <a href="#" class="nav-link" data-view="consultations">Consultations</a>
-        <a href="#" class="nav-link" data-view="pendingSignups">Pending Signups</a>
-        <a href="#" class="nav-link" data-view="finance">Finance</a>
-        <a href="#" class="nav-link" id="logoutLink">Logout</a>
+        <a href="#" class="nav-link active" data-view="overview"><span class="nav-icon" aria-hidden="true">📊</span>Dashboard</a>
+        <a href="#" class="nav-link" data-view="orders"><span class="nav-icon" aria-hidden="true">📦</span>Orders</a>
+        <a href="#" class="nav-link" data-view="openOrders"><span class="nav-icon" aria-hidden="true">🛒</span>Open Orders</a>
+        <a href="#" class="nav-link" data-view="chefs"><span class="nav-icon" aria-hidden="true">👨‍🍳</span>Chefs</a>
+        <a href="#" class="nav-link" data-view="logistics"><span class="nav-icon" aria-hidden="true">🚚</span>Logistics</a>
+        <a href="#" class="nav-link" data-view="customers"><span class="nav-icon" aria-hidden="true">👥</span>Customers</a>
+        <a href="#" class="nav-link" data-view="dishes"><span class="nav-icon" aria-hidden="true">🍽️</span>Dishes</a>
+        <a href="#" class="nav-link" data-view="leads"><span class="nav-icon" aria-hidden="true">📋</span>Leads</a>
+        <a href="#" class="nav-link" data-view="consultations"><span class="nav-icon" aria-hidden="true">📝</span>Consultations</a>
+        <a href="#" class="nav-link" data-view="pendingSignups"><span class="nav-icon" aria-hidden="true">⏳</span>Pending Signups</a>
+        <a href="#" class="nav-link" data-view="finance"><span class="nav-icon" aria-hidden="true">💰</span>Finance</a>
+        <a href="#" class="nav-link" id="logoutLink"><span class="nav-icon" aria-hidden="true">🚪</span>Logout</a>
       </nav>
     </aside>
     <main class="main">
       <header class="navbar">
+        <button type="button" class="navbar-toggle" id="navbarToggle" aria-label="Open menu">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+        </button>
         <h2 id="viewTitle">Dashboard</h2>
         <div class="navbar-right">
+          <div class="nav-notif-wrap">
+            <button type="button" class="nav-notif-toggle" id="navNotifToggle" aria-label="Notifications" aria-expanded="false">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="nav-notif-badge" id="navNotifBadge">0</span>
+            </button>
+            <div class="nav-notif-dropdown" id="navNotifDropdown" aria-hidden="true">
+              <div class="nav-notif-header">Important</div>
+              <div class="nav-notif-list" id="navNotifList"></div>
+              <div class="nav-notif-empty" id="navNotifEmpty">All caught up</div>
+            </div>
+          </div>
           <span class="user" id="userName"></span>
           <button type="button" class="btn-outline" id="logoutBtn">Logout</button>
         </div>
@@ -35,6 +54,7 @@
       <div class="content">
         <!-- Overview -->
         <div id="view-overview" class="view active">
+          <p class="content-intro">At a glance</p>
           <div class="kpi-grid" id="kpiGrid"></div>
           <div class="chart-card">
             <h3>Revenue (last 30 days)</h3>
@@ -51,6 +71,27 @@
             <h3>Orders</h3>
             <div class="table-wrap"><table><thead><tr><th>Order #</th><th>Customer</th><th>Chef</th><th>Status</th><th>Amount</th><th>Date</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
             <div class="pagination" id="ordersPagination"></div>
+          </div>
+        </div>
+        <!-- Open Orders (user dashboard orders - confirm to notify user) -->
+        <div id="view-openOrders" class="view">
+          <div class="table-card">
+            <h3>Open Orders</h3>
+            <p class="table-hint">Orders placed by users from the FitChef Kitchen. Confirm an order to notify the user.</p>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>User</th><th>Email</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="openOrdersBody"></tbody></table></div>
+            <div class="pagination" id="openOrdersPagination"></div>
+          </div>
+        </div>
+        <div class="modal-overlay" id="openOrderDetailModal" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="detail-modal-header">
+              <h3>Order details</h3>
+              <button type="button" class="detail-modal-close" id="openOrderDetailClose" aria-label="Close">&times;</button>
+            </div>
+            <div id="openOrderDetailBody" class="detail-modal-body"></div>
+            <div class="detail-modal-footer">
+              <button type="button" class="btn-sm btn-primary" id="openOrderConfirmBtn">Confirm Order</button>
+            </div>
           </div>
         </div>
         <!-- Chefs -->
@@ -280,10 +321,49 @@
   document.getElementById('logoutLink').addEventListener('click', function(e) { e.preventDefault(); adminLogout(); });
   document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 
-  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', dishes: 'Dishes', leads: 'Leads', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
+  var adminNotifToggle = document.getElementById('navNotifToggle');
+  var adminNotifBadge = document.getElementById('navNotifBadge');
+  var adminNotifDropdown = document.getElementById('navNotifDropdown');
+  var adminNotifList = document.getElementById('navNotifList');
+  var adminNotifEmpty = document.getElementById('navNotifEmpty');
+  function updateAdminNotifBadge() {
+    fetch(API + '/open-orders?status=Open&limit=1&page=1', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var total = res.total || 0;
+      if (adminNotifBadge) { adminNotifBadge.textContent = total; adminNotifBadge.style.display = total ? 'flex' : 'none'; }
+    }).catch(function() {});
+  }
+  function renderAdminNotifDropdown() {
+    fetch(API + '/open-orders?status=Open&limit=10&page=1', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var list = res.data || [];
+      if (adminNotifList) adminNotifList.innerHTML = list.length ? '<div class="nav-notif-item"><p><strong>' + res.total + ' open order(s)</strong> need your attention.</p><button type="button" class="nav-notif-action" id="adminNotifViewOpen">View Open Orders</button></div>' : '';
+      if (adminNotifEmpty) adminNotifEmpty.style.display = list.length ? 'none' : 'block';
+      var viewBtn = document.getElementById('adminNotifViewOpen');
+      if (viewBtn) viewBtn.addEventListener('click', function() { switchView('openOrders'); closeAdminNotifDropdown(); });
+    }).catch(function() { if (adminNotifList) adminNotifList.innerHTML = ''; if (adminNotifEmpty) adminNotifEmpty.style.display = 'block'; });
+  }
+  function openAdminNotifDropdown() { if (adminNotifDropdown) { adminNotifDropdown.classList.add('open'); adminNotifDropdown.setAttribute('aria-hidden', 'false'); if (adminNotifToggle) adminNotifToggle.setAttribute('aria-expanded', 'true'); renderAdminNotifDropdown(); } }
+  function closeAdminNotifDropdown() { if (adminNotifDropdown) { adminNotifDropdown.classList.remove('open'); adminNotifDropdown.setAttribute('aria-hidden', 'true'); if (adminNotifToggle) adminNotifToggle.setAttribute('aria-expanded', 'false'); } }
+  if (adminNotifToggle) adminNotifToggle.addEventListener('click', function(e) { e.stopPropagation(); if (adminNotifDropdown && adminNotifDropdown.classList.contains('open')) closeAdminNotifDropdown(); else openAdminNotifDropdown(); });
+  document.addEventListener('click', function(e) { if (adminNotifDropdown && adminNotifDropdown.classList.contains('open') && !e.target.closest('.nav-notif-wrap')) closeAdminNotifDropdown(); });
+  updateAdminNotifBadge();
+
+  var titles = { overview: 'Dashboard', orders: 'Orders', openOrders: 'Open Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', dishes: 'Dishes', leads: 'Leads', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
+  var sidebarEl = document.getElementById('sidebar');
+  var overlayEl = document.getElementById('sidebarOverlay');
+  var navbarToggleEl = document.getElementById('navbarToggle');
+  function openSidebar() {
+    if (sidebarEl) sidebarEl.classList.add('open');
+    if (overlayEl) { overlayEl.classList.add('open'); overlayEl.setAttribute('aria-hidden', 'false'); }
+  }
+  function closeSidebar() {
+    if (sidebarEl) sidebarEl.classList.remove('open');
+    if (overlayEl) { overlayEl.classList.remove('open'); overlayEl.setAttribute('aria-hidden', 'true'); }
+  }
+  if (navbarToggleEl) navbarToggleEl.addEventListener('click', openSidebar);
+  if (overlayEl) overlayEl.addEventListener('click', closeSidebar);
   document.querySelectorAll('.nav-link').forEach(function(a) {
     if (a.id === 'logoutLink') return;
-    a.addEventListener('click', function(e) { e.preventDefault(); switchView(a.getAttribute('data-view')); });
+    a.addEventListener('click', function(e) { e.preventDefault(); switchView(a.getAttribute('data-view')); closeSidebar(); });
   });
   function switchView(name) {
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
@@ -293,6 +373,7 @@
     document.getElementById('viewTitle').textContent = titles[name] || 'Dashboard';
     if (name === 'overview') loadOverview();
     else if (name === 'orders') loadOrders();
+    else if (name === 'openOrders') { loadOpenOrders(); updateAdminNotifBadge(); }
     else if (name === 'chefs') loadChefs();
     else if (name === 'logistics') loadLogistics();
     else if (name === 'customers') loadCustomers();
@@ -341,6 +422,44 @@
     }).catch(function() { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="6" class="loading">Error loading orders</td></tr>'; });
   }
   document.getElementById('ordersFilterBtn').addEventListener('click', function() { ordersPage = 1; loadOrders(); });
+
+  var openOrdersPage = 1, openOrderDetailId = null;
+  function loadOpenOrders() {
+    var url = API + '/open-orders?status=Open&page=' + openOrdersPage + '&limit=10';
+    fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('openOrdersBody');
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No open orders</td></tr>';
+      else body.innerHTML = res.data.map(function(o) {
+        var date = o.created_at ? new Date(o.created_at).toLocaleString() : '';
+        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>' + (o.user_email || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td>' + date + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
+      }).join('');
+      renderPagination('openOrdersPagination', openOrdersPage, res.total || 0, 10, function(p) { openOrdersPage = p; loadOpenOrders(); });
+      body.querySelectorAll('.view-open-order-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { openOpenOrderDetail(btn.getAttribute('data-id')); });
+      });
+    }).catch(function() { document.getElementById('openOrdersBody').innerHTML = '<tr><td colspan="6" class="loading">Error loading open orders</td></tr>'; });
+  }
+  var openOrderDetailModal = document.getElementById('openOrderDetailModal');
+  var openOrderDetailBody = document.getElementById('openOrderDetailBody');
+  function openOpenOrderDetail(id) {
+    openOrderDetailId = id;
+    fetch(API + '/open-orders/' + id, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(o) {
+      var items = (o.items || []).map(function(i) { return '<tr><td>' + (i.dish_name || 'Item') + '</td><td>' + (i.quantity || 1) + '</td><td>₹' + (i.price != null ? i.price : 0) + '</td></tr>'; }).join('');
+      openOrderDetailBody.innerHTML = '<p><strong>Order ID</strong> ' + (o.id || '') + '</p><p><strong>User</strong> ' + (o.user_name || '') + ' &ndash; ' + (o.user_email || '') + '</p><p><strong>Phone</strong> ' + (o.user_phone || '-') + '</p><p><strong>Address</strong> ' + [o.address_line1, o.address_line2, o.city, o.state, o.pincode].filter(Boolean).join(', ') || '-' + '</p><p><strong>Delivery instructions</strong> ' + (o.delivery_instructions || '-') + '</p><p><strong>Total</strong> ₹' + (o.total_amount != null ? o.total_amount : 0) + '</p><table class="table-wrap"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>' + items + '</tbody></table>';
+      openOrderDetailModal.classList.add('open');
+      openOrderDetailModal.setAttribute('aria-hidden', 'false');
+    }).catch(function() { openOrderDetailBody.innerHTML = '<p class="loading">Failed to load order</p>'; });
+  }
+  document.getElementById('openOrderDetailClose').addEventListener('click', function() { openOrderDetailModal.classList.remove('open'); openOrderDetailModal.setAttribute('aria-hidden', 'true'); openOrderDetailId = null; });
+  openOrderDetailModal.addEventListener('click', function(e) { if (e.target === openOrderDetailModal) { openOrderDetailModal.classList.remove('open'); openOrderDetailId = null; } });
+  document.getElementById('openOrderConfirmBtn').addEventListener('click', function() {
+    if (!openOrderDetailId) return;
+    var btn = this;
+    btn.disabled = true;
+    fetch(API + '/open-orders/' + openOrderDetailId + '/confirm', { method: 'PATCH', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.success) { alert(data.message || 'Order confirmed. User has been notified.'); openOrderDetailModal.classList.remove('open'); openOrderDetailId = null; loadOpenOrders(); updateAdminNotifBadge(); } else alert(data.error || 'Failed'); btn.disabled = false;
+    }).catch(function() { alert('Failed to confirm'); btn.disabled = false; });
+  });
 
   var chefsPage = 1;
   function loadChefs() {

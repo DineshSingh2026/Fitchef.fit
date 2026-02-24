@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
+    "test:e2e": "node scripts/test-e2e-full.js",
+    "test:e2e:api": "node scripts/test-api-e2e.js",
     "db:init": "node scripts/init-db.js",
     "db:consultations": "node scripts/init-consultations.js",
     "db:admin": "node scripts/run-init-admin.js",

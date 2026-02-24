@@ -60,6 +60,12 @@ async function ensureTables() {
   } catch (e) {
     if (e.code !== '42P01') console.warn('ensureDb: dishes', e.message);
   }
+  try {
+    await pool.query(loadSql('init-user-dashboard.sql'));
+    console.log('ensureDb: user dashboard OK');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: user dashboard', e.message);
+  }
 }
 
 async function seedAdminIfNeeded() {

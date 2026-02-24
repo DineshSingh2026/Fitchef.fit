@@ -11,6 +11,7 @@ const financeController = require('../controllers/admin/financeController');
 const consultationsController = require('../controllers/admin/consultationsController');
 const pendingSignupsController = require('../controllers/admin/pendingSignupsController');
 const dishesController = require('../controllers/admin/dishesController');
+const userOrdersController = require('../controllers/admin/userOrdersController');
 const { uploadDishImage } = require('../config/upload');
 
 const router = express.Router();
@@ -21,11 +22,16 @@ router.use(requireAdmin);
 router.get('/dashboard/kpis', dashboardController.getKpis);
 router.get('/dashboard/revenue-chart', dashboardController.getRevenueChart);
 
-// Orders
+// Orders (admin_orders - legacy)
 router.get('/orders', ordersController.list);
 router.get('/orders/:id', ordersController.getOne);
 router.post('/orders', ordersController.create);
 router.patch('/orders/:id', ordersController.update);
+
+// Open orders (user_orders from user dashboard - view & confirm)
+router.get('/open-orders', userOrdersController.list);
+router.get('/open-orders/:id', userOrdersController.getOne);
+router.patch('/open-orders/:id/confirm', userOrdersController.confirm);
 
 // Chefs
 router.get('/chefs', chefsController.list);

@@ -447,6 +447,10 @@
         }
         if (signInLink) signInLink.style.display = 'none';
         if (signOutLink) signOutLink.style.display = 'inline';
+        var dashboardLink = document.getElementById('dashboardLink');
+        var dashboardLinkMobile = document.getElementById('dashboardLinkMobile');
+        if (dashboardLink) dashboardLink.style.display = 'inline';
+        if (dashboardLinkMobile) dashboardLinkMobile.style.display = 'inline';
         if (signInLinkMobile) signInLinkMobile.style.display = 'none';
         if (signOutLinkMobile) signOutLinkMobile.style.display = 'inline';
       } else {
@@ -454,6 +458,10 @@
         if (mobileUser) mobileUser.style.display = 'none';
         if (signInLink) signInLink.style.display = 'inline';
         if (signOutLink) signOutLink.style.display = 'none';
+        var dashboardLink = document.getElementById('dashboardLink');
+        var dashboardLinkMobile = document.getElementById('dashboardLinkMobile');
+        if (dashboardLink) dashboardLink.style.display = 'none';
+        if (dashboardLinkMobile) dashboardLinkMobile.style.display = 'none';
         if (signInLinkMobile) signInLinkMobile.style.display = 'inline';
         if (signOutLinkMobile) signOutLinkMobile.style.display = 'none';
       }

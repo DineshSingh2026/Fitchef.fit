@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitChef – My Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/user-dashboard.css">
+</head>
+<body>
+  <div class="dash-wrap">
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">FitChef</div>
+      <nav class="sidebar-nav">
+        <a href="#" class="nav-link active" data-view="overview"><span class="nav-icon">📊</span>Dashboard Overview</a>
+        <a href="#" class="nav-link" data-view="profile"><span class="nav-icon">👤</span>My Profile</a>
+        <a href="#" class="nav-link" data-view="meals"><span class="nav-icon">🍽️</span>FitChef Kitchen</a>
+        <a href="#" class="nav-link" data-view="orders"><span class="nav-icon">📦</span>My Orders</a>
+        <a href="#" class="nav-link" data-view="feedback"><span class="nav-icon">⭐</span>Feedback</a>
+        <a href="#" class="nav-link" data-view="support"><span class="nav-icon">💬</span>Support</a>
+        <a href="#" class="nav-link" id="logoutLink"><span class="nav-icon">🚪</span>Logout</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <header class="navbar">
+        <button type="button" class="navbar-toggle" id="navbarToggle" aria-label="Menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+        <h2 id="viewTitle">Dashboard Overview</h2>
+        <div class="navbar-right">
+          <div class="nav-notif-wrap">
+            <button type="button" class="nav-notif-toggle" id="navNotifToggle" aria-label="Notifications" aria-expanded="false">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span class="nav-notif-badge" id="navNotifBadge">0</span>
+            </button>
+            <div class="nav-notif-dropdown" id="navNotifDropdown" aria-hidden="true">
+              <div class="nav-notif-header">Notifications</div>
+              <div class="nav-notif-list" id="navNotifList"></div>
+              <div class="nav-notif-empty" id="navNotifEmpty">No new notifications</div>
+            </div>
+          </div>
+          <span class="user" id="userName"></span>
+          <button type="button" class="btn-outline" id="logoutBtn">Logout</button>
+        </div>
+      </header>
+      <div class="content">
+        <!-- Overview -->
+        <div id="view-overview" class="view active">
+          <div class="overview-grid" id="overviewStats"></div>
+          <div class="section-title">Recommended for you</div>
+          <div class="meal-cards" id="recommendedMeals"></div>
+        </div>
+        <!-- My Profile -->
+        <div id="view-profile" class="view">
+          <div class="profile-form">
+            <form id="profileForm">
+              <div class="form-section">
+                <h4>Basic Information</h4>
+                <div class="form-row"><label>Full Name</label><input type="text" name="full_name" id="pf_full_name" required></div>
+                <div class="form-row"><label>Email</label><input type="email" name="email" id="pf_email" readonly></div>
+                <div class="form-row"><label>Phone</label><input type="text" name="phone" id="pf_phone" placeholder="10–15 digits"></div>
+                <div class="form-grid-2">
+                  <div class="form-row"><label>Gender</label><select name="gender" id="pf_gender"><option value="">—</option><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select></div>
+                  <div class="form-row"><label>Date of Birth</label><input type="date" name="date_of_birth" id="pf_date_of_birth"></div>
+                </div>
+              </div>
+              <div class="form-section">
+                <h4>Address</h4>
+                <div class="form-row"><label>Address Line 1</label><input type="text" name="address_line1" id="pf_address_line1"></div>
+                <div class="form-row"><label>Address Line 2</label><input type="text" name="address_line2" id="pf_address_line2"></div>
+                <div class="form-grid-2">
+                  <div class="form-row"><label>City</label><input type="text" name="city" id="pf_city"></div>
+                  <div class="form-row"><label>State</label><input type="text" name="state" id="pf_state"></div>
+                </div>
+                <div class="form-row"><label>Pincode</label><input type="text" name="pincode" id="pf_pincode" placeholder="e.g. 400001"></div>
+                <div class="form-row"><label>Delivery Instructions</label><textarea name="delivery_instructions" id="pf_delivery_instructions" rows="2"></textarea></div>
+              </div>
+              <div class="form-section">
+                <h4>Nutrition &amp; Goals</h4>
+                <div class="form-grid-2">
+                  <div class="form-row"><label>Height (cm)</label><input type="number" name="height" id="pf_height" min="50" max="250" placeholder="cm"></div>
+                  <div class="form-row"><label>Weight (kg)</label><input type="number" name="weight" id="pf_weight" min="20" max="300" step="0.1" placeholder="kg"></div>
+                </div>
+                <div class="form-row"><label>Target Weight (kg)</label><input type="number" name="target_weight" id="pf_target_weight" min="20" max="300" step="0.1" placeholder="kg"></div>
+                <div class="form-row"><label>Fitness Goal</label><select name="fitness_goal" id="pf_fitness_goal"><option value="">—</option><option value="Weight Loss">Weight Loss</option><option value="Muscle Gain">Muscle Gain</option><option value="Maintenance">Maintenance</option><option value="Keto">Keto</option><option value="Custom Plan">Custom Plan</option></select></div>
+                <div class="form-row"><label>Dietary Preference</label><select name="dietary_preference" id="pf_dietary_preference"><option value="">—</option><option value="Veg">Veg</option><option value="Non-Veg">Non-Veg</option><option value="Vegan">Vegan</option><option value="Keto">Keto</option></select></div>
+                <div class="form-row"><label>Allergies</label><input type="text" name="allergies" id="pf_allergies" placeholder="e.g. Nuts, Dairy"></div>
+                <div class="form-row"><label>Daily Protein Target (g)</label><input type="number" name="protein_target" id="pf_protein_target" min="0" step="1" placeholder="grams"></div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary" id="profileSaveBtn">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+        <!-- FitChef Kitchen -->
+        <div id="view-meals" class="view">
+          <div class="filters">
+            <input type="text" id="mealsSearch" placeholder="Search dishes">
+            <select id="mealsCategory"><option value="">All categories</option><option value="Weight Loss">Weight Loss</option><option value="Muscle Gain">Muscle Gain</option><option value="Keto">Keto</option><option value="Vegan">Vegan</option><option value="Balanced">Balanced</option><option value="Custom">Custom</option></select>
+            <input type="number" id="mealsProteinMin" placeholder="Protein min" min="0" style="width:100px">
+            <input type="number" id="mealsProteinMax" placeholder="Protein max" min="0" style="width:100px">
+            <select id="mealsDietary"><option value="">Diet</option><option value="Veg">Veg</option><option value="Vegan">Vegan</option><option value="Keto">Keto</option></select>
+            <button type="button" class="btn-primary" id="mealsFilterBtn">Apply</button>
+          </div>
+          <div class="dish-grid" id="mealsGrid"></div>
+          <div id="mealsPagination" class="form-actions" style="margin-top:20px"></div>
+        </div>
+        <!-- My Orders -->
+        <div id="view-orders" class="view">
+          <div class="notifications-box" id="notificationsBox"></div>
+          <h4 class="order-history-title">Order History</h4>
+          <div class="order-list" id="ordersList"></div>
+        </div>
+        <!-- Feedback -->
+        <div id="view-feedback" class="view">
+          <form id="feedbackForm" class="feedback-form">
+            <div class="form-row"><label>Order</label><select name="order_id" id="feedbackOrderId" required><option value="">Select a delivered order</option></select></div>
+            <div class="form-row"><label>Overall Rating</label><div class="rating-stars" id="ratingOverall" data-name="overall_rating"></div><input type="hidden" name="overall_rating" id="feedbackOverall" value="0"></div>
+            <div class="form-row"><label>Food Quality</label><div class="rating-stars" id="ratingFood" data-name="food_rating"></div><input type="hidden" name="food_rating" id="feedbackFood" value="0"></div>
+            <div class="form-row"><label>Delivery Experience</label><div class="rating-stars" id="ratingDelivery" data-name="delivery_rating"></div><input type="hidden" name="delivery_rating" id="feedbackDelivery" value="0"></div>
+            <div class="form-row"><label>Would you recommend us?</label><select name="recommend" id="feedbackRecommend"><option value="1">Yes</option><option value="0">No</option></select></div>
+            <div class="form-row"><label>Comments</label><textarea name="comments" id="feedbackComments" rows="4"></textarea></div>
+            <button type="submit" class="btn-primary">Submit Feedback</button>
+          </form>
+        </div>
+        <!-- Support -->
+        <div id="view-support" class="view">
+          <form id="supportForm" class="support-form">
+            <div class="form-row"><label>Subject</label><input type="text" name="subject" id="supportSubject" required placeholder="Brief subject"></div>
+            <div class="form-row"><label>Message</label><textarea name="message" id="supportMessage" required rows="5" placeholder="Describe your issue or question"></textarea></div>
+            <div class="form-row"><label>Priority</label><select name="priority" id="supportPriority"><option value="Low">Low</option><option value="Medium" selected>Medium</option><option value="High">High</option></select></div>
+            <button type="submit" class="btn-primary">Submit Ticket</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+  <!-- Dish detail modal -->
+  <div class="modal-overlay" id="dishModal" aria-hidden="true">
+    <div class="modal-dialog modal-dish">
+      <button type="button" class="modal-close" id="dishModalClose" aria-label="Close">&times;</button>
+      <div id="dishModalContent"><div class="skeleton" style="height:200px"></div></div>
+    </div>
+  </div>
+  <!-- Place order step: price details + Continue -->
+  <div class="modal-overlay" id="placeOrderModal" aria-hidden="true">
+    <div class="modal-dialog modal-place-order">
+      <button type="button" class="modal-close" id="placeOrderModalClose" aria-label="Close">&times;</button>
+      <div id="placeOrderContent"></div>
+    </div>
+  </div>
+  <!-- Order created popup -->
+  <div class="modal-overlay" id="orderCreatedPopup" aria-hidden="true">
+    <div class="modal-dialog modal-alert">
+      <p class="order-created-message">Order created successfully!</p>
+      <button type="button" class="btn-primary" id="orderCreatedOkBtn">OK</button>
+    </div>
+  </div>
+  <!-- Order invoice modal (printable) -->
+  <div class="modal-overlay" id="invoiceModal" aria-hidden="true">
+    <div class="modal-dialog modal-invoice">
+      <button type="button" class="modal-close" id="invoiceModalClose" aria-label="Close">&times;</button>
+      <div id="invoiceModalContent" class="invoice-print-body"></div>
+      <div class="modal-invoice-actions"><button type="button" class="btn-primary" id="invoicePrintBtn">Print</button></div>
+    </div>
+  </div>
+  <div class="cart-badge" id="cartBadge" style="display:none"><span id="cartCount">0</span></div>
+  <script src="js/user-dashboard.js"></script>
+</body>
+</html>
