@@ -445,9 +445,26 @@
     openOrderDetailId = id;
     fetch(API + '/open-orders/' + id, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(o) {
       var items = (o.items || []).map(function(i) { return '<tr><td>' + (i.dish_name || 'Item') + '</td><td>' + (i.quantity || 1) + '</td><td>₹' + (i.price != null ? i.price : 0) + '</td></tr>'; }).join('');
-      openOrderDetailBody.innerHTML = '<p><strong>Order ID</strong> ' + (o.id || '') + '</p><p><strong>User</strong> ' + (o.user_name || '') + ' &ndash; ' + (o.user_email || '') + '</p><p><strong>Phone</strong> ' + (o.user_phone || '-') + '</p><p><strong>Address</strong> ' + [o.address_line1, o.address_line2, o.city, o.state, o.pincode].filter(Boolean).join(', ') || '-' + '</p><p><strong>Delivery instructions</strong> ' + (o.delivery_instructions || '-') + '</p><p><strong>Total</strong> ₹' + (o.total_amount != null ? o.total_amount : 0) + '</p><table class="table-wrap"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>' + items + '</tbody></table>';
+      var assignSection = '';
+      if (o.status === 'Confirmed') {
+        assignSection = '<div class="detail-modal-footer" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"><p><strong>Assign to Chef</strong></p><select id="openOrderAssignChef" style="margin-right:8px;padding:6px 12px"><option value="">— Select chef —</option></select><button type="button" class="btn-sm btn-primary" id="openOrderAssignBtn">Assign</button></div>';
+      }
+      openOrderDetailBody.innerHTML = '<p><strong>Order ID</strong> ' + (o.id || '') + '</p><p><strong>User</strong> ' + (o.user_name || '') + ' &ndash; ' + (o.user_email || '') + '</p><p><strong>Phone</strong> ' + (o.user_phone || '-') + '</p><p><strong>Address</strong> ' + [o.address_line1, o.address_line2, o.city, o.state, o.pincode].filter(Boolean).join(', ') || '-' + '</p><p><strong>Delivery instructions</strong> ' + (o.delivery_instructions || '-') + '</p><p><strong>Total</strong> ₹' + (o.total_amount != null ? o.total_amount : 0) + '</p><table class="table-wrap"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>' + items + '</tbody></table>' + assignSection;
       openOrderDetailModal.classList.add('open');
       openOrderDetailModal.setAttribute('aria-hidden', 'false');
+      if (o.status === 'Confirmed') {
+        fetch(API + '/chefs-for-assign', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+          var sel = document.getElementById('openOrderAssignChef');
+          if (sel) (res.data || []).forEach(function(c) { var opt = document.createElement('option'); opt.value = c.id; opt.textContent = (c.name || '') + ' (' + (c.email || '') + ')'; sel.appendChild(opt); });
+          document.getElementById('openOrderAssignBtn').addEventListener('click', function() {
+            var chefId = document.getElementById('openOrderAssignChef').value;
+            if (!chefId) { alert('Select a chef'); return; }
+            this.disabled = true;
+            fetch(API + '/open-orders/' + id + '/assign', { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ chef_id: parseInt(chefId, 10) }) }).then(function(r) { return r.json(); }).then(function(data) {
+              if (data.success) { alert(data.message || 'Chef assigned.'); openOrderDetailModal.classList.remove('open'); openOrderDetailId = null; loadOpenOrders(); } else alert(data.error || 'Failed'); }).catch(function() { alert('Failed'); }).finally(function() { document.getElementById('openOrderAssignBtn').disabled = false; });
+          });
+        }).catch(function() {});
+      }
     }).catch(function() { openOrderDetailBody.innerHTML = '<p class="loading">Failed to load order</p>'; });
   }
   document.getElementById('openOrderDetailClose').addEventListener('click', function() { openOrderDetailModal.classList.remove('open'); openOrderDetailModal.setAttribute('aria-hidden', 'true'); openOrderDetailId = null; });

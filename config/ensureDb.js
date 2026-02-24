@@ -66,6 +66,32 @@ async function ensureTables() {
   } catch (e) {
     if (e.code !== '42P01') console.warn('ensureDb: user dashboard', e.message);
   }
+  try {
+    await pool.query(loadSql('init-chef-dashboard.sql'));
+    console.log('ensureDb: chef dashboard OK');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: chef dashboard', e.message);
+  }
+}
+
+// Fixed FitChef chef: default chef@fitchef.fit / Chef@123 (saved in DB on first run)
+async function seedChefIfNeeded() {
+  try {
+    const r = await pool.query('SELECT id FROM chefs LIMIT 1');
+    if (r.rows.length > 0) return;
+    const bcrypt = require('bcrypt');
+    const email = process.env.INITIAL_CHEF_EMAIL || 'chef@fitchef.fit';
+    const password = process.env.INITIAL_CHEF_PASSWORD || 'Chef@123';
+    const name = process.env.INITIAL_CHEF_NAME || 'FitChef Chef';
+    const hash = await bcrypt.hash(password, 10);
+    await pool.query(
+      'INSERT INTO chefs (name, email, password_hash, mobile, address) VALUES ($1, $2, $3, $4, $5)',
+      [name, email, hash, '', '']
+    );
+    console.log('ensureDb: chef user created', email);
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: seed chef', e.message);
+  }
 }
 
 async function seedAdminIfNeeded() {
@@ -89,7 +115,10 @@ async function seedAdminIfNeeded() {
 
 async function ensureDb() {
   await ensureTables();
-  if (process.env.DATABASE_URL) await seedAdminIfNeeded();
+  if (process.env.DATABASE_URL) {
+    await seedAdminIfNeeded();
+    await seedChefIfNeeded();
+  }
 }
 
 module.exports = { ensureDb };

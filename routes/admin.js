@@ -28,10 +28,12 @@ router.get('/orders/:id', ordersController.getOne);
 router.post('/orders', ordersController.create);
 router.patch('/orders/:id', ordersController.update);
 
-// Open orders (user_orders from user dashboard - view & confirm)
+// Open orders (user_orders from user dashboard - view & confirm & assign chef)
 router.get('/open-orders', userOrdersController.list);
 router.get('/open-orders/:id', userOrdersController.getOne);
 router.patch('/open-orders/:id/confirm', userOrdersController.confirm);
+router.patch('/open-orders/:id/assign', userOrdersController.assignChef);
+router.get('/chefs-for-assign', userOrdersController.listChefsForAssign);
 
 // Chefs
 router.get('/chefs', chefsController.list);

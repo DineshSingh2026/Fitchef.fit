@@ -11,7 +11,8 @@
     "db:init": "node scripts/init-db.js",
     "db:consultations": "node scripts/init-consultations.js",
     "db:admin": "node scripts/run-init-admin.js",
-    "db:seed-admin": "node scripts/seed-admin.js"
+    "db:seed-admin": "node scripts/seed-admin.js",
+    "db:seed-chef": "node scripts/seed-chef.js"
   },
   "engines": {
     "node": ">=18.0.0"

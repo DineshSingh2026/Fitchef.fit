@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitChef Chef Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/chef-dashboard.css">
+</head>
+<body>
+  <div class="chef-dash-wrap">
+    <div class="chef-sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="chef-sidebar" id="sidebar">
+      <div class="chef-sidebar-brand">FitChef Chef</div>
+      <nav class="chef-sidebar-nav">
+        <a href="#" class="chef-nav-link active" data-view="overview">Dashboard Overview</a>
+        <a href="#" class="chef-nav-link" data-view="profile">My Profile</a>
+        <a href="#" class="chef-nav-link" data-view="openOrders">Open Orders</a>
+        <a href="#" class="chef-nav-link" data-view="completed">Completed Orders</a>
+        <a href="#" class="chef-nav-link" id="chefLogoutLink">Logout</a>
+      </nav>
+    </aside>
+    <main class="chef-main">
+      <header class="chef-navbar">
+        <button type="button" class="chef-nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+        <h2 id="viewTitle">Dashboard Overview</h2>
+        <div class="chef-navbar-right">
+          <span id="chefName"></span>
+          <button type="button" class="chef-btn-outline" id="chefLogoutBtn">Logout</button>
+        </div>
+      </header>
+      <div class="chef-content">
+        <div id="view-overview" class="chef-view active">
+          <div class="chef-overview-grid" id="overviewStats"></div>
+          <p class="content-intro">Orders assigned to you appear in Open Orders. Mark them ready when done.</p>
+        </div>
+        <div id="view-profile" class="chef-view">
+          <div class="chef-profile-form">
+            <form id="profileForm">
+              <div class="form-section">
+                <h4>Profile</h4>
+                <div class="form-row"><label>Name</label><input type="text" id="pf_name" required></div>
+                <div class="form-row"><label>Email</label><input type="email" id="pf_email" readonly></div>
+                <div class="form-row"><label>Mobile</label><input type="text" id="pf_mobile" placeholder="Contact number"></div>
+                <div class="form-row"><label>Kitchen Address</label><textarea id="pf_address" rows="3" placeholder="Your kitchen / prep address"></textarea></div>
+              </div>
+              <button type="submit" class="chef-btn-primary" id="profileSaveBtn">Save Changes</button>
+            </form>
+          </div>
+        </div>
+        <div id="view-openOrders" class="chef-view">
+          <div id="openOrdersList"></div>
+        </div>
+        <div id="view-completed" class="chef-view">
+          <div class="chef-completed-filters">
+            <button type="button" data-filter="today">Today</button>
+            <button type="button" data-filter="week">This Week</button>
+            <button type="button" data-filter="month">This Month</button>
+            <button type="button" data-filter="">All</button>
+          </div>
+          <div class="chef-completed-list" id="completedOrdersList"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/chef-dashboard.js"></script>
+</body>
+</html>

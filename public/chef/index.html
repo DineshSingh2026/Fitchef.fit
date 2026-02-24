@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitChef Chef – Login</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/chef-dashboard.css">
+</head>
+<body class="chef-login-page">
+  <div class="chef-login-card">
+    <div class="chef-login-header">
+      <h1>FitChef</h1>
+      <p>Chef Dashboard</p>
+    </div>
+    <form id="chefLoginForm" class="chef-login-form">
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="chef@fitchef.fit">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password" placeholder="••••••••">
+      </div>
+      <div id="loginError" class="error-message" role="alert" hidden></div>
+      <button type="submit" class="btn btn-primary" id="loginBtn">Sign in</button>
+    </form>
+  </div>
+  <script>
+    (function() {
+      if (localStorage.getItem('chefToken')) {
+        window.location.href = 'dashboard.html';
+        return;
+      }
+      var form = document.getElementById('chefLoginForm');
+      var errorEl = document.getElementById('loginError');
+      var btn = document.getElementById('loginBtn');
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        errorEl.hidden = true;
+        btn.disabled = true;
+        fetch('/api/chef/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: document.getElementById('email').value.trim(),
+            password: document.getElementById('password').value
+          })
+        })
+          .then(function(r) { return r.json().then(function(d) { return { ok: r.ok, data: d }; }); })
+          .then(function(r) {
+            if (r.ok && r.data.token) {
+              localStorage.setItem('chefToken', r.data.token);
+              localStorage.setItem('chefUser', JSON.stringify(r.data.chef || {}));
+              window.location.href = 'dashboard.html';
+            } else {
+              errorEl.textContent = (r.data && r.data.error) || 'Login failed';
+              errorEl.hidden = false;
+            }
+          })
+          .catch(function() {
+            errorEl.textContent = 'Network error. Try again.';
+            errorEl.hidden = false;
+          })
+          .finally(function() { btn.disabled = false; });
+      });
+    })();
+  </script>
+</body>
+</html>

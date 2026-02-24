@@ -76,12 +76,12 @@ async function getOne(req, res) {
   }
 }
 
-/** PATCH /api/admin/open-orders/:id/confirm - set status Confirmed and notify user */
+/** PATCH /api/admin/open-orders/:id/confirm - set status Confirmed, admin_approved, delivery from user profile, notify user */
 async function confirm(req, res) {
   try {
     const id = req.params.id;
     const orderResult = await pool.query(
-      'SELECT id, user_id, status FROM user_orders WHERE id = $1',
+      'SELECT o.id, o.user_id, o.status, u.address_line1, u.address_line2, u.city, u.state, u.pincode, u.delivery_instructions AS user_instructions FROM user_orders o LEFT JOIN site_users u ON u.id = o.user_id WHERE o.id = $1',
       [id]
     );
     if (orderResult.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
@@ -89,10 +89,13 @@ async function confirm(req, res) {
     if (order.status !== 'Open') {
       return res.status(400).json({ error: 'Order is not in Open status' });
     }
+    const parts = [order.address_line1, order.address_line2, order.city, order.state, order.pincode].filter(Boolean);
+    const deliveryAddress = parts.join(', ') || null;
+    const deliveryInstructions = order.user_instructions || null;
 
     await pool.query(
-      "UPDATE user_orders SET status = 'Confirmed' WHERE id = $1",
-      [id]
+      `UPDATE user_orders SET status = 'Confirmed', admin_approved = true, delivery_address = $2, delivery_instructions = $3 WHERE id = $1`,
+      [id, deliveryAddress, deliveryInstructions]
     );
     await pool.query(
       `INSERT INTO user_notifications (user_id, order_id, message) VALUES ($1, $2, $3)`,
@@ -106,4 +109,39 @@ async function confirm(req, res) {
   }
 }
 
-module.exports = { list, getOne, confirm };
+/** PATCH /api/admin/open-orders/:id/assign - assign chef to a confirmed order (chef sees it in open orders) */
+async function assignChef(req, res) {
+  try {
+    const id = req.params.id;
+    const chefId = req.body.chef_id != null ? parseInt(req.body.chef_id, 10) : null;
+    if (!chefId) return res.status(400).json({ error: 'chef_id is required' });
+    const orderResult = await pool.query(
+      'SELECT id, status FROM user_orders WHERE id = $1',
+      [id]
+    );
+    if (orderResult.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
+    if (orderResult.rows[0].status !== 'Confirmed') {
+      return res.status(400).json({ error: 'Order must be Confirmed to assign chef' });
+    }
+    const chefCheck = await pool.query('SELECT id FROM chefs WHERE id = $1', [chefId]);
+    if (chefCheck.rows.length === 0) return res.status(400).json({ error: 'Chef not found' });
+    await pool.query('UPDATE user_orders SET chef_id = $1 WHERE id = $2', [chefId, id]);
+    res.json({ success: true, message: 'Chef assigned.' });
+  } catch (err) {
+    console.error('Assign chef error:', err);
+    res.status(500).json({ error: 'Failed to assign chef' });
+  }
+}
+
+/** GET /api/admin/chefs-for-assign - list chefs (id, name, email) for assigning to orders */
+async function listChefsForAssign(req, res) {
+  try {
+    const result = await pool.query('SELECT id, name, email FROM chefs ORDER BY name');
+    res.json({ data: result.rows });
+  } catch (err) {
+    console.error('List chefs for assign error:', err);
+    res.status(500).json({ error: 'Failed to load chefs' });
+  }
+}
+
+module.exports = { list, getOne, confirm, assignChef, listChefsForAssign };
