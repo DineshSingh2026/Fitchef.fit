@@ -12,6 +12,7 @@ const adminRoutes = require('./routes/admin');
 const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/user');
 const chefRoutes = require('./routes/chef');
+const logisticsRoutes = require('./routes/logistics');
 const healthRoutes = require('./routes/health');
 const publicDishesController = require('./controllers/publicDishesController');
 
@@ -33,11 +34,13 @@ app.get('/api/dishes', publicDishesController.list);
 app.get('/api/dishes/:id', publicDishesController.getOne);
 app.use('/api/user', userRoutes);
 app.use('/api/chef', chefRoutes);
+app.use('/api/logistics', logisticsRoutes);
 app.use('/api/health', healthRoutes);
 
 app.get('/admin', (req, res) => res.redirect('/admin/index.html'));
 app.get('/user', (req, res) => res.redirect('/user/dashboard.html'));
 app.get('/chef', (req, res) => res.redirect('/chef/index.html'));
+app.get('/logistics', (req, res) => res.redirect('/logistics/index.html'));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

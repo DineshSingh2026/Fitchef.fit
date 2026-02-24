@@ -93,9 +93,11 @@ async function confirm(req, res) {
     const deliveryAddress = parts.join(', ') || null;
     const deliveryInstructions = order.user_instructions || null;
 
+    const defaultChef = await pool.query('SELECT id FROM chefs ORDER BY id LIMIT 1');
+    const chefId = defaultChef.rows[0] ? defaultChef.rows[0].id : null;
     await pool.query(
-      `UPDATE user_orders SET status = 'Confirmed', admin_approved = true, delivery_address = $2, delivery_instructions = $3 WHERE id = $1`,
-      [id, deliveryAddress, deliveryInstructions]
+      `UPDATE user_orders SET status = 'Confirmed', admin_approved = true, delivery_address = $2, delivery_instructions = $3, chef_id = $4 WHERE id = $1`,
+      [id, deliveryAddress, deliveryInstructions, chefId]
     );
     await pool.query(
       `INSERT INTO user_notifications (user_id, order_id, message) VALUES ($1, $2, $3)`,

@@ -262,10 +262,6 @@
                   <div class="form-row form-row-full">
                     <label><input type="checkbox" id="dishFeatured" name="featured" value="1"> Featured dish</label>
                   </div>
-                  <div class="form-row form-row-full">
-                    <label for="dishChef">Chef assigned</label>
-                    <select id="dishChef" name="chef_id"><option value="">— None —</option></select>
-                  </div>
                 </div>
                 <div class="form-actions">
                   <button type="button" class="btn-outline dish-form-close">Cancel</button>
@@ -445,26 +441,9 @@
     openOrderDetailId = id;
     fetch(API + '/open-orders/' + id, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(o) {
       var items = (o.items || []).map(function(i) { return '<tr><td>' + (i.dish_name || 'Item') + '</td><td>' + (i.quantity || 1) + '</td><td>₹' + (i.price != null ? i.price : 0) + '</td></tr>'; }).join('');
-      var assignSection = '';
-      if (o.status === 'Confirmed') {
-        assignSection = '<div class="detail-modal-footer" style="margin-top:16px;padding-top:16px;border-top:1px solid var(--border)"><p><strong>Assign to Chef</strong></p><select id="openOrderAssignChef" style="margin-right:8px;padding:6px 12px"><option value="">— Select chef —</option></select><button type="button" class="btn-sm btn-primary" id="openOrderAssignBtn">Assign</button></div>';
-      }
-      openOrderDetailBody.innerHTML = '<p><strong>Order ID</strong> ' + (o.id || '') + '</p><p><strong>User</strong> ' + (o.user_name || '') + ' &ndash; ' + (o.user_email || '') + '</p><p><strong>Phone</strong> ' + (o.user_phone || '-') + '</p><p><strong>Address</strong> ' + [o.address_line1, o.address_line2, o.city, o.state, o.pincode].filter(Boolean).join(', ') || '-' + '</p><p><strong>Delivery instructions</strong> ' + (o.delivery_instructions || '-') + '</p><p><strong>Total</strong> ₹' + (o.total_amount != null ? o.total_amount : 0) + '</p><table class="table-wrap"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>' + items + '</tbody></table>' + assignSection;
+      openOrderDetailBody.innerHTML = '<p><strong>Order ID</strong> ' + (o.id || '') + '</p><p><strong>User</strong> ' + (o.user_name || '') + ' &ndash; ' + (o.user_email || '') + '</p><p><strong>Phone</strong> ' + (o.user_phone || '-') + '</p><p><strong>Address</strong> ' + [o.address_line1, o.address_line2, o.city, o.state, o.pincode].filter(Boolean).join(', ') || '-' + '</p><p><strong>Delivery instructions</strong> ' + (o.delivery_instructions || '-') + '</p><p><strong>Total</strong> ₹' + (o.total_amount != null ? o.total_amount : 0) + '</p><table class="table-wrap"><thead><tr><th>Item</th><th>Qty</th><th>Price</th></tr></thead><tbody>' + items + '</tbody></table>';
       openOrderDetailModal.classList.add('open');
       openOrderDetailModal.setAttribute('aria-hidden', 'false');
-      if (o.status === 'Confirmed') {
-        fetch(API + '/chefs-for-assign', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
-          var sel = document.getElementById('openOrderAssignChef');
-          if (sel) (res.data || []).forEach(function(c) { var opt = document.createElement('option'); opt.value = c.id; opt.textContent = (c.name || '') + ' (' + (c.email || '') + ')'; sel.appendChild(opt); });
-          document.getElementById('openOrderAssignBtn').addEventListener('click', function() {
-            var chefId = document.getElementById('openOrderAssignChef').value;
-            if (!chefId) { alert('Select a chef'); return; }
-            this.disabled = true;
-            fetch(API + '/open-orders/' + id + '/assign', { method: 'PATCH', headers: authHeaders(), body: JSON.stringify({ chef_id: parseInt(chefId, 10) }) }).then(function(r) { return r.json(); }).then(function(data) {
-              if (data.success) { alert(data.message || 'Chef assigned.'); openOrderDetailModal.classList.remove('open'); openOrderDetailId = null; loadOpenOrders(); } else alert(data.error || 'Failed'); }).catch(function() { alert('Failed'); }).finally(function() { document.getElementById('openOrderAssignBtn').disabled = false; });
-          });
-        }).catch(function() {});
-      }
     }).catch(function() { openOrderDetailBody.innerHTML = '<p class="loading">Failed to load order</p>'; });
   }
   document.getElementById('openOrderDetailClose').addEventListener('click', function() { openOrderDetailModal.classList.remove('open'); openOrderDetailModal.setAttribute('aria-hidden', 'true'); openOrderDetailId = null; });
@@ -711,14 +690,6 @@
   document.getElementById('dishesFilterBtn').addEventListener('click', function() { dishesPage = 1; loadDishes(); });
   document.getElementById('dishesAddBtn').addEventListener('click', function() { openDishForm(null); });
 
-  function loadChefsForDishSelect() {
-    fetch(API + '/chefs?limit=200', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
-      var sel = document.getElementById('dishChef');
-      if (!sel) return;
-      var opts = '<option value="">— None —</option>' + (res.data || []).map(function(c) { return '<option value="' + c.id + '">' + (c.full_name || c.email) + '</option>'; }).join('');
-      sel.innerHTML = opts;
-    });
-  }
   function openDishForm(id) {
     editingDishId = id || null;
     document.getElementById('dishFormTitle').textContent = id ? 'Edit Dish' : 'Add Dish';
@@ -726,7 +697,6 @@
     document.getElementById('dishId').value = id || '';
     document.getElementById('dishImagePreview').innerHTML = '';
     document.getElementById('dishAvailable').checked = true;
-    loadChefsForDishSelect();
     if (id) {
       fetch(API + '/dishes/' + id, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(d) {
         document.getElementById('dishName').value = d.name || '';
@@ -748,7 +718,6 @@
         document.getElementById('dishSubscriptionEligible').checked = d.subscription_eligible === true;
         document.getElementById('dishAvailable').checked = d.available !== false;
         document.getElementById('dishFeatured').checked = d.featured === true;
-        document.getElementById('dishChef').value = d.chef_id != null ? d.chef_id : '';
         var allergens = (d.allergens || '').split(/[,\s]+/).filter(Boolean);
         document.querySelectorAll('#dishForm input[name="allergen"]').forEach(function(cb) { cb.checked = allergens.indexOf(cb.value) !== -1; });
         if (d.image_url) document.getElementById('dishImagePreview').innerHTML = '<img src="' + d.image_url + '" alt="Current">';
@@ -791,8 +760,6 @@
     formData.append('subscription_eligible', form.querySelector('#dishSubscriptionEligible').checked ? '1' : '0');
     formData.append('available', form.querySelector('#dishAvailable').checked ? '1' : '0');
     formData.append('featured', form.querySelector('#dishFeatured').checked ? '1' : '0');
-    var chefId = form.querySelector('#dishChef').value;
-    if (chefId) formData.append('chef_id', chefId);
     var allergens = Array.from(form.querySelectorAll('input[name="allergen"]:checked')).map(function(c) { return c.value; }).join(', ');
     formData.append('allergens', allergens);
     var img = form.querySelector('#dishImage');

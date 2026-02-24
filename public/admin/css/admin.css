@@ -23,7 +23,7 @@
 }
 
 * { box-sizing: border-box; }
-html { overflow-x: hidden; }
+html { overflow-x: hidden; max-width: 100%; }
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -34,6 +34,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   max-width: 100vw;
+  width: 100%;
 }
 
 /* ========== Login ========== */
@@ -390,6 +391,7 @@ body {
 }
 .table-wrap table {
   min-width: 0;
+  width: 100%;
 }
 table {
   width: 100%;
@@ -400,6 +402,8 @@ th, td {
   padding: 14px 24px;
   text-align: left;
   border-bottom: 1px solid var(--border);
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 th {
   background: var(--bg);
@@ -659,6 +663,13 @@ tr:last-child td { border-bottom: none; }
 }
 
 @media (max-width: 480px) {
-  .sidebar { width: 100%; }
+  .sidebar { width: 100%; max-width: 100%; }
   .nav-link { padding: 14px 20px; }
+  th, td { padding: 10px 12px; font-size: 0.75rem; }
+  .detail-modal-content { max-height: 85vh; margin: 10px; }
 }
+
+/* No horizontal scroll - content fits viewport */
+.dash-wrap, .main, .content { overflow-x: hidden; }
+.detail-table th, .detail-table td { word-break: break-word; }
+.detail-modal-content { max-width: calc(100vw - 24px); }

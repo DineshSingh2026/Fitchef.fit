@@ -20,7 +20,7 @@
 }
 
 * { box-sizing: border-box; }
-html { overflow-x: hidden; }
+html { overflow-x: hidden; max-width: 100%; }
 body {
   margin: 0;
   font-family: 'Inter', -apple-system, sans-serif;
@@ -28,6 +28,9 @@ body {
   color: var(--text);
   font-size: 15px;
   line-height: 1.5;
+  overflow-x: hidden;
+  max-width: 100vw;
+  width: 100%;
 }
 
 /* Login */
@@ -75,7 +78,7 @@ body {
 .chef-login-form .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 
 /* Dashboard layout */
-.chef-dash-wrap { display: flex; min-height: 100vh; }
+.chef-dash-wrap { display: flex; min-height: 100vh; overflow-x: hidden; max-width: 100vw; width: 100%; }
 .chef-sidebar-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 100; }
 .chef-sidebar-overlay.open { display: block; }
 .chef-sidebar {
@@ -101,7 +104,7 @@ body {
 }
 .chef-nav-link:hover { background: rgba(255,255,255,.1); color: #fff; }
 .chef-nav-link.active { background: rgba(255,255,255,.2); color: #fff; font-weight: 600; }
-.chef-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+.chef-main { flex: 1; display: flex; flex-direction: column; min-width: 0; max-width: 100%; overflow-x: hidden; }
 .chef-navbar {
   display: flex;
   align-items: center;
@@ -114,7 +117,7 @@ body {
 .chef-navbar h2 { margin: 0; font-size: 1.2rem; font-weight: 600; }
 .chef-navbar-right { display: flex; align-items: center; gap: 12px; }
 .chef-nav-toggle { display: none; background: none; border: none; padding: 8px; cursor: pointer; }
-.chef-content { padding: 24px; flex: 1; }
+.chef-content { padding: 24px; flex: 1; overflow-x: hidden; min-width: 0; max-width: 100%; }
 .chef-view { display: none; }
 .chef-view.active { display: block; }
 
@@ -151,8 +154,12 @@ body {
   padding: 20px;
   margin-bottom: 20px;
   border-left: 4px solid var(--accent);
+  max-width: 100%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 .chef-order-card-header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin-bottom: 12px; }
+.chef-order-address, .chef-order-instructions, .chef-dish-meta { word-break: break-word; }
 .chef-order-id { font-weight: 700; font-size: 0.95rem; }
 .chef-order-date { color: var(--text-muted); font-size: 0.9rem; }
 .chef-order-customer { font-size: 0.9rem; }
@@ -203,4 +210,10 @@ body {
   .chef-nav-toggle { display: block; }
   .chef-content { padding: 16px; }
   .chef-overview-grid { grid-template-columns: 1fr; }
+  .chef-navbar { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+  .chef-navbar h2 { font-size: 1rem; min-width: 0; }
+}
+@media (max-width: 480px) {
+  .chef-sidebar { width: 100%; max-width: 100%; }
+  .chef-order-card { padding: 16px; }
 }

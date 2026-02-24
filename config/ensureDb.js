@@ -72,6 +72,12 @@ async function ensureTables() {
   } catch (e) {
     if (e.code !== '42P01') console.warn('ensureDb: chef dashboard', e.message);
   }
+  try {
+    await pool.query(loadSql('init-logistics-dashboard.sql'));
+    console.log('ensureDb: logistics dashboard OK');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: logistics dashboard', e.message);
+  }
 }
 
 // Fixed FitChef chef: default chef@fitchef.fit / Chef@123 (saved in DB on first run)
@@ -91,6 +97,39 @@ async function seedChefIfNeeded() {
     console.log('ensureDb: chef user created', email);
   } catch (e) {
     if (e.code !== '42P01') console.warn('ensureDb: seed chef', e.message);
+  }
+}
+
+// Fixed FitChef logistics: default logistics@fitchef.fit / Logistics@123 (saved in DB on first run)
+async function seedLogisticsIfNeeded() {
+  try {
+    const r = await pool.query('SELECT id FROM logistics_users LIMIT 1');
+    if (r.rows.length > 0) return;
+    const bcrypt = require('bcrypt');
+    const email = process.env.INITIAL_LOGISTICS_EMAIL || 'logistics@fitchef.fit';
+    const password = process.env.INITIAL_LOGISTICS_PASSWORD || 'Logistics@123';
+    const name = process.env.INITIAL_LOGISTICS_NAME || 'FitChef Logistics';
+    const hash = await bcrypt.hash(password, 10);
+    await pool.query(
+      'INSERT INTO logistics_users (name, email, password_hash) VALUES ($1, $2, $3)',
+      [name, email, hash]
+    );
+    console.log('ensureDb: logistics user created', email);
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: seed logistics', e.message);
+  }
+}
+
+async function seedDeliveryAgentIfNeeded() {
+  try {
+    const r = await pool.query('SELECT id FROM delivery_agents LIMIT 1');
+    if (r.rows.length > 0) return;
+    await pool.query(
+      `INSERT INTO delivery_agents (name, mobile, vehicle_number, availability_status) VALUES ('FitChef Delivery', '9999999999', 'DL01AB1234', 'available')`
+    );
+    console.log('ensureDb: default delivery agent created');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: seed delivery agent', e.message);
   }
 }
 
@@ -118,6 +157,8 @@ async function ensureDb() {
   if (process.env.DATABASE_URL) {
     await seedAdminIfNeeded();
     await seedChefIfNeeded();
+    await seedLogisticsIfNeeded();
+    await seedDeliveryAgentIfNeeded();
   }
 }
 

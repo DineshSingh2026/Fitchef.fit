@@ -11,4 +11,8 @@ const pool = new Pool({
   ssl: useSsl ? { rejectUnauthorized: false } : false,
 });
 
+pool.on('error', (err) => {
+  console.error('Database pool error:', err.message);
+});
+
 module.exports = pool;

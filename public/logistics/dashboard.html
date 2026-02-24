@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FitChef Logistics Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/logistics-dashboard.css">
+</head>
+<body>
+  <div class="logistics-dash-wrap">
+    <div class="logistics-sidebar-overlay" id="sidebarOverlay"></div>
+    <aside class="logistics-sidebar" id="sidebar">
+      <div class="logistics-sidebar-brand">FitChef Logistics</div>
+      <nav class="logistics-sidebar-nav">
+        <a href="#" class="logistics-nav-link active" data-view="overview">Dashboard Overview</a>
+        <a href="#" class="logistics-nav-link" data-view="open">Open Orders</a>
+        <a href="#" class="logistics-nav-link" data-view="ready">Ready for Dispatch</a>
+        <a href="#" class="logistics-nav-link" data-view="out">Out for Delivery</a>
+        <a href="#" class="logistics-nav-link" data-view="delivered">Delivered Orders</a>
+        <a href="#" class="logistics-nav-link" id="logisticsLogoutLink">Logout</a>
+      </nav>
+    </aside>
+    <main class="logistics-main">
+      <header class="logistics-navbar">
+        <button type="button" class="logistics-nav-toggle" id="navToggle" aria-label="Menu">☰</button>
+        <h2 id="viewTitle">Dashboard Overview</h2>
+        <div class="logistics-navbar-right">
+          <span id="logisticsUserName"></span>
+          <button type="button" class="logistics-btn-outline" id="logisticsLogoutBtn">Logout</button>
+        </div>
+      </header>
+      <div class="logistics-content">
+        <div id="view-overview" class="logistics-view active">
+          <div class="logistics-overview-grid" id="overviewStats"></div>
+          <p class="logistics-content-intro">Delivery operations at a glance. Use Ready for Dispatch to assign agents and mark Out for Delivery.</p>
+        </div>
+        <div id="view-open" class="logistics-view">
+          <div id="openOrdersList" class="logistics-order-list"></div>
+        </div>
+        <div id="view-ready" class="logistics-view">
+          <div id="readyOrdersList" class="logistics-order-list"></div>
+        </div>
+        <div id="view-out" class="logistics-view">
+          <div id="outOrdersList" class="logistics-order-list"></div>
+        </div>
+        <div id="view-delivered" class="logistics-view">
+          <div class="logistics-delivered-filters">
+            <button type="button" data-filter="today">Today</button>
+            <button type="button" data-filter="week">This Week</button>
+            <button type="button" data-filter="month">This Month</button>
+            <button type="button" data-filter="">All</button>
+          </div>
+          <div id="deliveredOrdersList" class="logistics-order-list"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script src="js/logistics-dashboard.js"></script>
+</body>
+</html>
