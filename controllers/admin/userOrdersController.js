@@ -15,7 +15,7 @@ async function list(req, res) {
     const total = parseInt(countResult.rows[0].total, 10);
 
     const result = await pool.query(
-      `SELECT o.id, o.user_id, o.total_amount, o.status, o.payment_status, o.created_at,
+      `SELECT o.id, o.user_id, o.total_amount, o.status, o.payment_status, o.created_at, o.requested_delivery_date,
               u.full_name AS user_name, u.email AS user_email, u.phone AS user_phone
        FROM user_orders o
        LEFT JOIN site_users u ON u.id = o.user_id
@@ -49,7 +49,7 @@ async function getOne(req, res) {
   try {
     const id = req.params.id;
     const orderResult = await pool.query(
-      `SELECT o.id, o.user_id, o.total_amount, o.status, o.payment_status, o.created_at,
+      `SELECT o.id, o.user_id, o.total_amount, o.status, o.payment_status, o.created_at, o.requested_delivery_date,
               u.full_name AS user_name, u.email AS user_email, u.phone AS user_phone,
               u.address_line1, u.address_line2, u.city, u.state, u.pincode, u.delivery_instructions
        FROM user_orders o

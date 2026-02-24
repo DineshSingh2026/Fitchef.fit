@@ -116,8 +116,10 @@
         var allergyHtml = allergies.length
           ? '<div class="chef-allergy-box"><span class="title">⚠ Allergies:</span><ul><li>' + allergies.join('</li><li>') + '</li></ul></div>'
           : '<div class="chef-allergy-box empty"><span class="title">No allergy notes for this order.</span></div>';
+        var deliveryDateStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '—';
         return '<div class="chef-order-card" data-order-id="' + o.id + '">' +
           '<div class="chef-order-card-header"><span class="chef-order-id">' + idShort + '</span><span class="chef-order-date">' + dateStr + '</span><span class="chef-order-customer">' + (customerName || '').replace(/</g, '&lt;') + '</span></div>' +
+          '<div class="chef-order-row"><strong>Delivery date:</strong> ' + deliveryDateStr + '</div>' +
           '<div class="chef-order-address">' + (address || '').replace(/</g, '&lt;') + '</div>' +
           (instructions ? '<div class="chef-order-instructions">' + (instructions || '').replace(/</g, '&lt;') + '</div>' : '') +
           '<div class="chef-dishes-list">' + dishesHtml + '</div>' +
@@ -158,8 +160,10 @@
         var idShort = (o.id || '').toString().slice(0, 8) + '…';
         var statusClass = (o.status || '').toLowerCase().replace(/\s/g, '');
         var dishesStr = (o.items || []).map(function (d) { return (d.quantity || 1) + '× ' + (d.dish_name || ''); }).join(', ');
+        var deliveryDateStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '—';
         return '<div class="chef-order-card">' +
           '<div class="chef-order-card-header"><span class="chef-order-id">' + idShort + '</span><span class="chef-order-date">' + dateStr + '</span><span class="chef-order-status ' + statusClass + '">' + (o.status || '') + '</span></div>' +
+          '<div class="chef-order-row"><strong>Delivery date:</strong> ' + deliveryDateStr + '</div>' +
           '<div class="chef-order-address">' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
           '<p class="chef-dish-meta">' + dishesStr + '</p>' +
           '<p class="chef-completed-at">Completed: ' + completedStr + '</p></div>';

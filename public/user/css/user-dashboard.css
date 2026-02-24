@@ -119,6 +119,22 @@ body {
 .section-title { font-size: 1rem; font-weight: 600; margin: 24px 0 12px; color: var(--text); }
 .meal-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 16px; }
 
+/* Web: use horizontal space so recommended dishes fit without scrolling */
+@media (min-width: 769px) {
+  .meal-cards {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+  }
+  .meal-cards .dish-card-image { height: 140px; }
+  .meal-cards .dish-card-body { padding: 14px; }
+  .meal-cards .dish-card-title { font-size: 1rem; margin-bottom: 6px; }
+  .meal-cards .dish-card-meta { font-size: 0.75rem; margin-bottom: 6px; }
+  .meal-cards .dish-card-benefits { font-size: 0.8rem; max-height: 2.4em; margin-bottom: 10px; }
+  .meal-cards .dish-card-footer { gap: 8px; }
+  .meal-cards .dish-card-actions .btn-outline,
+  .meal-cards .dish-card-actions .btn-primary { padding: 8px 14px; font-size: 0.85rem; }
+}
+
 /* Profile form */
 .profile-form { max-width: 560px; }
 .form-section { margin-bottom: 28px; }
@@ -237,6 +253,10 @@ body {
 .place-order-qty { margin-bottom: 12px; }
 .place-order-qty label { display: block; margin-bottom: 4px; }
 .place-order-qty input { width: 80px; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.place-order-date { margin-bottom: 12px; }
+.place-order-date label { display: block; margin-bottom: 4px; }
+.place-order-date input { width: 100%; max-width: 200px; padding: 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); }
+.place-order-date .required { color: var(--text-muted); }
 .place-order-total { font-weight: 700; font-size: 1.1rem; margin-bottom: 16px; }
 #placeOrderContent { padding: 20px; }
 

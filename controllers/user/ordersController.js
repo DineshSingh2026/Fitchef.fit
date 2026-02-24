@@ -26,7 +26,7 @@ async function list(req, res) {
     const total = parseInt(countResult.rows[0].total, 10);
 
     const ordersResult = await pool.query(
-      `SELECT o.id, o.total_amount, o.status, o.payment_status, o.created_at
+      `SELECT o.id, o.total_amount, o.status, o.payment_status, o.created_at, o.requested_delivery_date
        FROM user_orders o ${where}
        ORDER BY o.created_at DESC
        LIMIT $${limitIdx} OFFSET $${offsetIdx}`,
@@ -55,19 +55,31 @@ async function list(req, res) {
 async function create(req, res) {
   try {
     const userId = req.user.id;
-    const { items } = req.body;
+    const { items, requested_delivery_date } = req.body;
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: 'At least one item is required' });
     }
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    const requestedDate = requested_delivery_date ? new Date(String(requested_delivery_date).trim()) : null;
+    if (!requestedDate || isNaN(requestedDate.getTime())) {
+      return res.status(400).json({ error: 'Please select a delivery date (at least 24 hours from now).' });
+    }
+    requestedDate.setHours(0, 0, 0, 0);
+    if (requestedDate.getTime() < tomorrow.getTime()) {
+      return res.status(400).json({ error: 'Delivery date must be tomorrow or later. Orders cannot be delivered on the same day.' });
+    }
+    const deliveryDateStr = requestedDate.toISOString().slice(0, 10);
 
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
       const orderResult = await client.query(
-        `INSERT INTO user_orders (user_id, total_amount, status, payment_status)
-         VALUES ($1, 0, 'Open', 'pending')
-         RETURNING id, total_amount, status, payment_status, created_at`,
-        [userId]
+        `INSERT INTO user_orders (user_id, total_amount, status, payment_status, requested_delivery_date)
+         VALUES ($1, 0, 'Open', 'pending', $2)
+         RETURNING id, total_amount, status, payment_status, created_at, requested_delivery_date`,
+        [userId, deliveryDateStr]
       );
       const order = orderResult.rows[0];
       let total = 0;

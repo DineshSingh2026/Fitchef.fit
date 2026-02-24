@@ -163,6 +163,7 @@ body {
 .chef-order-id { font-weight: 700; font-size: 0.95rem; }
 .chef-order-date { color: var(--text-muted); font-size: 0.9rem; }
 .chef-order-customer { font-size: 0.9rem; }
+.chef-order-row { margin: 6px 0; font-size: 0.9rem; color: var(--text); }
 .chef-order-address { margin: 8px 0; padding: 12px; background: var(--bg); border-radius: var(--radius-sm); font-size: 0.9rem; color: var(--text); }
 .chef-order-instructions { margin-bottom: 12px; font-size: 0.9rem; color: var(--text-muted); font-style: italic; }
 .chef-dishes-list { margin: 16px 0; }

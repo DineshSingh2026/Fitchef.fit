@@ -9,7 +9,7 @@ async function openOrders(req, res) {
   try {
     const chefId = req.user.id;
     const result = await pool.query(
-      `SELECT o.id, o.created_at, o.delivery_address, o.delivery_instructions,
+      `SELECT o.id, o.created_at, o.requested_delivery_date, o.delivery_address, o.delivery_instructions,
               TRIM(SPLIT_PART(COALESCE(u.full_name, 'Customer'), ' ', 1)) AS customer_first_name
        FROM user_orders o
        INNER JOIN site_users u ON u.id = o.user_id
@@ -65,7 +65,7 @@ async function completedOrders(req, res) {
       dateCondition = " AND o.completed_at >= CURRENT_DATE - INTERVAL '30 days'";
     }
     const result = await pool.query(
-      `SELECT o.id, o.status, o.created_at, o.completed_at, o.delivery_address, o.delivery_instructions,
+      `SELECT o.id, o.status, o.created_at, o.completed_at, o.requested_delivery_date, o.delivery_address, o.delivery_instructions,
               TRIM(SPLIT_PART(COALESCE(u.full_name, 'Customer'), ' ', 1)) AS customer_first_name
        FROM user_orders o
        INNER JOIN site_users u ON u.id = o.user_id

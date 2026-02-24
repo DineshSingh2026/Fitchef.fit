@@ -99,9 +99,11 @@
           listEl.innerHTML = '<p style="color:var(--log-text-muted);font-size:1.1rem">No open orders (Confirmed, admin-approved).</p>';
           return;
         }
+        function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
         listEl.innerHTML = orders.map(function (o) {
           return '<div class="logistics-order-card status-confirmed" data-order-id="' + o.id + '">' +
             '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.created_at) + '</span></div>' +
+            '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
             '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
             '<div class="logistics-order-row"><strong>Mobile:</strong> ' + (o.user_mobile || '—').replace(/</g, '&lt;') + '</div>' +
             '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
@@ -132,6 +134,7 @@
           return '<option value="' + a.id + '"' + sel + '>' + (a.name || '').replace(/</g, '&lt;') + ' – ' + (a.mobile || '').replace(/</g, '&lt;') + (a.vehicle_number ? ' (' + (a.vehicle_number || '').replace(/</g, '&lt;') + ')' : '') + '</option>';
         }).join('');
       }
+      function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
       listEl.innerHTML = orders.map(function (o) {
         var assignHtml = '<div class="logistics-assign-row">' +
           '<select class="agent-select" data-order-id="' + o.id + '">' + agentOptions(o.assigned_agent_id) + '</select>' +
@@ -142,6 +145,7 @@
           : '<span style="color:var(--log-text-muted)">Assign an agent first.</span>';
         return '<div class="logistics-order-card status-ready" data-order-id="' + o.id + '">' +
           '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.created_at) + '</span></div>' +
+          '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
           '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
           '<div class="logistics-order-row"><strong>Mobile:</strong> ' + (o.user_mobile || '—').replace(/</g, '&lt;') + '</div>' +
           '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
@@ -197,10 +201,12 @@
           listEl.innerHTML = '<p style="color:var(--log-text-muted);font-size:1.1rem">No orders out for delivery.</p>';
           return;
         }
+        function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
         listEl.innerHTML = orders.map(function (o) {
           var eta = o.dispatch_time ? 'ETA ~' + (30) + ' min from dispatch' : '—';
           return '<div class="logistics-order-card status-out" data-order-id="' + o.id + '">' +
             '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.dispatch_time) + '</span></div>' +
+            '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
             '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
             '<div class="logistics-order-row"><strong>Mobile:</strong> ' + (o.user_mobile || '—').replace(/</g, '&lt;') + '</div>' +
             '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
@@ -243,12 +249,14 @@
           listEl.innerHTML = '<p style="color:var(--log-text-muted);font-size:1.1rem">No delivered orders for this filter.</p>';
           return;
         }
+        function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
         listEl.innerHTML = orders.map(function (o) {
           var dispatch = o.dispatch_time ? new Date(o.dispatch_time).getTime() : 0;
           var delivered = o.delivered_time ? new Date(o.delivered_time).getTime() : 0;
           var duration = (dispatch && delivered && delivered >= dispatch) ? Math.round((delivered - dispatch) / 60000) + ' min' : '—';
           return '<div class="logistics-order-card status-delivered">' +
             '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.delivered_time) + '</span></div>' +
+            '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
             '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
             '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
             '<div class="logistics-order-row"><strong>Agent:</strong> ' + (o.agent_name || '—').replace(/</g, '&lt;') + '</div>' +

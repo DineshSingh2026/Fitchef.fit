@@ -22,7 +22,7 @@ async function list(req, res) {
     const total = parseInt(countResult.rows[0].total, 10);
 
     const result = await pool.query(
-      `SELECT o.id, o.status, o.total_amount, o.created_at,
+      `SELECT o.id, o.status, o.total_amount, o.created_at, o.requested_delivery_date,
               COALESCE(u.full_name, 'Customer') AS customer_name, u.email AS customer_email,
               ch.name AS chef_name
        ${where}

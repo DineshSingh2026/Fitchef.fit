@@ -2,7 +2,7 @@ const pool = require('../../config/database');
 
 // Logistics-safe fields only: no payment, email, nutrition, admin notes
 const ORDER_SELECT = `
-  o.id, o.created_at, o.status, o.delivery_address, o.delivery_time_slot, o.kitchen_location,
+  o.id, o.created_at, o.status, o.requested_delivery_date, o.delivery_address, o.delivery_time_slot, o.kitchen_location,
   o.dispatch_time, o.delivered_time, o.assigned_agent_id,
   COALESCE(u.full_name, 'Customer') AS user_name,
   COALESCE(u.phone, '') AS user_mobile

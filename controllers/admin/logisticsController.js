@@ -22,7 +22,7 @@ async function list(req, res) {
     );
     const total = parseInt(countResult.rows[0].total, 10);
     const result = await pool.query(
-      `SELECT o.id AS order_id, o.status, o.total_amount, o.created_at, o.dispatch_time, o.delivered_time,
+      `SELECT o.id AS order_id, o.status, o.total_amount, o.created_at, o.requested_delivery_date, o.dispatch_time, o.delivered_time,
               COALESCE(u.full_name, 'Customer') AS customer_name, u.email AS customer_email,
               a.name AS driver_name
        FROM user_orders o
@@ -45,7 +45,7 @@ async function getOne(req, res) {
   try {
     const id = req.params.id;
     const result = await pool.query(
-      `SELECT o.id AS order_id, o.status, o.total_amount, o.created_at, o.dispatch_time, o.delivered_time,
+      `SELECT o.id AS order_id, o.status, o.total_amount, o.created_at, o.requested_delivery_date, o.dispatch_time, o.delivered_time,
               o.delivery_address, o.delivery_instructions,
               COALESCE(u.full_name, 'Customer') AS customer_name, u.email AS customer_email, u.phone AS customer_phone,
               a.name AS driver_name, a.mobile AS driver_phone

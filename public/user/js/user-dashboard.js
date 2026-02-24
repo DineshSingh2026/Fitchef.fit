@@ -251,7 +251,8 @@
       listEl.innerHTML = orders.length ? orders.map(function (o) {
         var statusClass = (o.status || '').toLowerCase().replace(/\s/g, '');
         var items = (o.items || []).map(function (i) { return (i.quantity || 1) + '× ' + (i.dish_name || 'Item'); }).join(', ');
-        return '<div class="order-card"><div class="order-card-header"><span class="order-card-id">' + (o.id || '').toString().slice(0, 8) + '...</span><span class="order-card-date">' + (o.created_at ? new Date(o.created_at).toLocaleDateString() : '') + '</span><span class="order-card-status ' + statusClass + '">' + (o.status || '') + '</span></div><p class="order-card-items">' + items + '</p><button type="button" class="btn-outline view-invoice-btn" data-order-id="' + o.id + '">View Details</button></div>';
+        var deliveryStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '—';
+        return '<div class="order-card"><div class="order-card-header"><span class="order-card-id">' + (o.id || '').toString().slice(0, 8) + '...</span><span class="order-card-date">' + (o.created_at ? new Date(o.created_at).toLocaleDateString() : '') + '</span><span class="order-card-status ' + statusClass + '">' + (o.status || '') + '</span></div><p class="order-card-delivery">Delivery: ' + deliveryStr + '</p><p class="order-card-items">' + items + '</p><button type="button" class="btn-outline view-invoice-btn" data-order-id="' + o.id + '">View Details</button></div>';
       }).join('') : '<p style="color:var(--text-muted)">No orders yet. Add items from FitChef Kitchen and place an order.</p>';
     }).catch(function () { listEl.innerHTML = '<p style="color:var(--text-muted)">Failed to load orders.</p>'; });
   }
@@ -358,24 +359,35 @@
   var placeOrderModal = document.getElementById('placeOrderModal');
   var placeOrderContent = document.getElementById('placeOrderContent');
   function closePlaceOrderModal() { if (placeOrderModal) { placeOrderModal.classList.remove('open'); placeOrderModal.setAttribute('aria-hidden', 'true'); } }
+  function getTomorrowDateString() {
+    var d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().slice(0, 10);
+  }
   function openPlaceOrderStep(dish) {
     var qty = 1;
     var total = (dish.price || 0) * qty;
+    var minDate = getTomorrowDateString();
     function render() {
       placeOrderContent.innerHTML = '<h3 class="place-order-title">Place Order</h3>' +
         '<p class="place-order-dish">' + (dish.name || '').replace(/</g, '&lt;') + '</p>' +
         '<p class="place-order-unit">Unit price: ₹' + (dish.price != null ? dish.price : 0) + '</p>' +
         '<div class="place-order-qty"><label>Quantity</label><input type="number" id="placeOrderQty" min="1" value="1"></div>' +
+        '<div class="place-order-date"><label for="placeOrderDeliveryDate">Delivery date <span class="required">*</span></label><input type="date" id="placeOrderDeliveryDate" min="' + minDate + '" required title="Delivery is from next day onwards (min 24 hours)"></div>' +
         '<p class="place-order-total">Total: ₹<span id="placeOrderTotal">' + total.toFixed(2) + '</span></p>' +
         '<button type="button" class="btn-primary" id="placeOrderContinueBtn">Continue</button>';
       placeOrderModal.classList.add('open'); placeOrderModal.setAttribute('aria-hidden', 'false');
+      var dateEl = document.getElementById('placeOrderDeliveryDate');
+      if (dateEl && !dateEl.value) dateEl.value = minDate;
       var qtyEl = document.getElementById('placeOrderQty');
       var totalEl = document.getElementById('placeOrderTotal');
       function updateTotal() { qty = Math.max(1, parseInt(qtyEl.value, 10) || 1); total = (dish.price || 0) * qty; totalEl.textContent = total.toFixed(2); }
       qtyEl.addEventListener('input', updateTotal);
       document.getElementById('placeOrderContinueBtn').addEventListener('click', function () {
         qty = Math.max(1, parseInt(document.getElementById('placeOrderQty').value, 10) || 1);
-        fetch(API_USER + '/orders', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ items: [{ dish_id: dish.id, quantity: qty }] }) })
+        var deliveryDate = document.getElementById('placeOrderDeliveryDate') && document.getElementById('placeOrderDeliveryDate').value;
+        if (!deliveryDate) { alert('Please select a delivery date. Delivery is available from tomorrow onwards.'); return; }
+        fetch(API_USER + '/orders', { method: 'POST', headers: getAuthHeaders(), body: JSON.stringify({ items: [{ dish_id: dish.id, quantity: qty }], requested_delivery_date: deliveryDate }) })
           .then(function (r) { return r.json(); })
           .then(function (data) {
             if (data.id) { closePlaceOrderModal(); showOrderCreatedPopup(); loadOrders(); } else alert(data.error || 'Order failed'); })
@@ -416,7 +428,8 @@
       var order = (res.data || []).find(function (o) { return o.id === orderId; });
       if (!order) { invoiceModalContent.innerHTML = '<p style="padding:20px">Order not found.</p>'; return; }
       var rows = (order.items || []).map(function (i) { return '<tr><td>' + (i.dish_name || 'Item') + '</td><td>' + (i.quantity || 1) + '</td></tr>'; }).join('');
-      invoiceModalContent.innerHTML = '<div class="invoice-print-body"><h3>FitChef – Order Details</h3><p><strong>Order ID</strong> ' + (order.id || '') + '</p><p><strong>Date</strong> ' + (order.created_at ? new Date(order.created_at).toLocaleString() : '') + '</p><p><strong>Status</strong> ' + (order.status || '') + '</p><table class="invoice-table"><thead><tr><th>Item</th><th>Qty</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
+      var deliveryDateStr = order.requested_delivery_date ? new Date(order.requested_delivery_date).toLocaleDateString() : '—';
+      invoiceModalContent.innerHTML = '<div class="invoice-print-body"><h3>FitChef – Order Details</h3><p><strong>Order ID</strong> ' + (order.id || '') + '</p><p><strong>Date</strong> ' + (order.created_at ? new Date(order.created_at).toLocaleString() : '') + '</p><p><strong>Delivery date</strong> ' + deliveryDateStr + '</p><p><strong>Status</strong> ' + (order.status || '') + '</p><table class="invoice-table"><thead><tr><th>Item</th><th>Qty</th></tr></thead><tbody>' + rows + '</tbody></table></div>';
     }).catch(function () { invoiceModalContent.innerHTML = '<p style="padding:20px">Failed to load order.</p>'; });
   }
   document.getElementById('invoiceModalClose') && document.getElementById('invoiceModalClose').addEventListener('click', closeInvoiceModal);

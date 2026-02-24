@@ -67,6 +67,11 @@ async function ensureTables() {
     if (e.code !== '42P01') console.warn('ensureDb: user dashboard', e.message);
   }
   try {
+    await pool.query('ALTER TABLE user_orders ADD COLUMN IF NOT EXISTS requested_delivery_date DATE');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: user_orders requested_delivery_date', e.message);
+  }
+  try {
     await pool.query(loadSql('init-chef-dashboard.sql'));
     console.log('ensureDb: chef dashboard OK');
   } catch (e) {
