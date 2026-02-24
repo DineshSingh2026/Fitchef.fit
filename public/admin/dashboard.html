@@ -18,6 +18,7 @@
         <a href="#" class="nav-link" data-view="customers">Customers</a>
         <a href="#" class="nav-link" data-view="leads">Leads</a>
         <a href="#" class="nav-link" data-view="consultations">Consultations</a>
+        <a href="#" class="nav-link" data-view="pendingSignups">Pending Signups</a>
         <a href="#" class="nav-link" data-view="finance">Finance</a>
         <a href="#" class="nav-link" id="logoutLink">Logout</a>
       </nav>
@@ -122,6 +123,14 @@
             <div id="consultationDetailBody" class="detail-modal-body"></div>
           </div>
         </div>
+        <!-- Pending Signups (site user registrations) -->
+        <div id="view-pendingSignups" class="view">
+          <div class="table-card">
+            <h3>Pending Signups</h3>
+            <p class="table-hint">Approve or reject new user registrations. Approved users can sign in.</p>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Submitted</th><th></th></tr></thead><tbody id="pendingSignupsBody"></tbody></table></div>
+          </div>
+        </div>
         <!-- Finance -->
         <div id="view-finance" class="view">
           <div class="kpi-grid" id="financeKpis"></div>
@@ -149,7 +158,7 @@
   document.getElementById('logoutLink').addEventListener('click', function(e) { e.preventDefault(); adminLogout(); });
   document.getElementById('logoutBtn').addEventListener('click', adminLogout);
 
-  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', leads: 'Leads', consultations: 'Consultations', finance: 'Finance' };
+  var titles = { overview: 'Dashboard', orders: 'Orders', chefs: 'Chefs', logistics: 'Logistics', customers: 'Customers', leads: 'Leads', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
   document.querySelectorAll('.nav-link').forEach(function(a) {
     if (a.id === 'logoutLink') return;
     a.addEventListener('click', function(e) { e.preventDefault(); switchView(a.getAttribute('data-view')); });
@@ -167,6 +176,7 @@
     else if (name === 'customers') loadCustomers();
     else if (name === 'leads') loadLeads();
     else if (name === 'consultations') loadConsultations();
+    else if (name === 'pendingSignups') loadPendingSignups();
     else if (name === 'finance') loadFinance();
   }
   function authHeaders() { return getAuthHeaders(); }
@@ -322,6 +332,39 @@
   if (detailModal) {
     detailModal.querySelector('.detail-modal-close').addEventListener('click', closeConsultationDetail);
     detailModal.querySelector('.detail-modal-overlay').addEventListener('click', closeConsultationDetail);
+  }
+
+  function loadPendingSignups() {
+    fetch(API + '/pending-signups', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+      var body = document.getElementById('pendingSignupsBody');
+      if (!body) return;
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No pending signups</td></tr>';
+      else body.innerHTML = res.data.map(function(u) {
+        var date = u.created_at ? new Date(u.created_at).toLocaleString() : '-';
+        return '<tr><td>' + (u.full_name || '-') + '</td><td>' + (u.email || '') + '</td><td>' + (u.phone || '-') + '</td><td>' + (u.city || '-') + '</td><td>' + date + '</td><td class="actions"><button type="button" class="btn-sm btn-approve" data-id="' + u.id + '">Approve</button> <button type="button" class="btn-sm btn-reject" data-id="' + u.id + '">Reject</button></td></tr>';
+      }).join('');
+      body.querySelectorAll('.btn-approve').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = parseInt(btn.getAttribute('data-id'), 10);
+          if (isNaN(id)) return;
+          btn.disabled = true;
+          fetch(API + '/pending-signups/' + id + '/approve', { method: 'POST', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) loadPendingSignups();
+          }).finally(function() { btn.disabled = false; });
+        });
+      });
+      body.querySelectorAll('.btn-reject').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+          var id = parseInt(btn.getAttribute('data-id'), 10);
+          if (isNaN(id)) return;
+          if (!confirm('Reject this signup? The user will not be able to sign in.')) return;
+          btn.disabled = true;
+          fetch(API + '/pending-signups/' + id + '/reject', { method: 'POST', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) loadPendingSignups();
+          }).finally(function() { btn.disabled = false; });
+        });
+      });
+    }).catch(function() { var b = document.getElementById('pendingSignupsBody'); if (b) b.innerHTML = '<tr><td colspan="6" class="loading">Error loading pending signups</td></tr>'; });
   }
 
   function loadFinance() {

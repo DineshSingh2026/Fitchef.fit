@@ -9,6 +9,7 @@ const customersController = require('../controllers/admin/customersController');
 const leadsController = require('../controllers/admin/leadsController');
 const financeController = require('../controllers/admin/financeController');
 const consultationsController = require('../controllers/admin/consultationsController');
+const pendingSignupsController = require('../controllers/admin/pendingSignupsController');
 
 const router = express.Router();
 router.use(authenticate);
@@ -56,5 +57,11 @@ router.post('/finance/payments', financeController.createPayment);
 // Consultations (form submissions)
 router.get('/consultations', consultationsController.list);
 router.get('/consultations/:id', consultationsController.getOne);
+
+// Pending signups (site user registrations awaiting approval)
+router.get('/pending-signups', pendingSignupsController.list);
+router.get('/pending-signups/:id', pendingSignupsController.getOne);
+router.post('/pending-signups/:id/approve', pendingSignupsController.approve);
+router.post('/pending-signups/:id/reject', pendingSignupsController.reject);
 
 module.exports = router;

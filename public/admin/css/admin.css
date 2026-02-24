@@ -81,6 +81,14 @@ tr:hover { background: var(--bg); }
 .filters input, .filters select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.875rem; }
 .filters .btn-sm { padding: 8px 14px; background: var(--primary); color: #fff; border: none; border-radius: 6px; cursor: pointer; font-size: 0.875rem; }
 .filters .btn-sm:hover { background: var(--primary-light); }
+.table-hint { margin: 0; padding: 8px 20px; font-size: 0.8rem; color: var(--text-muted); border-bottom: 1px solid var(--border); }
+.table-card .actions { white-space: nowrap; }
+.table-card .btn-sm { padding: 6px 10px; font-size: 0.8rem; border-radius: 4px; cursor: pointer; border: none; margin-right: 4px; }
+.table-card .btn-approve { background: #059669; color: #fff; }
+.table-card .btn-approve:hover:not(:disabled) { background: #047857; }
+.table-card .btn-reject { background: #dc2626; color: #fff; }
+.table-card .btn-reject:hover:not(:disabled) { background: #b91c1c; }
+.table-card .btn-sm:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Views */
 .view { display: none; }

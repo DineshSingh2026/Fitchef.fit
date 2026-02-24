@@ -34,6 +34,20 @@ async function ensureTables() {
     if (e.code !== '42P01') console.warn('ensureDb: consultations', e.message);
   }
   try {
+    await pool.query(loadSql('init-users.sql'));
+    console.log('ensureDb: site_users OK');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: site_users', e.message);
+  }
+  try {
+    await pool.query('ALTER TABLE site_users ADD COLUMN IF NOT EXISTS phone VARCHAR(20)');
+    await pool.query('ALTER TABLE site_users ADD COLUMN IF NOT EXISTS city VARCHAR(100)');
+    await pool.query('ALTER TABLE site_users ADD COLUMN IF NOT EXISTS status VARCHAR(20)');
+    await pool.query('UPDATE site_users SET status = \'approved\' WHERE status IS NULL');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: site_users columns', e.message);
+  }
+  try {
     await pool.query(loadSql('init-admin.sql'));
     console.log('ensureDb: admin tables OK');
   } catch (e) {
@@ -62,7 +76,7 @@ async function seedAdminIfNeeded() {
 
 async function ensureDb() {
   await ensureTables();
-  await seedAdminIfNeeded();
+  if (process.env.DATABASE_URL) await seedAdminIfNeeded();
 }
 
 module.exports = { ensureDb };

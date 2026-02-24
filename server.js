@@ -9,6 +9,8 @@ const earlyAccessRoutes = require('./routes/earlyAccess');
 const consultationRoutes = require('./routes/consultation');
 const adminAuthRoutes = require('./routes/adminAuth');
 const adminRoutes = require('./routes/admin');
+const authRoutes = require('./routes/auth');
+const healthRoutes = require('./routes/health');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +25,8 @@ app.use('/api/early-access', earlyAccessRoutes);
 app.use('/api/consultation', consultationRoutes);
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/health', healthRoutes);
 
 app.get('/admin', (req, res) => res.redirect('/admin/index.html'));
 app.get('*', (req, res) => {

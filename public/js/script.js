@@ -383,10 +383,294 @@
     });
   }
 
+  function initAuth() {
+    var signInLink = document.getElementById('signInLink');
+    var signOutLink = document.getElementById('signOutLink');
+    var headerUser = document.getElementById('headerUser');
+    var mobileUser = document.getElementById('mobileUser');
+    var signInLinkMobile = document.getElementById('signInLinkMobile');
+    var signOutLinkMobile = document.getElementById('signOutLinkMobile');
+    var hamburgerBtn = document.getElementById('hamburgerBtn');
+    var mobileMenu = document.getElementById('mobileMenu');
+    var mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+    var mobileMenuClose = document.getElementById('mobileMenuClose');
+    var signinModal = document.getElementById('signin-modal');
+    var signupModal = document.getElementById('signup-modal');
+    var AUTH_STORAGE_KEY = 'fitchef_user';
+    var TOKEN_KEY = 'fitchef_token';
+
+    function closeMobileMenu() {
+      if (mobileMenu) {
+        mobileMenu.classList.remove('is-open');
+        mobileMenu.setAttribute('aria-hidden', 'true');
+      }
+      if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    }
+    function openMobileMenu() {
+      if (mobileMenu) {
+        mobileMenu.classList.add('is-open');
+        mobileMenu.setAttribute('aria-hidden', 'false');
+      }
+      if (hamburgerBtn) hamburgerBtn.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    }
+
+    if (hamburgerBtn && mobileMenu) {
+      hamburgerBtn.addEventListener('click', function () {
+        if (mobileMenu.classList.contains('is-open')) closeMobileMenu();
+        else openMobileMenu();
+      });
+    }
+    if (mobileMenuOverlay) mobileMenuOverlay.addEventListener('click', closeMobileMenu);
+    if (mobileMenuClose) mobileMenuClose.addEventListener('click', closeMobileMenu);
+
+    function getStoredUser() {
+      try {
+        var raw = localStorage.getItem(AUTH_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch (e) {
+        return null;
+      }
+    }
+
+    function updateHeader() {
+      var user = getStoredUser();
+      if (user && user.full_name) {
+        if (headerUser) {
+          headerUser.textContent = 'Hi, ' + user.full_name;
+          headerUser.style.display = 'inline';
+        }
+        if (mobileUser) {
+          mobileUser.textContent = 'Hi, ' + user.full_name;
+          mobileUser.style.display = 'block';
+        }
+        if (signInLink) signInLink.style.display = 'none';
+        if (signOutLink) signOutLink.style.display = 'inline';
+        if (signInLinkMobile) signInLinkMobile.style.display = 'none';
+        if (signOutLinkMobile) signOutLinkMobile.style.display = 'inline';
+      } else {
+        if (headerUser) headerUser.style.display = 'none';
+        if (mobileUser) mobileUser.style.display = 'none';
+        if (signInLink) signInLink.style.display = 'inline';
+        if (signOutLink) signOutLink.style.display = 'none';
+        if (signInLinkMobile) signInLinkMobile.style.display = 'inline';
+        if (signOutLinkMobile) signOutLinkMobile.style.display = 'none';
+      }
+    }
+
+    function openAuthModal(modal) {
+      if (!modal) return;
+      modal.classList.add('is-open');
+      modal.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeAuthModal(modal) {
+      if (!modal) return;
+      modal.classList.remove('is-open');
+      modal.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+    }
+
+    if (signInLink) {
+      signInLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        openAuthModal(signinModal);
+      });
+    }
+    if (signInLinkMobile) {
+      signInLinkMobile.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeMobileMenu();
+        openAuthModal(signinModal);
+      });
+    }
+    if (signOutLinkMobile) {
+      signOutLinkMobile.addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+        updateHeader();
+        closeMobileMenu();
+      });
+    }
+    var signinToSignupLink = document.getElementById('signinToSignupLink');
+    if (signinToSignupLink) {
+      signinToSignupLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeAuthModal(signinModal);
+        openAuthModal(signupModal);
+      });
+    }
+    var signupToSigninLink = document.getElementById('signupToSigninLink');
+    if (signupToSigninLink) {
+      signupToSigninLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        closeAuthModal(signupModal);
+        openAuthModal(signinModal);
+      });
+    }
+    if (signOutLink) {
+      signOutLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        localStorage.removeItem(AUTH_STORAGE_KEY);
+        localStorage.removeItem(TOKEN_KEY);
+        updateHeader();
+        closeMobileMenu();
+      });
+    }
+
+    [signinModal, signupModal].forEach(function (modal) {
+      if (!modal) return;
+      var closeBtn = modal.querySelector('.auth-modal-close');
+      var overlay = modal.querySelector('.auth-modal-overlay');
+      if (closeBtn) closeBtn.addEventListener('click', function () { closeAuthModal(modal); });
+      if (overlay) overlay.addEventListener('click', function () { closeAuthModal(modal); });
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (mobileMenu && mobileMenu.classList.contains('is-open')) closeMobileMenu();
+      else if (signinModal && signinModal.classList.contains('is-open')) closeAuthModal(signinModal);
+      else if (signupModal && signupModal.classList.contains('is-open')) closeAuthModal(signupModal);
+    });
+
+    var signinForm = document.getElementById('signin-form');
+    if (signinForm) {
+      signinForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var emailEl = document.getElementById('signin-email');
+        var passwordEl = document.getElementById('signin-password');
+        var msgEl = document.getElementById('signin-message');
+        var btn = signinForm.querySelector('.btn-auth');
+        var email = emailEl && emailEl.value ? emailEl.value.trim() : '';
+        var password = passwordEl ? passwordEl.value : '';
+        signinForm.querySelectorAll('.field-error').forEach(function (el) { el.textContent = ''; });
+        if (msgEl) msgEl.textContent = '';
+        if (!email || !password) {
+          if (msgEl) msgEl.textContent = 'Email and password are required.';
+          if (msgEl) msgEl.className = 'auth-message error';
+          return;
+        }
+        if (btn) { btn.disabled = true; btn.textContent = 'Signing in…'; }
+        fetch(getApiBase() + '/api/auth/signin', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.success && data.token && data.user) {
+              localStorage.setItem(TOKEN_KEY, data.token);
+              localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user));
+              updateHeader();
+              closeAuthModal(signinModal);
+              signinForm.reset();
+            } else {
+              if (msgEl) msgEl.textContent = data.message || 'Sign in failed.';
+              if (msgEl) msgEl.className = 'auth-message error';
+            }
+          })
+          .catch(function () {
+            if (msgEl) msgEl.textContent = 'Something went wrong. Please try again.';
+            if (msgEl) msgEl.className = 'auth-message error';
+          })
+          .finally(function () {
+            if (btn) { btn.disabled = false; btn.textContent = 'Sign In'; }
+          });
+      });
+    }
+
+    var signupForm = document.getElementById('signup-form');
+    if (signupForm) {
+      signupForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var fullNameEl = document.getElementById('signup-full_name');
+        var emailEl = document.getElementById('signup-email');
+        var phoneEl = document.getElementById('signup-phone');
+        var cityEl = document.getElementById('signup-city');
+        var passwordEl = document.getElementById('signup-password');
+        var confirmEl = document.getElementById('signup-confirm_password');
+        var msgEl = document.getElementById('signup-message');
+        var btn = signupForm.querySelector('.btn-auth');
+        var full_name = fullNameEl && fullNameEl.value ? fullNameEl.value.trim() : '';
+        var email = emailEl && emailEl.value ? emailEl.value.trim() : '';
+        var phone = phoneEl && phoneEl.value ? phoneEl.value.trim() : '';
+        var city = cityEl && cityEl.value ? cityEl.value.trim() : '';
+        var password = passwordEl ? passwordEl.value : '';
+        var confirm_password = confirmEl ? confirmEl.value : '';
+        signupForm.querySelectorAll('.field-error').forEach(function (el) { el.textContent = ''; });
+        if (msgEl) msgEl.textContent = '';
+        if (!full_name || full_name.length < 2) {
+          if (msgEl) msgEl.textContent = 'Please enter your full name.';
+          if (msgEl) msgEl.className = 'auth-message error';
+          return;
+        }
+        if (!email || !password) {
+          if (msgEl) msgEl.textContent = 'Email and password are required.';
+          if (msgEl) msgEl.className = 'auth-message error';
+          return;
+        }
+        var phoneDigits = (phone || '').replace(/\D/g, '');
+        if (!phoneDigits || phoneDigits.length < 10) {
+          if (msgEl) msgEl.textContent = 'A valid mobile number (10–15 digits) is required.';
+          if (msgEl) msgEl.className = 'auth-message error';
+          return;
+        }
+        if (phoneDigits.length > 15) {
+          if (msgEl) msgEl.textContent = 'Please enter a valid mobile number (10–15 digits).';
+          if (msgEl) msgEl.className = 'auth-message error';
+          return;
+        }
+        if (password !== confirm_password) {
+          if (msgEl) msgEl.textContent = 'Password and confirm password do not match.';
+          if (msgEl) msgEl.className = 'auth-message error';
+          return;
+        }
+        if (password.length < 6) {
+          if (msgEl) msgEl.textContent = 'Password must be at least 6 characters.';
+          if (msgEl) msgEl.className = 'auth-message error';
+          return;
+        }
+        if (btn) { btn.disabled = true; btn.textContent = 'Creating account…'; }
+        fetch(getApiBase() + '/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email, password: password, confirm_password: confirm_password, full_name: full_name, phone: phone, city: city || undefined }),
+        })
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            if (data.success) {
+              if (msgEl) msgEl.textContent = data.message || 'Signup successful. Your account is waiting for admin approval.';
+              if (msgEl) msgEl.className = 'auth-message success';
+              signupForm.reset();
+              setTimeout(function() {
+                closeAuthModal(signupModal);
+              }, 1500);
+            } else {
+              if (msgEl) msgEl.textContent = data.message || 'Sign up failed.';
+              if (msgEl) msgEl.className = 'auth-message error';
+            }
+          })
+          .catch(function () {
+            if (msgEl) msgEl.textContent = 'Something went wrong. Please try again.';
+            if (msgEl) msgEl.className = 'auth-message error';
+          })
+          .finally(function () {
+            if (btn) { btn.disabled = false; btn.textContent = 'Create Account'; }
+          });
+      });
+    }
+
+    updateHeader();
+  }
+
   ready(function () {
     window.setTimeout(hideLoader, 600);
     initSmoothScroll();
     initConsultationModal();
+    initAuth();
     initScrollReveal();
     initHeaderScroll();
     initConsultationForm();
