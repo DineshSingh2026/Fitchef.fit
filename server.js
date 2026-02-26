@@ -45,7 +45,8 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-const HOST = '127.0.0.1';
+// Bind to 0.0.0.0 when PORT is set by the host (e.g. Render); use 127.0.0.1 for local dev
+const HOST = process.env.PORT ? '0.0.0.0' : '127.0.0.1';
 ensureDb()
   .then(() => {
     app.listen(PORT, HOST, () => {
