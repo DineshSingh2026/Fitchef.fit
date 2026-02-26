@@ -97,7 +97,7 @@ a, button {
 }
 
 .loader-logo {
-  height: clamp(4.25rem, 14vw, 6rem);
+  height: clamp(4.75rem, 15vw, 6.5rem);
   width: auto;
   object-fit: contain;
   display: block;
@@ -192,17 +192,17 @@ a, button {
 }
 
 .logo-img {
-  height: 3.25rem;
+  height: 3.75rem;
   width: auto;
-  max-width: 220px;
+  max-width: 260px;
   object-fit: contain;
   display: block;
 }
 
 @media (min-width: 768px) {
   .logo-img {
-    height: 4rem;
-    max-width: 260px;
+    height: 4.5rem;
+    max-width: 280px;
   }
 }
 
@@ -236,25 +236,28 @@ a, button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 88px;
-  min-height: 40px;
-  padding: 0.5rem 1rem;
+  min-width: 80px;
+  min-height: 36px;
+  padding: 0.45rem 0.9rem;
   font-family: var(--font-body);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--deep-green);
-  background: var(--gold);
-  border: none;
-  border-radius: 6px;
+  color: var(--gold);
+  background: transparent;
+  border: 2px solid var(--gold);
+  border-radius: 2px;
   text-decoration: none;
-  transition: background var(--transition);
+  transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
   box-sizing: border-box;
 }
 .header-signin-btn-mobile:hover {
-  background: #b8964a;
-  color: var(--deep-green);
+  background: rgba(198, 167, 94, 0.15);
+  border-color: var(--gold);
+  color: var(--gold);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(198, 167, 94, 0.2);
 }
 /* Hamburger: hidden on desktop and hidden on mobile when logged out */
 .hamburger-btn {
@@ -421,8 +424,8 @@ a, button {
     min-height: 44px;
   }
   .logo-img {
-    height: 2.75rem;
-    max-width: 160px;
+    height: 3.15rem;
+    max-width: 185px;
   }
   .tagline-header {
     display: block !important;
@@ -461,35 +464,36 @@ a, button {
   flex-shrink: 0;
   margin-left: auto;
 }
-/* Sign In button: same gold style as Join Early Access */
+/* Sign In button: same outline style as Explore the concept, slightly smaller */
 .header-signin-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 120px;
-  min-height: 44px;
-  padding: 0.75rem 1.5rem;
+  min-width: 96px;
+  min-height: 40px;
+  padding: 0.55rem 1.15rem;
   box-sizing: border-box;
   font-family: var(--font-body);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
-  color: var(--deep-green);
-  background: var(--gold);
-  border: none;
-  border-radius: 6px;
+  color: var(--gold);
+  background: transparent;
+  border: 2px solid var(--gold);
+  border-radius: 2px;
   text-decoration: none;
-  transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+  transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
   cursor: pointer;
 }
 .header-signin-btn:hover {
-  background: #b8964a;
-  color: var(--deep-green);
+  background: rgba(198, 167, 94, 0.15);
+  border-color: var(--gold);
+  color: var(--gold);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(198, 167, 94, 0.35);
+  box-shadow: 0 4px 20px rgba(198, 167, 94, 0.2);
 }
 .header-auth-link {
   font-family: var(--font-body);
@@ -2030,7 +2034,7 @@ a, button {
 }
 
 .footer-logo {
-  height: 3rem;
+  height: 3.4rem;
   width: auto;
   max-width: 200px;
   object-fit: contain;
@@ -2039,8 +2043,8 @@ a, button {
 
 @media (min-width: 768px) {
   .footer-logo {
-    height: 3.5rem;
-    max-width: 240px;
+    height: 4rem;
+    max-width: 260px;
   }
 }
 
