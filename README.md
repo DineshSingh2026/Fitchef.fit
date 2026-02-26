@@ -1,4 +1,4 @@
-# FitChef.fit – Where Gourmet Meets Wellness
+# FitChef.fit – Elevate your Plate
 
 Full-stack production-ready website: **HTML5, CSS3, Vanilla JavaScript** frontend with **Node.js, Express, PostgreSQL** backend. MVC architecture, deployment-ready for Render.
 

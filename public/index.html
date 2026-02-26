@@ -4,17 +4,16 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0e2f2b">
-  <meta name="description" content="FitChef.fit – Where Gourmet Meets Wellness. Chef-crafted, premium nutrition delivered. Early access for discerning palates.">
+  <meta name="description" content="FitChef.fit – Elevate your Plate. Chef-crafted, premium nutrition delivered. Early access for discerning palates.">
   <meta name="keywords" content="gourmet wellness, healthy meals, chef-crafted nutrition, premium delivery, FitChef, Hyderabad">
   <meta name="author" content="FitChef.fit">
-  <title>FitChef.fit – Where Gourmet Meets Wellness</title>
+  <title>FitChef.fit – Elevate your Plate</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
   <link rel="preload" href="images/Group_1000011950-removebg-preview.png" as="image">
   <link rel="preload" href="images/main-course-restaurant.jpg" as="image">
-  <link rel="preload" href="images/buddha-bowl-dish-with-vegetables-legumes-top-view.jpg" as="image">
 </head>
 <body>
   <div id="loader" class="loader" aria-hidden="true">
@@ -27,20 +26,23 @@
   <header class="header">
     <div class="header-inner">
       <a href="#" class="logo">
-        <img src="images/Group_1000011950-removebg-preview.png" alt="FitChef.fit – Where Gourmet Meets Wellness" class="logo-img" width="220" height="73" fetchpriority="high" decoding="async">
+        <img src="images/Group_1000011950-removebg-preview.png" alt="FitChef.fit – Elevate your Plate" class="logo-img" width="220" height="73" fetchpriority="high" decoding="async">
       </a>
-      <p class="tagline-header">"Unlocking Bio-Available Wellness with Gourmet Excellence"</p>
+      <p class="tagline-header">Unlocking Bio-Available Wellness with Gourmet Excellence</p>
       <div class="header-auth">
         <span class="header-user" id="headerUser" style="display:none;"></span>
         <a href="#" class="header-signin-btn" id="signInLink">Sign In</a>
         <a href="/user/dashboard.html" class="header-auth-link" id="dashboardLink" style="display:none;">My Dashboard</a>
         <a href="#" class="header-auth-link" id="signOutLink" style="display:none;">Sign Out</a>
       </div>
-      <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-        <span class="hamburger-line"></span>
-      </button>
+      <div class="header-mobile-actions">
+        <a href="#" class="header-signin-btn-mobile" id="signInLinkHeaderMobile">Sign In</a>
+        <button type="button" class="hamburger-btn" id="hamburgerBtn" aria-label="Open menu" aria-expanded="false">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+      </div>
     </div>
     <div class="mobile-menu" id="mobileMenu" aria-hidden="true">
       <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
@@ -142,7 +144,9 @@
       </div>
     </div>
     <section id="hero" class="hero">
-      <div class="hero-bg"></div>
+      <div class="hero-bg">
+        <img src="images/main-course-restaurant.jpg" alt="" width="1920" height="1080" fetchpriority="high" loading="eager" decoding="async" class="hero-bg-img">
+      </div>
       <div class="hero-overlay"></div>
       <div class="hero-content">
         <p class="hero-tagline">CHEF-CRAFTED • SUSTAINABLE • <span class="hero-tagline-nowrap">MAX&nbsp;ABSORPTION</span> • PERSONALIZED POWER</p>
@@ -167,10 +171,10 @@
           <div class="about-text">
             <h2 class="section-title">About FitChef</h2>
             <p class="about-para">On our wellness journey, we've all experienced that healthy eating turns bland, due to quick fixes lacking quality, spark, and attention to detail in every bite. That's why we created FitChef: to revive that magic.</p>
-            <p class="about-para">We craft bespoke, chef-designed meals for vitality seekers, blending artisanal flair with science-backed nutrition. Sourced from the best and the realest, our gourmet dishes nourish your body and soul, turning wellness effortless, without ANY compromise! Join our early access now for priority invites and exclusive perks—launching soon! Let's elevate your plate.</p>
+            <p class="about-para">We craft bespoke, chef-designed meals for vitality seekers, blending artisanal flair with science-backed nutrition. Sourced from the best and the realest, our gourmet dishes nourish your body and soul, turning wellness effortless, without ANY compromise! Join our early access now for priority invites and exclusive perks. We're launching soon! Let's elevate your plate.</p>
           </div>
           <div class="about-image-wrap">
-            <img src="images/buddha-bowl-dish-with-vegetables-legumes-top-view.jpg" alt="Gourmet fine dining plate" class="about-image-img" width="600" height="450" loading="eager" decoding="async">
+            <img src="images/buddha-bowl-dish-with-vegetables-legumes-top-view.jpg" alt="Gourmet fine dining plate" class="about-image-img" width="600" height="450" loading="lazy" decoding="async">
           </div>
         </div>
       </div>
@@ -409,7 +413,7 @@
     <div class="container">
       <div class="footer-brand">
         <img src="images/Group_1000011950-removebg-preview.png" alt="FitChef.fit" class="footer-logo" width="220" height="73" loading="lazy" decoding="async">
-        <span class="footer-tagline">Where Gourmet Meets Wellness.</span>
+        <span class="footer-tagline">Elevate your Plate</span>
       </div>
       <div class="footer-links">
         <a href="https://www.instagram.com/fitchef_fit?igsh=MTcxZjR1enBseWxueg==" target="_blank" rel="noopener noreferrer" class="footer-icon" aria-label="Instagram">

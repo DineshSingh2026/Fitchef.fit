@@ -1,7 +1,7 @@
 {
   "name": "fitchef-fit",
   "version": "1.0.0",
-  "description": "FitChef.fit – Where Gourmet Meets Wellness. Full-stack luxury wellness site.",
+  "description": "FitChef.fit – Elevate your Plate. Full-stack luxury wellness site.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

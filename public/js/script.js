@@ -477,7 +477,9 @@
 
     function updateHeader() {
       var user = getStoredUser();
+      var headerEl = document.querySelector('header.header');
       if (user && user.full_name) {
+        if (headerEl) headerEl.classList.add('user-logged-in');
         if (headerUser) {
           headerUser.textContent = 'Hi, ' + user.full_name;
           headerUser.style.display = 'inline';
@@ -495,6 +497,7 @@
         if (signInLinkMobile) signInLinkMobile.style.display = 'none';
         if (signOutLinkMobile) signOutLinkMobile.style.display = 'inline';
       } else {
+        if (headerEl) headerEl.classList.remove('user-logged-in');
         if (headerUser) headerUser.style.display = 'none';
         if (mobileUser) mobileUser.style.display = 'none';
         if (signInLink) signInLink.style.display = 'inline';
@@ -524,6 +527,13 @@
 
     if (signInLink) {
       signInLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        openAuthModal(signinModal);
+      });
+    }
+    var signInLinkHeaderMobile = document.getElementById('signInLinkHeaderMobile');
+    if (signInLinkHeaderMobile) {
+      signInLinkHeaderMobile.addEventListener('click', function (e) {
         e.preventDefault();
         openAuthModal(signinModal);
       });

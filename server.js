@@ -45,15 +45,16 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+const HOST = '127.0.0.1';
 ensureDb()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`FitChef.fit server running on port ${PORT}`);
+    app.listen(PORT, HOST, () => {
+      console.log(`FitChef.fit server running at http://${HOST}:${PORT}`);
     });
   })
   .catch((err) => {
     console.error('DB setup failed:', err.message);
-    app.listen(PORT, () => {
-      console.log(`FitChef.fit server running on port ${PORT} (DB may need DATABASE_URL)`);
+    app.listen(PORT, HOST, () => {
+      console.log(`FitChef.fit server running at http://${HOST}:${PORT} (DB may need DATABASE_URL)`);
     });
   });

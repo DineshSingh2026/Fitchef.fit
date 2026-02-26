@@ -209,7 +209,7 @@ a, button {
 .tagline-header {
   margin: 0;
   font-family: var(--font-heading);
-  font-size: 0.95rem;
+  font-size: 1.08rem;
   font-weight: 700;
   font-style: italic;
   color: var(--gold);
@@ -221,12 +221,42 @@ a, button {
 
 @media (max-width: 900px) {
   .tagline-header {
-    font-size: 0.85rem;
+    font-size: 0.98rem;
     letter-spacing: 0.08em;
   }
 }
 
-/* Hamburger: hidden on desktop */
+/* Mobile header: Sign In button (gold) or hamburger when logged in */
+.header-mobile-actions {
+  display: none;
+  align-items: center;
+  flex-shrink: 0;
+}
+.header-signin-btn-mobile {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 88px;
+  min-height: 40px;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--deep-green);
+  background: var(--gold);
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background var(--transition);
+  box-sizing: border-box;
+}
+.header-signin-btn-mobile:hover {
+  background: #b8964a;
+  color: var(--deep-green);
+}
+/* Hamburger: hidden on desktop and hidden on mobile when logged out */
 .hamburger-btn {
   display: none;
   align-items: center;
@@ -242,6 +272,13 @@ a, button {
   gap: 6px;
   z-index: 102;
   position: relative;
+}
+/* When logged in on mobile: show hamburger, hide Sign In */
+.header.user-logged-in .header-signin-btn-mobile {
+  display: none !important;
+}
+.header.user-logged-in .header-mobile-actions .hamburger-btn {
+  display: flex !important;
 }
 .hamburger-line {
   display: block;
@@ -391,7 +428,7 @@ a, button {
     display: block !important;
     width: 100%;
     order: 3;
-    font-size: 0.8rem;
+    font-size: 0.92rem;
     font-weight: 700;
     letter-spacing: 0.05em;
     white-space: normal;
@@ -409,8 +446,11 @@ a, button {
   .header-auth {
     display: none !important;
   }
-  .hamburger-btn {
+  .header-mobile-actions {
     display: flex;
+  }
+  .header-mobile-actions .hamburger-btn {
+    display: none;
   }
 }
 
@@ -894,7 +934,16 @@ a, button {
 .hero-bg {
   position: absolute;
   inset: 0;
-  background: var(--deep-green) url('../images/main-course-restaurant.jpg') center/cover no-repeat;
+  background: var(--deep-green);
+}
+.hero-bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
 }
 
 .hero-overlay {
