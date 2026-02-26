@@ -244,20 +244,20 @@ a, button {
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--gold);
+  color: rgba(198, 167, 94, 0.88);
   background: transparent;
-  border: 2px solid var(--gold);
+  border: 1.5px solid rgba(198, 167, 94, 0.7);
   border-radius: 2px;
   text-decoration: none;
   transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
   box-sizing: border-box;
 }
 .header-signin-btn-mobile:hover {
-  background: rgba(198, 167, 94, 0.15);
-  border-color: var(--gold);
+  background: rgba(198, 167, 94, 0.12);
+  border-color: rgba(198, 167, 94, 0.9);
   color: var(--gold);
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(198, 167, 94, 0.2);
+  box-shadow: 0 4px 20px rgba(198, 167, 94, 0.15);
 }
 /* Hamburger: hidden on desktop and hidden on mobile when logged out */
 .hamburger-btn {
@@ -464,7 +464,7 @@ a, button {
   flex-shrink: 0;
   margin-left: auto;
 }
-/* Sign In button: same outline style as Explore the concept, slightly smaller */
+/* Sign In button: lighter outline so it doesn’t dominate the logo */
 .header-signin-btn {
   display: inline-flex;
   align-items: center;
@@ -480,20 +480,20 @@ a, button {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   text-align: center;
-  color: var(--gold);
+  color: rgba(198, 167, 94, 0.88);
   background: transparent;
-  border: 2px solid var(--gold);
+  border: 1.5px solid rgba(198, 167, 94, 0.7);
   border-radius: 2px;
   text-decoration: none;
   transition: background var(--transition), color var(--transition), border-color var(--transition), transform var(--transition), box-shadow var(--transition);
   cursor: pointer;
 }
 .header-signin-btn:hover {
-  background: rgba(198, 167, 94, 0.15);
-  border-color: var(--gold);
+  background: rgba(198, 167, 94, 0.12);
+  border-color: rgba(198, 167, 94, 0.9);
   color: var(--gold);
   transform: translateY(-2px);
-  box-shadow: 0 4px 20px rgba(198, 167, 94, 0.2);
+  box-shadow: 0 4px 20px rgba(198, 167, 94, 0.15);
 }
 .header-auth-link {
   font-family: var(--font-body);
