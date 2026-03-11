@@ -64,6 +64,9 @@
     document.querySelectorAll('.bottom-nav a').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
+    var content = document.querySelector('.logistics-content');
+    if (content) content.scrollTop = 0;
+    window.scrollTo(0, 0);
     document.getElementById('viewTitle').textContent = titles[name] || 'Logistics';
     if (pwaBannerLogistics && !localStorage.getItem('fitchef_pwa_banner_dismissed_logistics')) {
       pwaBannerLogistics.style.display = name === 'overview' ? '' : 'none';
