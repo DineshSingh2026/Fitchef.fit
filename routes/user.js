@@ -19,6 +19,7 @@ router.get('/orders/delivered', ordersController.listDelivered);
 router.post('/orders', ordersController.create);
 
 router.get('/notifications', notificationsController.list);
+router.patch('/notifications/read-all', notificationsController.readAll);
 router.patch('/notifications/:id/read', notificationsController.markRead);
 
 router.post('/feedback', feedbackController.create);

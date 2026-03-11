@@ -334,9 +334,16 @@ body {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .chef-sidebar { position: fixed; top: 0; left: 0; bottom: 0; transform: translateX(-100%); transition: transform .2s; }
-  .chef-sidebar.open { transform: translateX(0); }
-  .chef-nav-toggle { display: block; }
+  body {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0));
+    box-sizing: border-box;
+  }
+  .chef-sidebar {
+    display: none;
+  }
+  .chef-sidebar-overlay {
+    display: none !important;
+  }
   .chef-content {
     padding: 16px max(12px, env(safe-area-inset-left)) max(16px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
   }
@@ -351,6 +358,61 @@ body {
   .chef-order-card-header { gap: 8px; }
   .chef-order-actions { flex-wrap: wrap; gap: 8px; }
   .chef-btn-ready { width: 100%; max-width: 100%; box-sizing: border-box; }
+
+  /* Bottom navigation – mirror Admin mobile for alignment */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: calc(72px + env(safe-area-inset-bottom, 0));
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    background: #fafafa;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    align-items: center;
+    z-index: 999;
+    box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.04);
+  }
+  .bottom-nav a {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    color: #6b7280;
+    transition: color 0.2s ease;
+    padding: 10px 4px;
+    border-top: 2px solid transparent;
+  }
+  .bottom-nav a:hover {
+    color: #374151;
+  }
+  .bottom-nav a.active {
+    color: #0d2818;
+    font-weight: 600;
+    border-top-color: #0d2818;
+  }
+  .bottom-nav .bn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+  }
+  .bottom-nav .bn-icon svg {
+    width: 22px;
+    height: 22px;
+  }
+  .bottom-nav a.active .bn-icon {
+    color: #0d2818;
+  }
 }
 @media (max-width: 480px) {
   .chef-sidebar { width: 100%; max-width: 100%; }

@@ -22,10 +22,21 @@
   var pwaBannerChef = document.getElementById('pwaBannerChef');
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sidebarOverlay');
-  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
-  function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); }
-  document.getElementById('navToggle').addEventListener('click', openSidebar);
-  overlay.addEventListener('click', closeSidebar);
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+  }
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('open');
+  }
+  var navToggle = document.getElementById('navToggle');
+  if (navToggle) {
+    navToggle.addEventListener('click', openSidebar);
+  }
+  if (overlay) {
+    overlay.addEventListener('click', closeSidebar);
+  }
 
   document.querySelectorAll('.chef-nav-link').forEach(function (a) {
     if (a.id === 'chefLogoutLink') return;
@@ -48,6 +59,7 @@
   function switchView(name) {
     document.querySelectorAll('.chef-view').forEach(function (v) { v.classList.remove('active'); });
     document.querySelectorAll('.chef-nav-link').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
+    document.querySelectorAll('.bottom-nav a').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
     document.getElementById('viewTitle').textContent = titles[name] || 'Chef Dashboard';
@@ -177,6 +189,17 @@
     btn.addEventListener('click', function () {
       completedFilter = btn.getAttribute('data-filter') || '';
       loadCompletedOrders();
+    });
+  });
+
+  // Bottom nav taps (mobile) – mirror Admin behavior
+  document.querySelectorAll('.bottom-nav a').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var view = link.getAttribute('data-view');
+      if (view) {
+        switchView(view);
+      }
     });
   });
 

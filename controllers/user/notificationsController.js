@@ -19,6 +19,22 @@ async function list(req, res) {
   }
 }
 
+/** PATCH /api/user/notifications/read-all - mark all as read */
+async function readAll(req, res) {
+  try {
+    const userId = req.user.id;
+    await pool.query(
+      `UPDATE user_notifications SET read_at = CURRENT_TIMESTAMP
+       WHERE user_id = $1 AND read_at IS NULL`,
+      [userId]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error('Read all notifications error:', err);
+    res.status(500).json({ error: 'Failed to update' });
+  }
+}
+
 /** PATCH /api/user/notifications/:id/read - mark as read */
 async function markRead(req, res) {
   try {
@@ -39,4 +55,4 @@ async function markRead(req, res) {
   }
 }
 
-module.exports = { list, markRead };
+module.exports = { list, markRead, readAll };

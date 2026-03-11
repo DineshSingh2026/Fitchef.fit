@@ -55,7 +55,7 @@
               <span class="nav-notif-badge" id="navNotifBadge">0</span>
             </button>
             <div class="nav-notif-dropdown" id="navNotifDropdown" aria-hidden="true">
-              <div class="nav-notif-header">Important</div>
+              <div class="nav-notif-header">Important <button type="button" class="nav-notif-clear-btn" id="adminClearNotifBtn">Clear</button></div>
               <div class="nav-notif-list" id="navNotifList"></div>
               <div class="nav-notif-empty" id="navNotifEmpty">All caught up</div>
             </div>
@@ -375,11 +375,11 @@
             <div class="pwa-banner-sub">Install the app and enable notifications.</div>
           </div>
           <div class="pwa-actions">
-            <button type="button" class="pwa-btn" data-pwa-install-btn style="display:none" title="Add to Home Screen">
+            <button type="button" class="pwa-btn" data-pwa-install-btn title="Add to Home Screen">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 21h14a2 2 0 0 0 2-2v-7"/><path d="M3 12v7a2 2 0 0 0 2 2"/></svg>
               <span>Add to Home Screen</span>
             </button>
-            <button type="button" class="pwa-btn" data-pwa-notif-btn style="display:none" title="Enable notifications">
+            <button type="button" class="pwa-btn" data-pwa-notif-btn title="Enable notifications">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
               <span>Enable notifications</span>
             </button>
@@ -429,9 +429,10 @@
   var adminNotifDropdown = document.getElementById('navNotifDropdown');
   var adminNotifList = document.getElementById('navNotifList');
   var adminNotifEmpty = document.getElementById('navNotifEmpty');
+  var adminNotifDismissed = false;
   function updateAdminNotifBadge() {
     fetch(API + '/open-orders?status=Open&limit=1&page=1', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
-      var total = res.total || 0;
+      var total = adminNotifDismissed ? 0 : (res.total || 0);
       if (adminNotifBadge) { adminNotifBadge.textContent = total; adminNotifBadge.style.display = total ? 'flex' : 'none'; }
     }).catch(function() {});
   }
@@ -448,6 +449,8 @@
   function closeAdminNotifDropdown() { if (adminNotifDropdown) { adminNotifDropdown.classList.remove('open'); adminNotifDropdown.setAttribute('aria-hidden', 'true'); if (adminNotifToggle) adminNotifToggle.setAttribute('aria-expanded', 'false'); } }
   if (adminNotifToggle) adminNotifToggle.addEventListener('click', function(e) { e.stopPropagation(); if (adminNotifDropdown && adminNotifDropdown.classList.contains('open')) closeAdminNotifDropdown(); else openAdminNotifDropdown(); });
   document.addEventListener('click', function(e) { if (adminNotifDropdown && adminNotifDropdown.classList.contains('open') && !e.target.closest('.nav-notif-wrap')) closeAdminNotifDropdown(); });
+  var adminClearNotifBtn = document.getElementById('adminClearNotifBtn');
+  if (adminClearNotifBtn) adminClearNotifBtn.addEventListener('click', function(e) { e.stopPropagation(); adminNotifDismissed = true; updateAdminNotifBadge(); if (adminNotifList) adminNotifList.innerHTML = ''; if (adminNotifEmpty) adminNotifEmpty.style.display = 'block'; closeAdminNotifDropdown(); });
   updateAdminNotifBadge();
 
   var titles = { overview: 'Dashboard', orders: 'Orders', openOrders: 'Open Orders', chefs: 'Chefs', logistics: 'Logistics', dishes: 'Dishes', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
@@ -470,6 +473,10 @@
     a.addEventListener('click', function(e) { e.preventDefault(); switchView(a.getAttribute('data-view')); closeSidebar(); });
   });
   function switchView(name) {
+    if (name !== 'overview' && window._liveOrdersInterval) {
+      clearInterval(window._liveOrdersInterval);
+      window._liveOrdersInterval = null;
+    }
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.querySelectorAll('.nav-link').forEach(function(n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
     document.querySelectorAll('.bottom-nav a').forEach(function(n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
@@ -530,33 +537,40 @@
         return '<div class="chart-bar" style="height:' + h + '%" title="' + x.date + ': ' + x.revenue + '"></div>';
       }).join('');
     }).catch(function() { document.getElementById('revenueChart').innerHTML = '<div class="empty">Failed to load chart</div>'; });
-    fetch(API + '/open-orders?status=Open&page=1&limit=5', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
-      var body = document.getElementById('overviewOpenOrdersBody');
-      if (!body) return;
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No open orders</td></tr>';
-      else body.innerHTML = res.data.map(function(o) {
-        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
-      }).join('');
-      body.querySelectorAll('.view-open-order-btn').forEach(function(btn) {
-        btn.addEventListener('click', function() { openOpenOrderDetail(btn.getAttribute('data-id')); });
+    function refreshLiveOrders() {
+      fetch(API + '/open-orders?status=Open&page=1&limit=5', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
+        var body = document.getElementById('overviewOpenOrdersBody');
+        if (body) {
+          if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No open orders</td></tr>';
+          else {
+            body.innerHTML = res.data.map(function(o) {
+              return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
+            }).join('');
+            body.querySelectorAll('.view-open-order-btn').forEach(function(btn) {
+              btn.addEventListener('click', function() { openOpenOrderDetail(btn.getAttribute('data-id')); });
+            });
+          }
+        }
+        var ml = document.getElementById('mobileLiveOrders');
+        if (ml) {
+          var orders = res.data || [];
+          if (orders.length === 0) ml.innerHTML = '<div class="order-card"><div class="order-meta">No open orders</div></div>';
+          else ml.innerHTML = orders.slice(0, 5).map(function(o) {
+            var id = (o.id || '').toString();
+            var shortId = 'FC' + id.slice(-4);
+            return '<div class="order-card"><div class="order-id">' + shortId + ' ' + (o.user_name || '-') + '</div><div class="order-meta">Status: Open</div></div>';
+          }).join('');
+        }
+      }).catch(function() {
+        var body = document.getElementById('overviewOpenOrdersBody');
+        if (body) body.innerHTML = '<tr><td colspan="4" class="loading">Error loading open orders</td></tr>';
+        var ml = document.getElementById('mobileLiveOrders');
+        if (ml) ml.innerHTML = '<div class="order-card"><div class="order-meta">Error loading orders</div></div>';
       });
-      // Mobile live orders
-      var ml = document.getElementById('mobileLiveOrders');
-      if (ml) {
-        var orders = res.data || [];
-        if (orders.length === 0) ml.innerHTML = '<div class="order-card"><div class="order-meta">No open orders</div></div>';
-        else ml.innerHTML = orders.slice(0, 5).map(function(o) {
-          var id = (o.id || '').toString();
-          var shortId = 'FC' + id.slice(-4);
-          return '<div class="order-card"><div class="order-id">' + shortId + ' ' + (o.user_name || '-') + '</div><div class="order-meta">Status: Open</div></div>';
-        }).join('');
-      }
-    }).catch(function() {
-      var body = document.getElementById('overviewOpenOrdersBody');
-      if (body) body.innerHTML = '<tr><td colspan="4" class="loading">Error loading open orders</td></tr>';
-      var ml = document.getElementById('mobileLiveOrders');
-      if (ml) ml.innerHTML = '<div class="order-card"><div class="order-meta">Error loading orders</div></div>';
-    });
+    }
+    refreshLiveOrders();
+    if (window._liveOrdersInterval) clearInterval(window._liveOrdersInterval);
+    window._liveOrdersInterval = setInterval(refreshLiveOrders, 30000);
   }
   var overviewConfirmBtn = document.getElementById('overviewConfirmOrderBtn');
   if (overviewConfirmBtn) overviewConfirmBtn.addEventListener('click', function() { switchView('openOrders'); });

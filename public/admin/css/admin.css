@@ -317,7 +317,9 @@ body {
 .nav-notif-badge { position: absolute; top: 4px; right: 4px; min-width: 18px; height: 18px; padding: 0 5px; background: var(--accent); color: var(--primary); font-size: 0.7rem; font-weight: 700; border-radius: 10px; display: none; align-items: center; justify-content: center; }
 .nav-notif-dropdown { position: absolute; top: 100%; right: 0; margin-top: 8px; width: 320px; max-width: 90vw; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow-md); z-index: 150; display: none; max-height: 360px; overflow: hidden; flex-direction: column; }
 .nav-notif-dropdown.open { display: flex; }
-.nav-notif-header { padding: 12px 16px; font-weight: 600; border-bottom: 1px solid var(--border); }
+.nav-notif-header { padding: 12px 16px; font-weight: 600; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.nav-notif-clear-btn { font-size: 0.8rem; color: var(--text-muted); background: none; border: none; cursor: pointer; text-decoration: underline; padding: 0; }
+.nav-notif-clear-btn:hover { color: var(--accent); }
 .nav-notif-list { overflow-y: auto; max-height: 280px; }
 .nav-notif-item { padding: 12px 16px; border-bottom: 1px solid var(--border); }
 .nav-notif-item p { margin: 0 0 8px; font-size: 0.9rem; }

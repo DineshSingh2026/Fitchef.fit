@@ -8,7 +8,8 @@
     var scopeKey = (opts.scopeKey || 'app').toString();
 
     var installBtn = document.querySelector('[data-pwa-install-btn]');
-    var banner = installBtn ? installBtn.closest('.pwa-banner') : null;
+    var notifBtn = document.querySelector('[data-pwa-notif-btn]');
+    var banner = installBtn ? installBtn.closest('.pwa-banner') : (notifBtn ? notifBtn.closest('.pwa-banner') : null);
     var bannerSub = banner ? banner.querySelector('.pwa-banner-sub') : null;
     var bannerClose = banner ? banner.querySelector('[data-pwa-close]') : null;
 
@@ -58,7 +59,8 @@
     });
 
     if (installBtn && banner) {
-      if (!alreadyClicked) show(installBtn);
+      if (alreadyClicked) hide(installBtn);
+      else show(installBtn);
 
       installBtn.addEventListener('click', function () {
         if (isIOS()) {
@@ -87,6 +89,25 @@
       bannerClose.addEventListener('click', function () {
         localStorage.setItem(LS_BANNER, '1');
         hide(banner);
+      });
+    }
+
+    // Enable notifications: show button if permission not granted, handle click
+    if (notifBtn && banner && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        hide(notifBtn);
+      } else {
+        show(notifBtn);
+      }
+      notifBtn.addEventListener('click', function () {
+        Notification.requestPermission().then(function (perm) {
+          if (perm === 'granted') {
+            hide(notifBtn);
+            if (bannerSub) bannerSub.textContent = 'Notifications enabled. You\'ll receive order updates.';
+          } else if (bannerSub && perm === 'denied') {
+            bannerSub.textContent = 'Notifications blocked. You can enable them in your browser settings.';
+          }
+        });
       });
     }
   };

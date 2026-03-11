@@ -76,16 +76,25 @@
   function closeNotifDropdown() { if (notifDropdown) { notifDropdown.classList.remove('open'); notifDropdown.setAttribute('aria-hidden', 'true'); if (notifToggle) notifToggle.setAttribute('aria-expanded', 'false'); } }
   if (notifToggle) notifToggle.addEventListener('click', function (e) { e.stopPropagation(); if (notifDropdown && notifDropdown.classList.contains('open')) closeNotifDropdown(); else openNotifDropdown(); });
   document.addEventListener('click', function (e) { if (notifDropdown && notifDropdown.classList.contains('open') && !e.target.closest('.nav-notif-wrap')) closeNotifDropdown(); });
+  var userClearNotifBtn = document.getElementById('userClearNotifBtn');
+  if (userClearNotifBtn) userClearNotifBtn.addEventListener('click', function (e) { e.stopPropagation(); fetch(API_USER + '/notifications/read-all', { method: 'PATCH', headers: getAuthHeaders() }).then(function () { updateNotifBadge(); renderNotifDropdown(); }); });
   updateNotifBadge();
 
   var titles = { overview: 'Dashboard Overview', profile: 'My Profile', meals: 'FitChef Kitchen', orders: 'My Orders', feedback: 'Feedback', support: 'Support' };
   var pwaBannerUser = document.getElementById('pwaBannerUser');
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sidebarOverlay');
-  function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
-  function openSidebar() { sidebar.classList.add('open'); overlay.classList.add('open'); }
-  document.getElementById('navbarToggle').addEventListener('click', openSidebar);
-  overlay.addEventListener('click', closeSidebar);
+  function closeSidebar() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('open');
+  }
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('open');
+    if (overlay) overlay.classList.add('open');
+  }
+  var navbarToggle = document.getElementById('navbarToggle');
+  if (navbarToggle) navbarToggle.addEventListener('click', openSidebar);
+  if (overlay) overlay.addEventListener('click', closeSidebar);
 
   document.querySelectorAll('.nav-link').forEach(function (a) {
     if (a.id === 'logoutLink') return;
@@ -104,6 +113,7 @@
   function switchView(name) {
     document.querySelectorAll('.view').forEach(function (v) { v.classList.remove('active'); });
     document.querySelectorAll('.nav-link').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
+    document.querySelectorAll('.bottom-nav a').forEach(function (n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
     document.getElementById('viewTitle').textContent = titles[name] || 'Dashboard';
@@ -444,6 +454,14 @@
   document.getElementById('invoiceModalClose') && document.getElementById('invoiceModalClose').addEventListener('click', closeInvoiceModal);
   document.getElementById('invoicePrintBtn') && document.getElementById('invoicePrintBtn').addEventListener('click', function () { window.print(); });
   if (invoiceModal) invoiceModal.addEventListener('click', function (e) { if (e.target === invoiceModal) closeInvoiceModal(); });
+
+  document.querySelectorAll('.bottom-nav a').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      var view = link.getAttribute('data-view');
+      if (view) switchView(view);
+    });
+  });
 
   loadOverview();
   updateCartBadge();
