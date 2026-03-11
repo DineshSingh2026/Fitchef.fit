@@ -440,6 +440,12 @@
     var AUTH_STORAGE_KEY = 'fitchef_user';
     var TOKEN_KEY = 'fitchef_token';
 
+    // If user is already logged in, go straight to dashboard (mobile and web)
+    if (localStorage.getItem(TOKEN_KEY) && localStorage.getItem(AUTH_STORAGE_KEY)) {
+      window.location.replace('/user/dashboard.html');
+      return;
+    }
+
     function closeMobileMenu() {
       if (mobileMenu) {
         mobileMenu.classList.remove('is-open');
