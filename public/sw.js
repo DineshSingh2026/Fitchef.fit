@@ -1,9 +1,12 @@
 /* FitChef PWA service worker (minimal, safe defaults) */
-const CACHE_NAME = 'fitchef-pwa-v1';
+const CACHE_NAME = 'fitchef-pwa-v2';
 
 const CORE_ASSETS = [
   '/',
   '/manifest.webmanifest',
+  '/images/pwa/icon-192.png',
+  '/images/pwa/icon-512.png',
+  '/images/pwa/apple-touch-icon.png',
   '/images/Fitchef%20logo2.png',
   '/css/style.css',
   '/css/fitchef-mobile-pro.css',

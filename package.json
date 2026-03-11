@@ -14,7 +14,8 @@
     "db:seed-admin": "node scripts/seed-admin.js",
     "db:seed-chef": "node scripts/seed-chef.js",
     "db:seed-logistics": "node scripts/seed-logistics.js",
-    "db:test": "node scripts/test-db-connection.js"
+    "db:test": "node scripts/test-db-connection.js",
+    "pwa:icons": "node scripts/generate-pwa-icons.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -35,5 +36,8 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "pg": "^8.11.3"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }
