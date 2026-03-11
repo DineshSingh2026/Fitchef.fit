@@ -25,6 +25,7 @@
     out: 'Out for Delivery',
     delivered: 'Delivered Orders'
   };
+  var pwaBannerLogistics = document.getElementById('pwaBannerLogistics');
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sidebarOverlay');
   function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
@@ -42,6 +43,8 @@
   });
   document.getElementById('logisticsLogoutLink').addEventListener('click', function (e) { e.preventDefault(); logout(); });
   document.getElementById('logisticsLogoutBtn').addEventListener('click', logout);
+  var logisticsRefreshBtn = document.getElementById('logisticsRefreshBtn');
+  if (logisticsRefreshBtn) logisticsRefreshBtn.addEventListener('click', function () { window.location.reload(); });
   function logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -54,6 +57,9 @@
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
     document.getElementById('viewTitle').textContent = titles[name] || 'Logistics';
+    if (pwaBannerLogistics && !localStorage.getItem('fitchef_pwa_banner_dismissed_logistics')) {
+      pwaBannerLogistics.style.display = name === 'overview' ? '' : 'none';
+    }
     if (name === 'overview') loadOverview();
     else if (name === 'open') loadOpenOrders();
     else if (name === 'ready') loadReadyOrders();
@@ -88,184 +94,114 @@
       });
   }
 
+    var logDetailModal = document.getElementById('logisticsOrderDetailModal');
+  var logDetailBody = document.getElementById('logisticsOrderDetailBody');
+  var logDetailFooter = document.getElementById('logisticsOrderDetailFooter');
+  function openLogisticsOrderDetail(o, viewType, agents) {
+    function fd(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
+    var html = '<p><strong>Order ID</strong> ' + (o.id || '') + '</p><p><strong>User</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</p><p><strong>Mobile</strong> ' + (o.user_mobile || '—').replace(/</g, '&lt;') + '</p><p><strong>Delivery date</strong> ' + fd(o.requested_delivery_date) + '</p><p><strong>Address</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</p><p><strong>Time slot</strong> ' + (o.delivery_time_slot || '—').replace(/</g, '&lt;') + '</p><p><strong>Kitchen</strong> ' + (o.kitchen_location || '—').replace(/</g, '&lt;') + '</p>';
+    if (o.dispatch_time) html += '<p><strong>Dispatch</strong> ' + fmtDate(o.dispatch_time) + '</p>';
+    if (o.delivered_time) html += '<p><strong>Delivered</strong> ' + fmtDate(o.delivered_time) + '</p>';
+    if (o.agent_name) html += '<p><strong>Agent</strong> ' + (o.agent_name || '—').replace(/</g, '&lt;') + '</p>';
+    logDetailBody.innerHTML = html;
+    logDetailFooter.innerHTML = '';
+    if (viewType === 'ready' && agents && agents.length) {
+      var opts = '<option value="">Select agent</option>' + agents.map(function (a) { var sel = (o.assigned_agent_id && a.id === o.assigned_agent_id) ? ' selected' : ''; return '<option value="' + a.id + '"' + sel + '>' + (a.name || '').replace(/</g, '&lt;') + ' – ' + (a.mobile || '').replace(/</g, '&lt;') + '</option>'; }).join('');
+      logDetailFooter.innerHTML = '<div class="logistics-assign-row"><select id="logModalAgentSelect">' + opts + '</select><button type="button" class="logistics-btn-primary" id="logModalAssignBtn" data-order-id="' + o.id + '">Assign</button></div>';
+      if (o.assigned_agent_id) logDetailFooter.innerHTML += ' <button type="button" class="logistics-btn-primary logistics-btn-out-delivery" id="logModalOutBtn" data-order-id="' + o.id + '">Mark as Out for Delivery</button>';
+      document.getElementById('logModalAssignBtn').addEventListener('click', function () {
+        var sel = document.getElementById('logModalAgentSelect');
+        var agentId = sel && sel.value ? sel.value.trim() : '';
+        if (!agentId) { alert('Select an agent.'); return; }
+        var btn = this; btn.disabled = true;
+        fetch(API + '/orders/' + o.id + '/assign-agent', { method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ agent_id: parseInt(agentId, 10) }) }).then(function (r) { return r.json(); }).then(function (data) { if (data.success) { logDetailModal.classList.remove('open'); loadReadyOrders(); loadOverview(); } else alert(data.error || 'Failed'); }).catch(function () { alert('Failed'); }).finally(function () { btn.disabled = false; });
+      });
+      var outBtn = document.getElementById('logModalOutBtn');
+      if (outBtn) outBtn.addEventListener('click', function () {
+        if (!confirm('Mark as Out for Delivery?')) return;
+        var b = this; b.disabled = true;
+        fetch(API + '/orders/' + o.id + '/out-for-delivery', { method: 'PUT', headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (data) { if (data.success) { logDetailModal.classList.remove('open'); loadReadyOrders(); loadOutOrders(); loadOverview(); } else alert(data.error || 'Failed'); }).catch(function () { alert('Failed'); }).finally(function () { b.disabled = false; });
+      });
+    } else if (viewType === 'out') {
+      logDetailFooter.innerHTML = '<button type="button" class="logistics-btn-primary logistics-btn-delivered" id="logModalDeliveredBtn" data-order-id="' + o.id + '">Mark as Delivered</button>';
+      document.getElementById('logModalDeliveredBtn').addEventListener('click', function () {
+        if (!confirm('Mark as Delivered?')) return;
+        var b = this; b.disabled = true;
+        fetch(API + '/orders/' + o.id + '/delivered', { method: 'PUT', headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (data) { if (data.success) { logDetailModal.classList.remove('open'); loadOutOrders(); loadDeliveredOrders(); loadOverview(); } else alert(data.error || 'Failed'); }).catch(function () { alert('Failed'); }).finally(function () { b.disabled = false; });
+      });
+    }
+    logDetailModal.classList.add('open');
+    logDetailModal.setAttribute('aria-hidden', 'false');
+  }
+  document.getElementById('logisticsOrderDetailClose').addEventListener('click', function () { logDetailModal.classList.remove('open'); logDetailModal.setAttribute('aria-hidden', 'true'); });
+  logDetailModal.addEventListener('click', function (e) { if (e.target === logDetailModal) logDetailModal.classList.remove('open'); });
+
   function loadOpenOrders() {
     var listEl = document.getElementById('openOrdersList');
-    listEl.innerHTML = '<div class="logistics-skeleton" style="height:140px;margin-bottom:16px"></div>';
-    fetch(API + '/orders/open', { headers: getAuthHeaders() })
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
-        var orders = res.data || [];
-        if (orders.length === 0) {
-          listEl.innerHTML = '<p style="color:var(--log-text-muted);font-size:1.1rem">No open orders (Confirmed, admin-approved).</p>';
-          return;
-        }
-        function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
-        listEl.innerHTML = orders.map(function (o) {
-          return '<div class="logistics-order-card status-confirmed" data-order-id="' + o.id + '">' +
-            '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.created_at) + '</span></div>' +
-            '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
-            '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Mobile:</strong> ' + (o.user_mobile || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Time slot:</strong> ' + (o.delivery_time_slot || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Kitchen:</strong> ' + (o.kitchen_location || '—').replace(/</g, '&lt;') + '</div>' +
-            '</div>';
-        }).join('');
-      })
-      .catch(function () { listEl.innerHTML = '<p style="color:var(--log-text-muted)">Failed to load orders.</p>'; });
+    listEl.innerHTML = '<tr><td colspan="4" class="loading">Loading…</td></tr>';
+    fetch(API + '/orders/open', { headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (res) {
+      var orders = res.data || [];
+      if (orders.length === 0) { listEl.innerHTML = '<tr><td colspan="4" class="empty">No open orders.</td></tr>'; return; }
+      function fd(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
+      listEl.innerHTML = orders.map(function (o) { return '<tr><td>' + shortId(o.id) + '</td><td>' + (o.user_name || '—').replace(/</g, '&lt;') + '</td><td>' + fd(o.requested_delivery_date) + '</td><td><button type="button" class="btn-view view-log-order-btn" data-id="' + o.id + '">View</button></td></tr>'; }).join('');
+      listEl.querySelectorAll('.view-log-order-btn').forEach(function (btn) { var o = orders.find(function (x) { return String(x.id) === btn.getAttribute('data-id'); }); if (o) btn.addEventListener('click', function () { openLogisticsOrderDetail(o, 'open'); }); });
+    }).catch(function () { listEl.innerHTML = '<tr><td colspan="4" class="loading">Failed to load.</td></tr>'; });
   }
 
   function loadReadyOrders() {
     var listEl = document.getElementById('readyOrdersList');
-    listEl.innerHTML = '<div class="logistics-skeleton" style="height:140px"></div>';
+    listEl.innerHTML = '<tr><td colspan="4" class="loading">Loading…</td></tr>';
     Promise.all([
       fetch(API + '/orders/ready', { headers: getAuthHeaders() }).then(function (r) { return r.json(); }),
       fetch(API + '/agents', { headers: getAuthHeaders() }).then(function (r) { return r.json(); })
     ]).then(function (results) {
       var orders = (results[0].data || []);
       var agents = (results[1].data || []);
-      if (orders.length === 0) {
-        listEl.innerHTML = '<p style="color:var(--log-text-muted);font-size:1.1rem">No orders ready for dispatch.</p>';
-        return;
-      }
-      function agentOptions(selectedId) {
-        return '<option value="">Select agent</option>' + agents.map(function (a) {
-          var sel = (selectedId && a.id === selectedId) ? ' selected' : '';
-          return '<option value="' + a.id + '"' + sel + '>' + (a.name || '').replace(/</g, '&lt;') + ' – ' + (a.mobile || '').replace(/</g, '&lt;') + (a.vehicle_number ? ' (' + (a.vehicle_number || '').replace(/</g, '&lt;') + ')' : '') + '</option>';
-        }).join('');
-      }
-      function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
+      if (orders.length === 0) { listEl.innerHTML = '<tr><td colspan="4" class="empty">No orders ready for dispatch.</td></tr>'; return; }
       listEl.innerHTML = orders.map(function (o) {
-        var assignHtml = '<div class="logistics-assign-row">' +
-          '<select class="agent-select" data-order-id="' + o.id + '">' + agentOptions(o.assigned_agent_id) + '</select>' +
-          '<button type="button" class="logistics-btn-primary assign-agent-btn" data-order-id="' + o.id + '">Assign</button>' +
-          '</div>';
-        var outBtn = o.assigned_agent_id
-          ? '<button type="button" class="logistics-btn-primary logistics-btn-out-delivery out-for-delivery-btn" data-order-id="' + o.id + '">Mark as Out for Delivery</button>'
-          : '<span style="color:var(--log-text-muted)">Assign an agent first.</span>';
-        return '<div class="logistics-order-card status-ready" data-order-id="' + o.id + '">' +
-          '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.created_at) + '</span></div>' +
-          '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
-          '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
-          '<div class="logistics-order-row"><strong>Mobile:</strong> ' + (o.user_mobile || '—').replace(/</g, '&lt;') + '</div>' +
-          '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
-          '<div class="logistics-order-row"><strong>Time slot:</strong> ' + (o.delivery_time_slot || '—').replace(/</g, '&lt;') + '</div>' +
-          '<div class="logistics-order-row"><strong>Kitchen:</strong> ' + (o.kitchen_location || '—').replace(/</g, '&lt;') + '</div>' +
-          (o.agent_name ? '<div class="logistics-order-row"><strong>Agent:</strong> ' + (o.agent_name || '—').replace(/</g, '&lt;') + '</div>' : '') +
-          '<div class="logistics-order-actions">' + assignHtml + ' ' + outBtn + '</div></div>';
+        return '<tr><td>' + shortId(o.id) + '</td><td>' + (o.user_name || '—').replace(/</g, '&lt;') + '</td><td>' + (o.agent_name || '—').replace(/</g, '&lt;') + '</td><td><button type="button" class="btn-view view-log-order-btn" data-id="' + o.id + '">View</button></td></tr>';
       }).join('');
-      listEl.querySelectorAll('.assign-agent-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var orderId = btn.getAttribute('data-order-id');
-          var sel = listEl.querySelector('.agent-select[data-order-id="' + orderId + '"]');
-          var agentId = sel && sel.value ? sel.value.trim() : '';
-          if (!agentId) { alert('Select an agent.'); return; }
-          btn.disabled = true;
-          fetch(API + '/orders/' + orderId + '/assign-agent', {
-            method: 'PUT',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({ agent_id: parseInt(agentId, 10) })
-          }).then(function (r) { return r.json(); })
-            .then(function (data) {
-              if (data.success) { loadReadyOrders(); loadOverview(); } else alert(data.error || 'Failed');
-            })
-            .catch(function () { alert('Failed.'); })
-            .finally(function () { btn.disabled = false; });
-        });
+      listEl.querySelectorAll('.view-log-order-btn').forEach(function (btn) {
+        var o = orders.find(function (x) { return String(x.id) === btn.getAttribute('data-id'); });
+        if (o) btn.addEventListener('click', function () { openLogisticsOrderDetail(o, 'ready', agents); });
       });
-      listEl.querySelectorAll('.out-for-delivery-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var orderId = btn.getAttribute('data-order-id');
-          if (!orderId || !confirm('Mark this order as Out for Delivery? User and admin will be notified.')) return;
-          btn.disabled = true;
-          fetch(API + '/orders/' + orderId + '/out-for-delivery', { method: 'PUT', headers: getAuthHeaders() })
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-              if (data.success) { alert(data.message || 'Done.'); loadReadyOrders(); loadOutOrders(); loadOverview(); } else alert(data.error || 'Failed');
-            })
-            .catch(function () { alert('Failed.'); })
-            .finally(function () { btn.disabled = false; });
-        });
-      });
-    }).catch(function () { listEl.innerHTML = '<p style="color:var(--log-text-muted)">Failed to load.</p>'; });
+    }).catch(function () { listEl.innerHTML = '<tr><td colspan="4" class="loading">Failed to load.</td></tr>'; });
   }
 
   function loadOutOrders() {
     var listEl = document.getElementById('outOrdersList');
-    listEl.innerHTML = '<div class="logistics-skeleton" style="height:140px"></div>';
-    fetch(API + '/orders/out', { headers: getAuthHeaders() })
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
-        var orders = res.data || [];
-        if (orders.length === 0) {
-          listEl.innerHTML = '<p style="color:var(--log-text-muted);font-size:1.1rem">No orders out for delivery.</p>';
-          return;
-        }
-        function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
-        listEl.innerHTML = orders.map(function (o) {
-          var eta = o.dispatch_time ? 'ETA ~' + (30) + ' min from dispatch' : '—';
-          return '<div class="logistics-order-card status-out" data-order-id="' + o.id + '">' +
-            '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.dispatch_time) + '</span></div>' +
-            '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
-            '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Mobile:</strong> ' + (o.user_mobile || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Agent:</strong> ' + (o.agent_name || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Dispatch:</strong> ' + fmtDate(o.dispatch_time) + '</div>' +
-            '<div class="logistics-order-row"><strong>Delivery ETA:</strong> ' + eta + '</div>' +
-            '<div class="logistics-order-actions"><button type="button" class="logistics-btn-primary logistics-btn-delivered mark-delivered-btn" data-order-id="' + o.id + '">Mark as Delivered</button></div></div>';
-        }).join('');
-        listEl.querySelectorAll('.mark-delivered-btn').forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var orderId = btn.getAttribute('data-order-id');
-            if (!orderId || !confirm('Mark this order as Delivered?')) return;
-            btn.disabled = true;
-            fetch(API + '/orders/' + orderId + '/delivered', { method: 'PUT', headers: getAuthHeaders() })
-              .then(function (r) { return r.json(); })
-              .then(function (data) {
-                if (data.success) { loadOutOrders(); loadDeliveredOrders(); loadOverview(); } else alert(data.error || 'Failed');
-              })
-              .catch(function () { alert('Failed.'); })
-              .finally(function () { btn.disabled = false; });
-          });
-        });
-      })
-      .catch(function () { listEl.innerHTML = '<p style="color:var(--log-text-muted)">Failed to load orders.</p>'; });
+    listEl.innerHTML = '<tr><td colspan="4" class="loading">Loading…</td></tr>';
+    fetch(API + '/orders/out', { headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (res) {
+      var orders = res.data || [];
+      if (orders.length === 0) { listEl.innerHTML = '<tr><td colspan="4" class="empty">No orders out for delivery.</td></tr>'; return; }
+      listEl.innerHTML = orders.map(function (o) {
+        return '<tr><td>' + shortId(o.id) + '</td><td>' + (o.user_name || '—').replace(/</g, '&lt;') + '</td><td>' + (o.agent_name || '—').replace(/</g, '&lt;') + '</td><td><button type="button" class="btn-view view-log-order-btn" data-id="' + o.id + '">View</button></td></tr>';
+      }).join('');
+      listEl.querySelectorAll('.view-log-order-btn').forEach(function (btn) {
+        var o = orders.find(function (x) { return String(x.id) === btn.getAttribute('data-id'); });
+        if (o) btn.addEventListener('click', function () { openLogisticsOrderDetail(o, 'out'); });
+      });
+    }).catch(function () { listEl.innerHTML = '<tr><td colspan="4" class="loading">Failed to load.</td></tr>'; });
   }
 
   var deliveredFilter = '';
   function loadDeliveredOrders() {
     var listEl = document.getElementById('deliveredOrdersList');
     var q = deliveredFilter ? '?filter=' + deliveredFilter : '';
-    listEl.innerHTML = '<div class="logistics-skeleton" style="height:100px"></div>';
-    fetch(API + '/orders/delivered' + q, { headers: getAuthHeaders() })
-      .then(function (r) { return r.json(); })
-      .then(function (res) {
-        var orders = res.data || [];
-        document.querySelectorAll('.logistics-delivered-filters button').forEach(function (b) {
-          b.classList.toggle('active', b.getAttribute('data-filter') === deliveredFilter);
-        });
-        if (orders.length === 0) {
-          listEl.innerHTML = '<p style="color:var(--log-text-muted);font-size:1.1rem">No delivered orders for this filter.</p>';
-          return;
-        }
-        function fmtDeliveryDate(d) { return d ? new Date(d).toLocaleDateString() : '—'; }
-        listEl.innerHTML = orders.map(function (o) {
-          var dispatch = o.dispatch_time ? new Date(o.dispatch_time).getTime() : 0;
-          var delivered = o.delivered_time ? new Date(o.delivered_time).getTime() : 0;
-          var duration = (dispatch && delivered && delivered >= dispatch) ? Math.round((delivered - dispatch) / 60000) + ' min' : '—';
-          return '<div class="logistics-order-card status-delivered">' +
-            '<div class="logistics-order-card-header"><span class="logistics-order-id">' + shortId(o.id) + '</span><span class="logistics-order-meta">' + fmtDate(o.delivered_time) + '</span></div>' +
-            '<div class="logistics-order-row"><strong>Delivery date:</strong> ' + fmtDeliveryDate(o.requested_delivery_date) + '</div>' +
-            '<div class="logistics-order-row"><strong>User:</strong> ' + (o.user_name || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Address:</strong> ' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Agent:</strong> ' + (o.agent_name || '—').replace(/</g, '&lt;') + '</div>' +
-            '<div class="logistics-order-row"><strong>Dispatch:</strong> ' + fmtDate(o.dispatch_time) + '</div>' +
-            '<div class="logistics-order-row"><strong>Delivered:</strong> ' + fmtDate(o.delivered_time) + '</div>' +
-            '<div class="logistics-order-row"><strong>Duration:</strong> ' + duration + '</div></div>';
-        }).join('');
-      })
-      .catch(function () { listEl.innerHTML = '<p style="color:var(--log-text-muted)">Failed to load.</p>'; });
+    listEl.innerHTML = '<tr><td colspan="4" class="loading">Loading…</td></tr>';
+    fetch(API + '/orders/delivered' + q, { headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (res) {
+      var orders = res.data || [];
+      document.querySelectorAll('.logistics-delivered-filters button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-filter') === deliveredFilter); });
+      if (orders.length === 0) { listEl.innerHTML = '<tr><td colspan="4" class="empty">No delivered orders for this filter.</td></tr>'; return; }
+      listEl.innerHTML = orders.map(function (o) {
+        var delStr = o.delivered_time ? fmtDate(o.delivered_time) : '—';
+        return '<tr><td>' + shortId(o.id) + '</td><td>' + (o.user_name || '—').replace(/</g, '&lt;') + '</td><td>' + delStr + '</td><td><button type="button" class="btn-view view-log-order-btn" data-id="' + o.id + '">View</button></td></tr>';
+      }).join('');
+      listEl.querySelectorAll('.view-log-order-btn').forEach(function (btn) {
+        var o = orders.find(function (x) { return String(x.id) === btn.getAttribute('data-id'); });
+        if (o) btn.addEventListener('click', function () { openLogisticsOrderDetail(o, 'delivered'); });
+      });
+    }).catch(function () { listEl.innerHTML = '<tr><td colspan="4" class="loading">Failed to load.</td></tr>'; });
   }
   document.querySelectorAll('.logistics-delivered-filters button').forEach(function (b) {
     b.addEventListener('click', function () {

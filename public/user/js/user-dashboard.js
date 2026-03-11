@@ -79,6 +79,7 @@
   updateNotifBadge();
 
   var titles = { overview: 'Dashboard Overview', profile: 'My Profile', meals: 'FitChef Kitchen', orders: 'My Orders', feedback: 'Feedback', support: 'Support' };
+  var pwaBannerUser = document.getElementById('pwaBannerUser');
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sidebarOverlay');
   function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
@@ -92,6 +93,8 @@
   });
   document.getElementById('logoutLink').addEventListener('click', function (e) { e.preventDefault(); logout(); });
   document.getElementById('logoutBtn').addEventListener('click', logout);
+  var userRefreshBtn = document.getElementById('userRefreshBtn');
+  if (userRefreshBtn) userRefreshBtn.addEventListener('click', function () { window.location.reload(); });
   function logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -104,6 +107,9 @@
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
     document.getElementById('viewTitle').textContent = titles[name] || 'Dashboard';
+    if (pwaBannerUser && !localStorage.getItem('fitchef_pwa_banner_dismissed_user')) {
+      pwaBannerUser.style.display = name === 'overview' ? '' : 'none';
+    }
     if (name === 'overview') loadOverview();
     else if (name === 'profile') loadProfile();
     else if (name === 'meals') loadMeals();
@@ -245,16 +251,19 @@
   function loadOrders() {
     loadNotifications();
     var listEl = document.getElementById('ordersList');
-    listEl.innerHTML = '<div class="skeleton" style="height:60px"></div>';
+    listEl.innerHTML = '<tr><td colspan="4" class="loading">Loading…</td></tr>';
     fetch(API_USER + '/orders', { headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (res) {
       var orders = res.data || [];
-      listEl.innerHTML = orders.length ? orders.map(function (o) {
+      if (orders.length === 0) { listEl.innerHTML = '<tr><td colspan="4" class="empty">No orders yet. Add items from FitChef Kitchen and place an order.</td></tr>'; return; }
+      listEl.innerHTML = orders.map(function (o) {
+        var dateStr = o.created_at ? new Date(o.created_at).toLocaleDateString() : '';
         var statusClass = (o.status || '').toLowerCase().replace(/\s/g, '');
-        var items = (o.items || []).map(function (i) { return (i.quantity || 1) + '× ' + (i.dish_name || 'Item'); }).join(', ');
-        var deliveryStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '—';
-        return '<div class="order-card"><div class="order-card-header"><span class="order-card-id">' + (o.id || '').toString().slice(0, 8) + '...</span><span class="order-card-date">' + (o.created_at ? new Date(o.created_at).toLocaleDateString() : '') + '</span><span class="order-card-status ' + statusClass + '">' + (o.status || '') + '</span></div><p class="order-card-delivery">Delivery: ' + deliveryStr + '</p><p class="order-card-items">' + items + '</p><button type="button" class="btn-outline view-invoice-btn" data-order-id="' + o.id + '">View Details</button></div>';
-      }).join('') : '<p style="color:var(--text-muted)">No orders yet. Add items from FitChef Kitchen and place an order.</p>';
-    }).catch(function () { listEl.innerHTML = '<p style="color:var(--text-muted)">Failed to load orders.</p>'; });
+        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + dateStr + '</td><td><span class="order-card-status ' + statusClass + '">' + (o.status || '') + '</span></td><td><button type="button" class="btn-sm view-invoice-btn" data-order-id="' + o.id + '">View</button></td></tr>';
+      }).join('');
+      listEl.querySelectorAll('.view-invoice-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () { openInvoiceModal(btn.getAttribute('data-order-id')); });
+      });
+    }).catch(function () { listEl.innerHTML = '<tr><td colspan="4" class="loading">Failed to load orders.</td></tr>'; });
   }
 
   function loadNotifications() {

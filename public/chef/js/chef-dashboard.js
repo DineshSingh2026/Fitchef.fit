@@ -19,6 +19,7 @@
   document.getElementById('chefName').textContent = user.name || user.email || 'Chef';
 
   var titles = { overview: 'Dashboard Overview', profile: 'My Profile', openOrders: 'Open Orders', completed: 'Completed Orders' };
+  var pwaBannerChef = document.getElementById('pwaBannerChef');
   var sidebar = document.getElementById('sidebar');
   var overlay = document.getElementById('sidebarOverlay');
   function closeSidebar() { sidebar.classList.remove('open'); overlay.classList.remove('open'); }
@@ -36,6 +37,8 @@
   });
   document.getElementById('chefLogoutLink').addEventListener('click', function (e) { e.preventDefault(); logout(); });
   document.getElementById('chefLogoutBtn').addEventListener('click', logout);
+  var chefRefreshBtn = document.getElementById('chefRefreshBtn');
+  if (chefRefreshBtn) chefRefreshBtn.addEventListener('click', function () { window.location.reload(); });
   function logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);
@@ -48,6 +51,9 @@
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
     document.getElementById('viewTitle').textContent = titles[name] || 'Chef Dashboard';
+    if (pwaBannerChef && !localStorage.getItem('fitchef_pwa_banner_dismissed_chef')) {
+      pwaBannerChef.style.display = name === 'overview' ? '' : 'none';
+    }
     if (name === 'overview') loadOverview();
     else if (name === 'profile') loadProfile();
     else if (name === 'openOrders') loadOpenOrders();
@@ -91,84 +97,80 @@
     };
   }
 
+    var chefDetailModal = document.getElementById('chefOrderDetailModal');
+  var chefDetailBody = document.getElementById('chefOrderDetailBody');
+  var chefDetailFooter = document.getElementById('chefOrderDetailFooter');
+  function openChefOrderDetail(o, isOpen) {
+    var dateStr = o.created_at ? new Date(o.created_at).toLocaleString() : '';
+    var deliveryDateStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '—';
+    var customerName = o.customer_first_name || 'Customer';
+    var address = o.delivery_address || '—';
+    var instructions = o.delivery_instructions ? ('Instructions: ' + o.delivery_instructions) : '';
+    var dishesHtml = (o.items || []).map(function (d) {
+      var meta = [d.calories ? d.calories + ' kcal' : '', d.protein ? 'P ' + d.protein + 'g' : '', d.portion_size ? d.portion_size + 'g portion' : ''].filter(Boolean).join(' · ');
+      return '<div class="chef-dish-row"><span class="chef-dish-name">' + (d.dish_name || '') + '</span><span class="chef-dish-qty">× ' + (d.quantity || 1) + '</span>' + (meta ? '<span class="chef-dish-meta">' + meta + '</span>' : '') + '</div>';
+    }).join('');
+    var allergies = (o.allergy_notes || []).filter(Boolean);
+    var allergyHtml = allergies.length ? '<div class="chef-allergy-box"><span class="title">⚠ Allergies:</span><ul><li>' + allergies.join('</li><li>') + '</li></ul></div>' : '<div class="chef-allergy-box empty"><span class="title">No allergy notes.</span></div>';
+    chefDetailBody.innerHTML = '<p><strong>Order ID</strong> ' + (o.id || '') + '</p><p><strong>Customer</strong> ' + (customerName || '').replace(/</g, '&lt;') + '</p><p><strong>Delivery date</strong> ' + deliveryDateStr + '</p><p><strong>Address</strong> ' + (address || '').replace(/</g, '&lt;') + '</p>' + (instructions ? '<p><strong>Instructions</strong> ' + (instructions || '').replace(/</g, '&lt;') + '</p>' : '') + '<div class="chef-dishes-list">' + dishesHtml + '</div>' + allergyHtml;
+    chefDetailFooter.innerHTML = isOpen ? '<button type="button" class="chef-btn-ready" id="chefModalMarkReady" data-order-id="' + o.id + '">Mark as Ready for Dispatch</button>' : '';
+    chefDetailModal.classList.add('open');
+    chefDetailModal.setAttribute('aria-hidden', 'false');
+    var mbtn = document.getElementById('chefModalMarkReady');
+    if (mbtn) mbtn.addEventListener('click', function () {
+      var orderId = mbtn.getAttribute('data-order-id');
+      if (!orderId || !confirm('Mark this order as Ready for Dispatch?')) return;
+      mbtn.disabled = true;
+      fetch(API + '/orders/' + orderId + '/ready', { method: 'PATCH', headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (data) {
+        if (data.success) { chefDetailModal.classList.remove('open'); loadOpenOrders(); loadOverview(); } else alert(data.error || 'Failed');
+      }).catch(function () { alert('Failed'); }).finally(function () { mbtn.disabled = false; });
+    });
+  }
+  document.getElementById('chefOrderDetailClose').addEventListener('click', function () { chefDetailModal.classList.remove('open'); chefDetailModal.setAttribute('aria-hidden', 'true'); });
+  chefDetailModal.addEventListener('click', function (e) { if (e.target === chefDetailModal) chefDetailModal.classList.remove('open'); });
+
   function loadOpenOrders() {
     var listEl = document.getElementById('openOrdersList');
-    listEl.innerHTML = '<div class="chef-skeleton" style="height:120px;margin-bottom:16px"></div><div class="chef-skeleton" style="height:120px"></div>';
+    listEl.innerHTML = '<tr><td colspan="4" class="loading">Loading…</td></tr>';
     fetch(API + '/orders/open', { headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (res) {
       var orders = res.data || [];
-      if (orders.length === 0) {
-        listEl.innerHTML = '<p style="color:var(--text-muted)">No open orders assigned to you.</p>';
-        return;
-      }
+      if (orders.length === 0) { listEl.innerHTML = '<tr><td colspan="4" class="empty">No open orders assigned to you.</td></tr>'; return; }
       listEl.innerHTML = orders.map(function (o) {
-        var dateStr = o.created_at ? new Date(o.created_at).toLocaleString() : '';
         var idShort = (o.id || '').toString().slice(0, 8) + '…';
-        var address = o.delivery_address || '—';
-        var instructions = o.delivery_instructions ? ('Instructions: ' + o.delivery_instructions) : '';
         var customerName = o.customer_first_name || 'Customer';
-        var dishesHtml = (o.items || []).map(function (d) {
-          var meta = [d.calories ? d.calories + ' kcal' : '', d.protein ? 'P ' + d.protein + 'g' : '', d.portion_size ? d.portion_size + 'g portion' : ''].filter(Boolean).join(' · ');
-          return '<div class="chef-dish-row"><span class="chef-dish-name">' + (d.dish_name || '') + '</span><span class="chef-dish-qty">× ' + (d.quantity || 1) + '</span>' +
-            (d.ingredients ? '<span class="chef-dish-meta">' + (d.ingredients || '').replace(/</g, '&lt;').slice(0, 80) + (d.ingredients.length > 80 ? '…' : '') + '</span>' : '') +
-            (meta ? '<span class="chef-dish-meta">' + meta + '</span>' : '') + '</div>';
-        }).join('');
-        var allergies = (o.allergy_notes || []).filter(Boolean);
-        var allergyHtml = allergies.length
-          ? '<div class="chef-allergy-box"><span class="title">⚠ Allergies:</span><ul><li>' + allergies.join('</li><li>') + '</li></ul></div>'
-          : '<div class="chef-allergy-box empty"><span class="title">No allergy notes for this order.</span></div>';
         var deliveryDateStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '—';
-        return '<div class="chef-order-card" data-order-id="' + o.id + '">' +
-          '<div class="chef-order-card-header"><span class="chef-order-id">' + idShort + '</span><span class="chef-order-date">' + dateStr + '</span><span class="chef-order-customer">' + (customerName || '').replace(/</g, '&lt;') + '</span></div>' +
-          '<div class="chef-order-row"><strong>Delivery date:</strong> ' + deliveryDateStr + '</div>' +
-          '<div class="chef-order-address">' + (address || '').replace(/</g, '&lt;') + '</div>' +
-          (instructions ? '<div class="chef-order-instructions">' + (instructions || '').replace(/</g, '&lt;') + '</div>' : '') +
-          '<div class="chef-dishes-list">' + dishesHtml + '</div>' +
-          allergyHtml +
-          '<div class="chef-order-actions"><button type="button" class="chef-btn-ready mark-ready-btn" data-order-id="' + o.id + '">Mark as Ready for Dispatch</button></div></div>';
+        return '<tr><td>' + idShort + '</td><td>' + (customerName || '').replace(/</g, '&lt;') + '</td><td>' + deliveryDateStr + '</td><td><button type="button" class="btn-sm view-chef-order-btn" data-order-id="' + o.id + '" data-open="1">View</button></td></tr>';
       }).join('');
-      listEl.querySelectorAll('.mark-ready-btn').forEach(function (btn) {
+      listEl.querySelectorAll('.view-chef-order-btn').forEach(function (btn) {
         btn.addEventListener('click', function () {
-          var orderId = btn.getAttribute('data-order-id');
-          if (!orderId || !confirm('Mark this order as Ready for Dispatch? Admin and customer will be notified.')) return;
-          btn.disabled = true;
-          fetch(API + '/orders/' + orderId + '/ready', { method: 'PATCH', headers: getAuthHeaders() })
-            .then(function (r) { return r.json(); })
-            .then(function (data) {
-              if (data.success) { alert(data.message || 'Done.'); loadOpenOrders(); loadOverview(); } else alert(data.error || 'Failed'); btn.disabled = false;
-            })
-            .catch(function () { alert('Failed.'); btn.disabled = false; });
+          var o = orders.find(function (x) { return String(x.id) === btn.getAttribute('data-order-id'); });
+          if (o) openChefOrderDetail(o, true);
         });
       });
-    }).catch(function () { listEl.innerHTML = '<p style="color:var(--text-muted)">Failed to load orders.</p>'; });
+    }).catch(function () { listEl.innerHTML = '<tr><td colspan="4" class="loading">Failed to load orders.</td></tr>'; });
   }
 
   var completedFilter = '';
   function loadCompletedOrders() {
     var listEl = document.getElementById('completedOrdersList');
     var q = completedFilter ? '?filter=' + completedFilter : '';
-    listEl.innerHTML = '<div class="chef-skeleton" style="height:80px"></div>';
+    listEl.innerHTML = '<tr><td colspan="4" class="loading">Loading…</td></tr>';
     fetch(API + '/orders/completed' + q, { headers: getAuthHeaders() }).then(function (r) { return r.json(); }).then(function (res) {
       var orders = res.data || [];
       document.querySelectorAll('.chef-completed-filters button').forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-filter') === completedFilter); });
-      if (orders.length === 0) {
-        listEl.innerHTML = '<p style="color:var(--text-muted)">No completed orders in this period.</p>';
-        return;
-      }
+      if (orders.length === 0) { listEl.innerHTML = '<tr><td colspan="4" class="empty">No completed orders in this period.</td></tr>'; return; }
       listEl.innerHTML = orders.map(function (o) {
-        var dateStr = o.created_at ? new Date(o.created_at).toLocaleString() : '';
-        var completedStr = o.completed_at ? new Date(o.completed_at).toLocaleString() : '—';
         var idShort = (o.id || '').toString().slice(0, 8) + '…';
-        var statusClass = (o.status || '').toLowerCase().replace(/\s/g, '');
-        var dishesStr = (o.items || []).map(function (d) { return (d.quantity || 1) + '× ' + (d.dish_name || ''); }).join(', ');
         var deliveryDateStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '—';
-        return '<div class="chef-order-card">' +
-          '<div class="chef-order-card-header"><span class="chef-order-id">' + idShort + '</span><span class="chef-order-date">' + dateStr + '</span><span class="chef-order-status ' + statusClass + '">' + (o.status || '') + '</span></div>' +
-          '<div class="chef-order-row"><strong>Delivery date:</strong> ' + deliveryDateStr + '</div>' +
-          '<div class="chef-order-address">' + (o.delivery_address || '—').replace(/</g, '&lt;') + '</div>' +
-          '<p class="chef-dish-meta">' + dishesStr + '</p>' +
-          '<p class="chef-completed-at">Completed: ' + completedStr + '</p></div>';
+        return '<tr><td>' + idShort + '</td><td>' + (o.status || '') + '</td><td>' + deliveryDateStr + '</td><td><button type="button" class="btn-sm view-chef-order-btn" data-order-id="' + o.id + '">View</button></td></tr>';
       }).join('');
-    }).catch(function () { listEl.innerHTML = '<p style="color:var(--text-muted)">Failed to load orders.</p>'; });
+      listEl.querySelectorAll('.view-chef-order-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var o = orders.find(function (x) { return String(x.id) === btn.getAttribute('data-order-id'); });
+          if (o) openChefOrderDetail(o, false);
+        });
+      });
+    }).catch(function () { listEl.innerHTML = '<tr><td colspan="4" class="loading">Failed to load orders.</td></tr>'; });
   }
 
   document.querySelectorAll('.chef-completed-filters button').forEach(function (btn) {

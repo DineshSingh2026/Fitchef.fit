@@ -8,6 +8,13 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="/css/fitchef-mobile-pro.css">
+  <link rel="stylesheet" href="/css/pwa-common.css">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/images/pwa/apple-touch-icon.png">
+  <meta name="theme-color" content="#0d2818">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <!-- Google tag (gtag.js) - GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-8DL7V0MHSB"></script>
   <script>
@@ -21,7 +28,7 @@
   <div class="dash-wrap">
     <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
     <aside class="sidebar" id="sidebar">
-      <div class="sidebar-brand">FitChef Admin</div>
+      <div class="sidebar-brand"><img src="/images/Fitchef%20logo2.png" alt="FitChef" class="sidebar-logo"></div>
       <nav class="sidebar-nav">
         <a href="#" class="nav-link active" data-view="overview"><span class="nav-icon" aria-hidden="true">📊</span>Dashboard</a>
         <a href="#" class="nav-link" data-view="orders"><span class="nav-icon" aria-hidden="true">📦</span>Orders</a>
@@ -53,6 +60,12 @@
               <div class="nav-notif-empty" id="navNotifEmpty">All caught up</div>
             </div>
           </div>
+          <button type="button" class="nav-refresh-btn" id="adminRefreshBtn" aria-label="Refresh">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+              <polyline points="21 3 21 9 15 9"/>
+            </svg>
+          </button>
           <span class="user" id="userName"></span>
           <button type="button" class="btn-outline" id="logoutBtn">Logout</button>
         </div>
@@ -60,19 +73,68 @@
       <div class="content">
         <!-- Overview -->
         <div id="view-overview" class="view active">
-          <p class="content-intro">At a glance</p>
-          <div class="kpi-grid" id="kpiGrid"></div>
-          <div class="chart-card">
+          <!-- Mobile Dashboard (visible on mobile only) -->
+          <div class="mobile-container">
+            <div class="mobile-header">
+              <div class="mobile-title"><img src="/images/Fitchef%20logo2.png" alt="FitChef" class="mobile-logo"></div>
+              <div class="mobile-header-icons">
+                <span class="mh-icon mh-bell" id="mobileNotifBell" aria-hidden="true" role="button" tabindex="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></span>
+                <button type="button" class="mh-icon mh-refresh" id="mobileRefreshBtn" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><polyline points="21 3 21 9 15 9"/></svg></button>
+                <button type="button" class="mh-icon mh-logout" id="mobileLogoutBtn" aria-label="Logout"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>
+              </div>
+            </div>
+
+            <div class="section-title">TODAY</div>
+            <div class="mobile-stats">
+              <div class="stat-card">
+                <div class="stat-label">Orders Today</div>
+                <div class="stat-value" id="mobileStatOrders">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Revenue Today</div>
+                <div class="stat-value" id="mobileStatRevenue">₹0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Active Subs</div>
+                <div class="stat-value" id="mobileStatSubs">0</div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-label">Meals Prepared</div>
+                <div class="stat-value" id="mobileStatMeals">0</div>
+              </div>
+            </div>
+
+            <div class="section-title">OPERATIONS</div>
+            <div class="action-grid">
+              <a href="#" class="action-card nav-link" data-view="openOrders">Open Orders</a>
+              <a href="#" class="action-card nav-link" data-view="chefs">Chefs</a>
+              <a href="#" class="action-card nav-link" data-view="logistics">Logistics</a>
+              <a href="#" class="action-card nav-link" data-view="dishes">Dishes</a>
+            </div>
+
+            <div class="section-title">MANAGEMENT</div>
+            <div class="action-grid">
+              <a href="#" class="action-card nav-link" data-view="consultations">Consultations</a>
+              <a href="#" class="action-card nav-link" data-view="pendingSignups">Signups</a>
+              <a href="#" class="action-card nav-link" data-view="finance">Finance</a>
+              <a href="#" class="action-card nav-link" data-view="overview">Reports</a>
+            </div>
+
+            <div class="section-title">LIVE ORDER STATUS</div>
+            <div class="order-list" id="mobileLiveOrders">
+              <div class="order-card">
+                <div class="order-id">—</div>
+                <div class="order-meta">Loading…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Desktop overview content (hidden on mobile) -->
+          <p class="content-intro desktop-only">At a glance</p>
+          <div class="kpi-grid desktop-only" id="kpiGrid"></div>
+          <div class="chart-card desktop-only">
             <h3>Revenue (last 30 days)</h3>
             <div class="chart-placeholder" id="revenueChart"></div>
-          </div>
-          <div class="table-card overview-open-orders-card">
-            <h3>Order details</h3>
-            <p class="table-hint">Recent open orders awaiting confirmation.</p>
-            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>User</th><th>Amount</th><th>Delivery date</th><th>Date</th><th></th></tr></thead><tbody id="overviewOpenOrdersBody"></tbody></table></div>
-            <div class="overview-open-orders-actions" style="margin-top:16px">
-              <button type="button" class="btn-sm btn-primary" id="overviewConfirmOrderBtn">Confirm Order / View Open Orders</button>
-            </div>
           </div>
         </div>
         <!-- Orders: all user orders with current status -->
@@ -84,7 +146,7 @@
           <div class="table-card">
             <h3>Orders</h3>
             <p class="table-hint">All orders with current status.</p>
-            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Chef</th><th>Status</th><th>Amount</th><th>Delivery date</th><th>Date</th></tr></thead><tbody id="ordersBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Status</th><th></th></tr></thead><tbody id="ordersBody"></tbody></table></div>
             <div class="pagination" id="ordersPagination"></div>
           </div>
         </div>
@@ -93,8 +155,17 @@
           <div class="table-card">
             <h3>Open Orders</h3>
             <p class="table-hint">Orders placed by users from the FitChef Kitchen. Confirm an order to notify the user.</p>
-            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>User</th><th>Email</th><th>Amount</th><th>Delivery date</th><th>Date</th><th></th></tr></thead><tbody id="openOrdersBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>User</th><th>Amount</th><th></th></tr></thead><tbody id="openOrdersBody"></tbody></table></div>
             <div class="pagination" id="openOrdersPagination"></div>
+          </div>
+        </div>
+        <div class="modal-overlay" id="rowDetailModal" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="detail-modal-header">
+              <h3>Details</h3>
+              <button type="button" class="detail-modal-close" id="rowDetailClose" aria-label="Close">&times;</button>
+            </div>
+            <div id="rowDetailBody" class="detail-modal-body"></div>
           </div>
         </div>
         <div class="modal-overlay" id="openOrderDetailModal" aria-hidden="true">
@@ -118,7 +189,7 @@
           <div class="table-card">
             <h3>Chef open orders</h3>
             <p class="table-hint">Orders currently with chefs and their present status.</p>
-            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Chef</th><th>Customer</th><th>Status</th><th>Items</th><th>Created</th></tr></thead><tbody id="chefsBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Chef</th><th>Status</th><th></th></tr></thead><tbody id="chefsBody"></tbody></table></div>
             <div class="pagination" id="chefsPagination"></div>
           </div>
         </div>
@@ -131,7 +202,7 @@
           <div class="table-card">
             <h3>Deliveries</h3>
             <p class="table-hint">Orders currently out for delivery and delivered orders.</p>
-            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Status</th><th>Delivery date</th><th>Driver</th><th>Dispatched</th><th>Delivered</th></tr></thead><tbody id="logisticsBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Status</th><th></th></tr></thead><tbody id="logisticsBody"></tbody></table></div>
             <div class="pagination" id="logisticsPagination"></div>
           </div>
         </div>
@@ -149,7 +220,7 @@
           </div>
           <div class="table-card">
             <h3>All Dishes</h3>
-            <div class="table-wrap"><table><thead><tr><th>Image</th><th>Dish Name</th><th>Protein (g)</th><th>Calories</th><th>Price</th><th>Category</th><th>Status</th><th>Featured</th><th></th></tr></thead><tbody id="dishesBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Dish Name</th><th>Category</th><th>Price</th><th></th></tr></thead><tbody id="dishesBody"></tbody></table></div>
             <div class="pagination" id="dishesPagination"></div>
           </div>
         </div>
@@ -161,7 +232,7 @@
           </div>
           <div class="table-card">
             <h3>Consultation form submissions</h3>
-            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>City</th><th>Submitted</th><th></th></tr></thead><tbody id="consultationsBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>City</th><th></th></tr></thead><tbody id="consultationsBody"></tbody></table></div>
             <div class="pagination" id="consultationsPagination"></div>
           </div>
         </div>
@@ -280,7 +351,7 @@
           <div class="table-card">
             <h3>Pending Signups</h3>
             <p class="table-hint">Approve or reject new user registrations. Approved users can sign in.</p>
-            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>City</th><th>Submitted</th><th></th></tr></thead><tbody id="pendingSignupsBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Name</th><th>Email</th><th>City</th><th></th></tr></thead><tbody id="pendingSignupsBody"></tbody></table></div>
           </div>
         </div>
         <!-- Finance -->
@@ -292,13 +363,43 @@
           </div>
           <div class="table-card" style="margin-top: 24px;">
             <h3>Recent payments</h3>
-            <div class="table-wrap"><table><thead><tr><th>Order</th><th>Amount</th><th>Method</th><th>Status</th><th>Date</th></tr></thead><tbody id="paymentsBody"></tbody></table></div>
+            <div class="table-wrap"><table><thead><tr><th>Order</th><th>Amount</th><th>Date</th><th></th></tr></thead><tbody id="paymentsBody"></tbody></table></div>
             <div class="pagination" id="paymentsPagination"></div>
           </div>
         </div>
       </div>
+      <div class="pwa-banner" id="pwaBannerAdmin">
+        <div class="pwa-banner-inner">
+          <div>
+            <div class="pwa-banner-title">FitChef Admin</div>
+            <div class="pwa-banner-sub">Install the app and enable notifications.</div>
+          </div>
+          <div class="pwa-actions">
+            <button type="button" class="pwa-btn" data-pwa-install-btn style="display:none" title="Add to Home Screen">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12"/><path d="M8 7l4-4 4 4"/><path d="M5 21h14a2 2 0 0 0 2-2v-7"/><path d="M3 12v7a2 2 0 0 0 2 2"/></svg>
+              <span>Add to Home Screen</span>
+            </button>
+            <button type="button" class="pwa-btn" data-pwa-notif-btn style="display:none" title="Enable notifications">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              <span>Enable notifications</span>
+            </button>
+          </div>
+          <button type="button" class="pwa-banner-close" data-pwa-close aria-label="Close">×</button>
+        </div>
+      </div>
     </main>
   </div>
+
+  <!-- Bottom Navigation (mobile only) -->
+  <div class="bottom-nav">
+    <a href="#" class="nav-link active" data-view="overview"><span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>Dashboard</a>
+    <a href="#" class="nav-link" data-view="orders"><span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></span>Orders</a>
+    <a href="#" class="nav-link" data-view="chefs"><span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 010 8h-1"/><path d="M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg></span>Kitchen</a>
+    <a href="#" class="nav-link" data-view="logistics"><span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></span>Delivery</a>
+    <a href="#" class="nav-link" data-view="finance"><span class="bn-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/></svg></span>More</a>
+  </div>
+
+  <script src="/js/pwa-common.js"></script>
   <script src="js/admin.js"></script>
   <script>
 (function() {
@@ -316,6 +417,12 @@
   document.getElementById('userName').textContent = user.full_name || user.email || 'Admin';
   document.getElementById('logoutLink').addEventListener('click', function(e) { e.preventDefault(); adminLogout(); });
   document.getElementById('logoutBtn').addEventListener('click', adminLogout);
+  var mobileLogout = document.getElementById('mobileLogoutBtn');
+  if (mobileLogout) mobileLogout.addEventListener('click', adminLogout);
+  var adminRefreshBtn = document.getElementById('adminRefreshBtn');
+  if (adminRefreshBtn) adminRefreshBtn.addEventListener('click', function() { window.location.reload(); });
+  var mobileRefreshBtn = document.getElementById('mobileRefreshBtn');
+  if (mobileRefreshBtn) mobileRefreshBtn.addEventListener('click', function() { window.location.reload(); });
 
   var adminNotifToggle = document.getElementById('navNotifToggle');
   var adminNotifBadge = document.getElementById('navNotifBadge');
@@ -344,6 +451,7 @@
   updateAdminNotifBadge();
 
   var titles = { overview: 'Dashboard', orders: 'Orders', openOrders: 'Open Orders', chefs: 'Chefs', logistics: 'Logistics', dishes: 'Dishes', consultations: 'Consultations', pendingSignups: 'Pending Signups', finance: 'Finance' };
+  var pwaBannerAdmin = document.getElementById('pwaBannerAdmin');
   var sidebarEl = document.getElementById('sidebar');
   var overlayEl = document.getElementById('sidebarOverlay');
   var navbarToggleEl = document.getElementById('navbarToggle');
@@ -364,9 +472,13 @@
   function switchView(name) {
     document.querySelectorAll('.view').forEach(function(v) { v.classList.remove('active'); });
     document.querySelectorAll('.nav-link').forEach(function(n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
+    document.querySelectorAll('.bottom-nav a').forEach(function(n) { n.classList.toggle('active', n.getAttribute('data-view') === name); });
     var el = document.getElementById('view-' + name);
     if (el) el.classList.add('active');
     document.getElementById('viewTitle').textContent = titles[name] || 'Dashboard';
+    if (pwaBannerAdmin && !localStorage.getItem('fitchef_pwa_banner_dismissed_admin')) {
+      pwaBannerAdmin.style.display = name === 'overview' ? '' : 'none';
+    }
     if (name === 'overview') {
       var orderModal = document.getElementById('openOrderDetailModal');
       if (orderModal) { orderModal.classList.remove('open'); orderModal.setAttribute('aria-hidden', 'true'); }
@@ -399,6 +511,15 @@
         var v = k === 'total_revenue' ? (Number(d[k]) || 0).toFixed(2) : (d[k] || 0);
         g.innerHTML += '<div class="kpi-card"><div class="label">' + labels[k] + '</div><div class="value">' + v + '</div></div>';
       });
+      // Mobile stats
+      var mo = document.getElementById('mobileStatOrders');
+      var mr = document.getElementById('mobileStatRevenue');
+      var ms = document.getElementById('mobileStatSubs');
+      var mm = document.getElementById('mobileStatMeals');
+      if (mo) mo.textContent = d.total_orders || 0;
+      if (mr) mr.textContent = '₹' + (d.total_revenue != null ? Number(d.total_revenue).toFixed(0) : '0');
+      if (ms) ms.textContent = d.active_users || 0;
+      if (mm) mm.textContent = (d.completed_deliveries || 0) + (d.pending_deliveries || 0);
     }).catch(function() { document.getElementById('kpiGrid').innerHTML = '<div class="loading">Failed to load KPIs</div>'; });
     fetch(API + '/dashboard/revenue-chart?period=30', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(arr) {
       var container = document.getElementById('revenueChart');
@@ -412,18 +533,29 @@
     fetch(API + '/open-orders?status=Open&page=1&limit=5', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('overviewOpenOrdersBody');
       if (!body) return;
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No open orders</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No open orders</td></tr>';
       else body.innerHTML = res.data.map(function(o) {
-        var date = o.created_at ? new Date(o.created_at).toLocaleString() : '';
-        var deliveryStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '-';
-        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td>' + deliveryStr + '</td><td>' + date + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
+        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
       }).join('');
       body.querySelectorAll('.view-open-order-btn').forEach(function(btn) {
         btn.addEventListener('click', function() { openOpenOrderDetail(btn.getAttribute('data-id')); });
       });
+      // Mobile live orders
+      var ml = document.getElementById('mobileLiveOrders');
+      if (ml) {
+        var orders = res.data || [];
+        if (orders.length === 0) ml.innerHTML = '<div class="order-card"><div class="order-meta">No open orders</div></div>';
+        else ml.innerHTML = orders.slice(0, 5).map(function(o) {
+          var id = (o.id || '').toString();
+          var shortId = 'FC' + id.slice(-4);
+          return '<div class="order-card"><div class="order-id">' + shortId + ' ' + (o.user_name || '-') + '</div><div class="order-meta">Status: Open</div></div>';
+        }).join('');
+      }
     }).catch(function() {
       var body = document.getElementById('overviewOpenOrdersBody');
-      if (body) body.innerHTML = '<tr><td colspan="6" class="loading">Error loading open orders</td></tr>';
+      if (body) body.innerHTML = '<tr><td colspan="4" class="loading">Error loading open orders</td></tr>';
+      var ml = document.getElementById('mobileLiveOrders');
+      if (ml) ml.innerHTML = '<div class="order-card"><div class="order-meta">Error loading orders</div></div>';
     });
   }
   var overviewConfirmBtn = document.getElementById('overviewConfirmOrderBtn');
@@ -436,15 +568,19 @@
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       ordersTotal = res.total || 0;
       var body = document.getElementById('ordersBody');
-      if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="7" class="empty">No orders</td></tr>'; }
+      if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="4" class="empty">No orders</td></tr>'; }
       else body.innerHTML = res.data.map(function(o) {
         var dateStr = o.created_at ? new Date(o.created_at).toLocaleString() : '-';
         var deliveryStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '-';
         var amt = o.total_amount != null ? Number(o.total_amount).toFixed(2) : '-';
-        return '<tr><td>' + (o.id || '-') + '</td><td>' + (o.customer_name || '-') + '</td><td>' + (o.chef_name || '-') + '</td><td>' + (o.status || '') + '</td><td>' + amt + '</td><td>' + deliveryStr + '</td><td>' + dateStr + '</td></tr>';
+        var detail = '<table class="detail-table"><tr><th>Order ID</th><td>' + (o.id || '-') + '</td></tr><tr><th>Customer</th><td>' + (o.customer_name || '-') + '</td></tr><tr><th>Chef</th><td>' + (o.chef_name || '-') + '</td></tr><tr><th>Status</th><td>' + (o.status || '') + '</td></tr><tr><th>Amount</th><td>' + amt + '</td></tr><tr><th>Delivery date</th><td>' + deliveryStr + '</td></tr><tr><th>Date</th><td>' + dateStr + '</td></tr></table>';
+        return '<tr><td>' + (o.id || '-') + '</td><td>' + (o.customer_name || '-') + '</td><td>' + (o.status || '') + '</td><td><button type="button" class="btn-sm view-row-btn" data-detail="' + encodeURIComponent(detail).replace(/"/g, '&quot;') + '">View</button></td></tr>';
       }).join('');
+      body.querySelectorAll('.view-row-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { openRowDetail(btn.getAttribute('data-detail')); });
+      });
       renderPagination('ordersPagination', ordersPage, res.total || 0, ordersLimit, function(p) { ordersPage = p; loadOrders(); });
-    }).catch(function() { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="7" class="loading">Error loading orders</td></tr>'; });
+    }).catch(function() { document.getElementById('ordersBody').innerHTML = '<tr><td colspan="4" class="loading">Error loading orders</td></tr>'; });
   }
   document.getElementById('ordersFilterBtn').addEventListener('click', function() { ordersPage = 1; loadOrders(); });
 
@@ -453,17 +589,15 @@
     var url = API + '/open-orders?status=Open&page=' + openOrdersPage + '&limit=10';
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('openOrdersBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="7" class="empty">No open orders</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No open orders</td></tr>';
       else body.innerHTML = res.data.map(function(o) {
-        var date = o.created_at ? new Date(o.created_at).toLocaleString() : '';
-        var deliveryStr = o.requested_delivery_date ? new Date(o.requested_delivery_date).toLocaleDateString() : '-';
-        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>' + (o.user_email || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td>' + deliveryStr + '</td><td>' + date + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
+        return '<tr><td>' + (o.id || '').toString().slice(0, 8) + '...</td><td>' + (o.user_name || '-') + '</td><td>₹' + (o.total_amount != null ? o.total_amount : 0) + '</td><td><button type="button" class="btn-sm view-open-order-btn" data-id="' + o.id + '">View</button></td></tr>';
       }).join('');
       renderPagination('openOrdersPagination', openOrdersPage, res.total || 0, 10, function(p) { openOrdersPage = p; loadOpenOrders(); });
       body.querySelectorAll('.view-open-order-btn').forEach(function(btn) {
         btn.addEventListener('click', function() { openOpenOrderDetail(btn.getAttribute('data-id')); });
       });
-    }).catch(function() { document.getElementById('openOrdersBody').innerHTML = '<tr><td colspan="7" class="loading">Error loading open orders</td></tr>'; });
+    }).catch(function() { document.getElementById('openOrdersBody').innerHTML = '<tr><td colspan="4" class="loading">Error loading open orders</td></tr>'; });
   }
   var openOrderDetailModal = document.getElementById('openOrderDetailModal');
   var openOrderDetailBody = document.getElementById('openOrderDetailBody');
@@ -479,6 +613,38 @@
   }
   document.getElementById('openOrderDetailClose').addEventListener('click', function() { openOrderDetailModal.classList.remove('open'); openOrderDetailModal.setAttribute('aria-hidden', 'true'); openOrderDetailId = null; });
   openOrderDetailModal.addEventListener('click', function(e) { if (e.target === openOrderDetailModal) { openOrderDetailModal.classList.remove('open'); openOrderDetailId = null; } });
+
+  var rowDetailModal = document.getElementById('rowDetailModal');
+  var rowDetailBody = document.getElementById('rowDetailBody');
+  function openRowDetail(html) {
+    try { rowDetailBody.innerHTML = typeof html === 'string' ? decodeURIComponent(html) : ''; } catch (e) { rowDetailBody.innerHTML = html || ''; }
+    rowDetailModal.classList.add('open');
+    rowDetailModal.setAttribute('aria-hidden', 'false');
+  }
+  document.getElementById('rowDetailClose').addEventListener('click', function() { rowDetailModal.classList.remove('open'); rowDetailModal.setAttribute('aria-hidden', 'true'); });
+  rowDetailModal.addEventListener('click', function(e) { if (e.target === rowDetailModal) rowDetailModal.classList.remove('open'); });
+  function initSignupModalButtons() {
+    rowDetailBody.querySelectorAll('.signup-approve-btn').forEach(function(btn) {
+      btn.onclick = function() {
+        var id = parseInt(btn.getAttribute('data-id'), 10);
+        if (isNaN(id)) return;
+        btn.disabled = true;
+        fetch(API + '/pending-signups/' + id + '/approve', { method: 'POST', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) {
+          if (data.success) { rowDetailModal.classList.remove('open'); loadPendingSignups(); }
+        }).finally(function() { btn.disabled = false; });
+      };
+    });
+    rowDetailBody.querySelectorAll('.signup-reject-btn').forEach(function(btn) {
+      btn.onclick = function() {
+        var id = parseInt(btn.getAttribute('data-id'), 10);
+        if (isNaN(id) || !confirm('Reject this signup?')) return;
+        btn.disabled = true;
+        fetch(API + '/pending-signups/' + id + '/reject', { method: 'POST', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) {
+          if (data.success) { rowDetailModal.classList.remove('open'); loadPendingSignups(); }
+        }).finally(function() { btn.disabled = false; });
+      };
+    });
+  }
   document.getElementById('openOrderConfirmBtn').addEventListener('click', function() {
     if (!openOrderDetailId) return;
     var btn = this;
@@ -494,11 +660,13 @@
     var url = API + '/chefs/open-orders?page=' + chefsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('chefsBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No open orders at chefs</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No open orders at chefs</td></tr>';
       else body.innerHTML = res.data.map(function(o) {
         var created = o.created_at ? new Date(o.created_at).toLocaleString() : '-';
-        return '<tr><td>' + (o.order_id || '') + '</td><td>' + (o.chef_name || '-') + '</td><td>' + (o.customer_name || '-') + '</td><td>' + (o.status || '') + '</td><td>' + (o.items_summary || '-') + '</td><td>' + created + '</td></tr>';
+        var detail = '<table class="detail-table"><tr><th>Order ID</th><td>' + (o.order_id || '-') + '</td></tr><tr><th>Chef</th><td>' + (o.chef_name || '-') + '</td></tr><tr><th>Customer</th><td>' + (o.customer_name || '-') + '</td></tr><tr><th>Status</th><td>' + (o.status || '-') + '</td></tr><tr><th>Items</th><td>' + (o.items_summary || '-') + '</td></tr><tr><th>Created</th><td>' + created + '</td></tr></table>';
+        return '<tr><td>' + (o.order_id || '') + '</td><td>' + (o.chef_name || '-') + '</td><td>' + (o.status || '') + '</td><td><button type="button" class="btn-sm view-row-btn" data-detail="' + encodeURIComponent(detail).replace(/"/g, '&quot;') + '">View</button></td></tr>';
       }).join('');
+      body.querySelectorAll('.view-row-btn').forEach(function(btn) { btn.addEventListener('click', function() { openRowDetail(btn.getAttribute('data-detail')); }); });
       renderPagination('chefsPagination', chefsPage, res.total || 0, 10, function(p) { chefsPage = p; loadChefs(); });
     });
   }
@@ -510,13 +678,15 @@
     var url = API + '/logistics?page=' + logisticsPage + '&limit=10' + (status ? '&status=' + encodeURIComponent(status) : '');
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('logisticsBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="7" class="empty">No out-for-delivery or delivered orders</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No out-for-delivery or delivered orders</td></tr>';
       else body.innerHTML = res.data.map(function(d) {
         var dispatched = d.dispatch_time ? new Date(d.dispatch_time).toLocaleString() : '-';
         var delivered = d.delivered_time ? new Date(d.delivered_time).toLocaleString() : '-';
         var deliveryDate = d.requested_delivery_date ? new Date(d.requested_delivery_date).toLocaleDateString() : '-';
-        return '<tr><td>' + (d.order_id || '') + '</td><td>' + (d.customer_name || '-') + '</td><td>' + (d.status || '') + '</td><td>' + deliveryDate + '</td><td>' + (d.driver_name || '-') + '</td><td>' + dispatched + '</td><td>' + delivered + '</td></tr>';
+        var detail = '<table class="detail-table"><tr><th>Order ID</th><td>' + (d.order_id || '-') + '</td></tr><tr><th>Customer</th><td>' + (d.customer_name || '-') + '</td></tr><tr><th>Status</th><td>' + (d.status || '-') + '</td></tr><tr><th>Delivery date</th><td>' + deliveryDate + '</td></tr><tr><th>Driver</th><td>' + (d.driver_name || '-') + '</td></tr><tr><th>Dispatched</th><td>' + dispatched + '</td></tr><tr><th>Delivered</th><td>' + delivered + '</td></tr></table>';
+        return '<tr><td>' + (d.order_id || '') + '</td><td>' + (d.customer_name || '-') + '</td><td>' + (d.status || '') + '</td><td><button type="button" class="btn-sm view-row-btn" data-detail="' + encodeURIComponent(detail).replace(/"/g, '&quot;') + '">View</button></td></tr>';
       }).join('');
+      body.querySelectorAll('.view-row-btn').forEach(function(btn) { btn.addEventListener('click', function() { openRowDetail(btn.getAttribute('data-detail')); }); });
       renderPagination('logisticsPagination', logisticsPage, res.total || 0, 10, function(p) { logisticsPage = p; loadLogistics(); });
     });
   }
@@ -528,16 +698,15 @@
     var url = API + '/consultations?page=' + consultationsPage + '&limit=10' + (search ? '&search=' + encodeURIComponent(search) : '');
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('consultationsBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No consultation submissions yet</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No consultation submissions yet</td></tr>';
       else body.innerHTML = res.data.map(function(c) {
-        var date = c.created_at ? new Date(c.created_at).toLocaleString() : '-';
-        return '<tr><td>' + (c.full_name || '-') + '</td><td>' + (c.email || '') + '</td><td>' + (c.city || '-') + '</td><td>' + date + '</td><td><button type="button" class="btn-sm view-consultation-btn" data-id="' + c.id + '">View</button></td></tr>';
+        return '<tr><td>' + (c.full_name || '-') + '</td><td>' + (c.email || '') + '</td><td>' + (c.city || '-') + '</td><td><button type="button" class="btn-sm view-consultation-btn" data-id="' + c.id + '">View</button></td></tr>';
       }).join('');
       renderPagination('consultationsPagination', consultationsPage, res.total || 0, 10, function(p) { consultationsPage = p; loadConsultations(); });
       body.querySelectorAll('.view-consultation-btn').forEach(function(btn) {
         btn.addEventListener('click', function() { openConsultationDetail(parseInt(btn.getAttribute('data-id'), 10)); });
       });
-    }).catch(function() { document.getElementById('consultationsBody').innerHTML = '<tr><td colspan="5" class="loading">Error loading consultations</td></tr>'; });
+    }).catch(function() { document.getElementById('consultationsBody').innerHTML = '<tr><td colspan="4" class="loading">Error loading consultations</td></tr>'; });
   }
   document.getElementById('consultationsFilterBtn').addEventListener('click', function() { consultationsPage = 1; loadConsultations(); });
 
@@ -581,33 +750,16 @@
     fetch(API + '/pending-signups', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('pendingSignupsBody');
       if (!body) return;
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="6" class="empty">No pending signups</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No pending signups</td></tr>';
       else body.innerHTML = res.data.map(function(u) {
         var date = u.created_at ? new Date(u.created_at).toLocaleString() : '-';
-        return '<tr><td>' + (u.full_name || '-') + '</td><td>' + (u.email || '') + '</td><td>' + (u.phone || '-') + '</td><td>' + (u.city || '-') + '</td><td>' + date + '</td><td class="actions"><button type="button" class="btn-sm btn-approve" data-id="' + u.id + '">Approve</button> <button type="button" class="btn-sm btn-reject" data-id="' + u.id + '">Reject</button></td></tr>';
+        var detailHtml = '<table class="detail-table"><tr><th>Name</th><td>' + (u.full_name || '-') + '</td></tr><tr><th>Email</th><td>' + (u.email || '-') + '</td></tr><tr><th>Phone</th><td>' + (u.phone || '-') + '</td></tr><tr><th>City</th><td>' + (u.city || '-') + '</td></tr><tr><th>Submitted</th><td>' + date + '</td></tr></table><p style="margin-top:12px"><button type="button" class="btn-sm btn-approve signup-approve-btn" data-id="' + u.id + '">Approve</button> <button type="button" class="btn-sm btn-reject signup-reject-btn" data-id="' + u.id + '">Reject</button></p>';
+        return '<tr><td>' + (u.full_name || '-') + '</td><td>' + (u.email || '') + '</td><td>' + (u.city || '-') + '</td><td><button type="button" class="btn-sm view-signup-btn" data-id="' + u.id + '" data-detail="' + encodeURIComponent(detailHtml).replace(/"/g, '&quot;') + '">View</button></td></tr>';
       }).join('');
-      body.querySelectorAll('.btn-approve').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var id = parseInt(btn.getAttribute('data-id'), 10);
-          if (isNaN(id)) return;
-          btn.disabled = true;
-          fetch(API + '/pending-signups/' + id + '/approve', { method: 'POST', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) {
-            if (data.success) loadPendingSignups();
-          }).finally(function() { btn.disabled = false; });
-        });
+      body.querySelectorAll('.view-signup-btn').forEach(function(btn) {
+        btn.addEventListener('click', function() { openRowDetail(btn.getAttribute('data-detail')); initSignupModalButtons(); });
       });
-      body.querySelectorAll('.btn-reject').forEach(function(btn) {
-        btn.addEventListener('click', function() {
-          var id = parseInt(btn.getAttribute('data-id'), 10);
-          if (isNaN(id)) return;
-          if (!confirm('Reject this signup? The user will not be able to sign in.')) return;
-          btn.disabled = true;
-          fetch(API + '/pending-signups/' + id + '/reject', { method: 'POST', headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(data) {
-            if (data.success) loadPendingSignups();
-          }).finally(function() { btn.disabled = false; });
-        });
-      });
-    }).catch(function() { var b = document.getElementById('pendingSignupsBody'); if (b) b.innerHTML = '<tr><td colspan="6" class="loading">Error loading pending signups</td></tr>'; });
+    }).catch(function() { var b = document.getElementById('pendingSignupsBody'); if (b) b.innerHTML = '<tr><td colspan="4" class="loading">Error loading pending signups</td></tr>'; });
   }
 
   function loadFinance() {
@@ -624,10 +776,13 @@
     });
     fetch(API + '/finance/payments?page=1&limit=10', { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('paymentsBody');
-      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="5" class="empty">No payments</td></tr>';
+      if (!res.data || res.data.length === 0) body.innerHTML = '<tr><td colspan="4" class="empty">No payments</td></tr>';
       else body.innerHTML = res.data.map(function(p) {
-        return '<tr><td>' + (p.order_number || '-') + '</td><td>' + (p.amount != null ? p.amount : '') + '</td><td>' + (p.method || '-') + '</td><td>' + (p.status || '') + '</td><td>' + (p.paid_at ? new Date(p.paid_at).toLocaleString() : '') + '</td></tr>';
+        var paidAt = p.paid_at ? new Date(p.paid_at).toLocaleString() : '-';
+        var detail = '<table class="detail-table"><tr><th>Order</th><td>' + (p.order_number || '-') + '</td></tr><tr><th>Amount</th><td>' + (p.amount != null ? p.amount : '-') + '</td></tr><tr><th>Method</th><td>' + (p.method || '-') + '</td></tr><tr><th>Status</th><td>' + (p.status || '-') + '</td></tr><tr><th>Paid at</th><td>' + paidAt + '</td></tr></table>';
+        return '<tr><td>' + (p.order_number || '-') + '</td><td>' + (p.amount != null ? p.amount : '') + '</td><td>' + paidAt + '</td><td><button type="button" class="btn-sm view-row-btn" data-detail="' + encodeURIComponent(detail).replace(/"/g, '&quot;') + '">View</button></td></tr>';
       }).join('');
+      body.querySelectorAll('.view-row-btn').forEach(function(btn) { btn.addEventListener('click', function() { openRowDetail(btn.getAttribute('data-detail')); }); });
       renderPagination('paymentsPagination', 1, res.total || 0, 10, function() {});
     });
   }
@@ -675,22 +830,16 @@
     fetch(url, { headers: authHeaders() }).then(function(r) { return r.json(); }).then(function(res) {
       var body = document.getElementById('dishesBody');
       if (!body) return;
-      if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="9" class="empty">No dishes yet. Add your first dish.</td></tr>'; }
+      if (!res.data || res.data.length === 0) { body.innerHTML = '<tr><td colspan="4" class="empty">No dishes yet. Add your first dish.</td></tr>'; }
       else {
         body.innerHTML = res.data.map(function(d) {
-          var img = d.image_url ? '<img src="' + dishImageSrc(d.image_url) + '" alt="" class="dish-thumb">' : '<span class="dish-thumb-placeholder">—</span>';
-          var price = d.discount_price != null && d.discount_price > 0 ? '<span class="discount-price">₹' + d.base_price + '</span> ₹' + d.discount_price : '₹' + (d.base_price != null ? d.base_price : '0');
-          var status = d.available ? '<span class="status-badge status-active">Active</span>' : '<span class="status-badge status-inactive">Inactive</span>';
-          var feat = d.featured ? '<span class="status-badge status-featured">Featured</span>' : '<span class="status-muted">—</span>';
-          return '<tr data-id="' + d.id + '"><td>' + img + '</td><td>' + (d.name || '') + '</td><td>' + (d.protein != null ? d.protein : '—') + '</td><td>' + (d.calories != null ? d.calories : '—') + '</td><td>' + price + '</td><td>' + (d.category || '') + '</td><td>' + status + '</td><td>' + feat + '</td><td class="actions"><button type="button" class="btn-sm btn-edit-dish" data-id="' + d.id + '">Edit</button> <button type="button" class="btn-sm btn-feature-dish" data-id="' + d.id + '">' + (d.featured ? 'Unfeature' : 'Feature') + '</button> <button type="button" class="btn-sm btn-avail-dish" data-id="' + d.id + '">' + (d.available ? 'Deactivate' : 'Activate') + '</button> <button type="button" class="btn-sm btn-reject btn-delete-dish" data-id="' + d.id + '">Delete</button></td></tr>';
+          var price = d.discount_price != null && d.discount_price > 0 ? '₹' + d.discount_price : '₹' + (d.base_price != null ? d.base_price : '0');
+          return '<tr data-id="' + d.id + '"><td>' + (d.name || '') + '</td><td>' + (d.category || '') + '</td><td>' + price + '</td><td><button type="button" class="btn-sm view-dish-btn" data-id="' + d.id + '">View</button></td></tr>';
         }).join('');
-        body.querySelectorAll('.btn-edit-dish').forEach(function(btn) { btn.addEventListener('click', function() { openDishForm(btn.getAttribute('data-id')); }); });
-        body.querySelectorAll('.btn-feature-dish').forEach(function(btn) { btn.addEventListener('click', function() { toggleDishFeatured(btn.getAttribute('data-id')); }); });
-        body.querySelectorAll('.btn-avail-dish').forEach(function(btn) { btn.addEventListener('click', function() { toggleDishAvailable(btn.getAttribute('data-id')); }); });
-        body.querySelectorAll('.btn-delete-dish').forEach(function(btn) { btn.addEventListener('click', function() { deleteDish(btn.getAttribute('data-id')); }); });
+        body.querySelectorAll('.view-dish-btn').forEach(function(btn) { btn.addEventListener('click', function() { openDishForm(btn.getAttribute('data-id')); }); });
       }
       renderPagination('dishesPagination', dishesPage, res.total || 0, dishesLimit, function(p) { dishesPage = p; loadDishes(); });
-    }).catch(function() { var b = document.getElementById('dishesBody'); if (b) b.innerHTML = '<tr><td colspan="9" class="loading">Error loading dishes</td></tr>'; });
+    }).catch(function() { var b = document.getElementById('dishesBody'); if (b) b.innerHTML = '<tr><td colspan="4" class="loading">Error loading dishes</td></tr>'; });
   }
   document.getElementById('dishesFilterBtn').addEventListener('click', function() { dishesPage = 1; loadDishes(); });
   document.getElementById('dishesAddBtn').addEventListener('click', function() { openDishForm(null); });
@@ -810,5 +959,6 @@
   loadOverview();
 })();
   </script>
+  <script>window.initFitChefPwa && window.initFitChefPwa({ scopeKey: 'admin' });</script>
 </body>
 </html>

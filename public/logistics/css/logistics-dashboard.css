@@ -2,6 +2,8 @@
 :root {
   --log-primary: #1e3a5f;
   --log-primary-mid: #2c5282;
+  --log-btn-color: #1f4e3c;
+  --log-btn-hover: #286652;
   --log-primary-dark: #152a45;
   --log-bg: #f0f4f8;
   --log-bg-subtle: linear-gradient(165deg, #f8fafc 0%, #eef2f7 50%, #e2e8f0 100%);
@@ -133,7 +135,12 @@ body {
   z-index: 101;
   box-shadow: 4px 0 24px rgba(0,0,0,.14);
 }
-.logistics-sidebar-brand { padding: 24px; font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; border-bottom: 1px solid rgba(255,255,255,.15); }
+.logistics-sidebar-brand { padding: 24px; font-weight: 700; font-size: 1.2rem; letter-spacing: -0.02em; border-bottom: 1px solid rgba(255,255,255,.15); display: flex; align-items: center; }
+.logistics-sidebar-logo { height: 52px; width: auto; max-width: 200px; object-fit: contain; display: block; }
+.logistics-nav-notif-toggle { width: 44px; height: 44px; border: none; background: transparent; color: #c9a227; cursor: pointer; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.logistics-nav-notif-toggle:hover { background: rgba(201, 162, 39, 0.15); color: #d4af37; }
+.logistics-nav-refresh-btn { width: 44px; height: 44px; border: none; background: transparent; color: var(--log-text); cursor: pointer; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+.logistics-nav-refresh-btn:hover { background: rgba(201, 162, 39, 0.15); color: var(--log-primary-mid); }
 .logistics-sidebar-nav { padding: 20px 12px; flex: 1; }
 .logistics-nav-link {
   display: block;
@@ -256,7 +263,7 @@ body {
 .logistics-order-actions { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding-top: 16px; border-top: 2px solid var(--log-border); }
 .logistics-btn-primary {
   padding: 12px 22px;
-  background: linear-gradient(135deg, var(--log-primary) 0%, var(--log-primary-mid) 100%);
+  background: var(--log-btn-color);
   color: #fff;
   border: none;
   border-radius: var(--log-radius-sm);
@@ -266,7 +273,7 @@ body {
   box-shadow: 0 4px 12px rgba(30, 58, 95, 0.3);
   transition: transform .15s ease, box-shadow .2s ease;
 }
-.logistics-btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(30, 58, 95, 0.35); }
+.logistics-btn-primary:hover:not(:disabled) { transform: translateY(-2px); background: var(--log-btn-hover); box-shadow: 0 6px 18px rgba(31, 78, 60, 0.35); }
 .logistics-btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
 .logistics-btn-out-delivery {
   background: linear-gradient(135deg, var(--status-out), #8b5cf6);
@@ -302,7 +309,25 @@ body {
   transition: background .2s, border-color .2s, color .2s;
 }
 .logistics-delivered-filters button:hover { background: var(--log-bg); border-color: var(--log-primary); color: var(--log-primary); }
-.logistics-delivered-filters button.active { background: var(--log-primary); color: #fff; border-color: var(--log-primary); }
+.logistics-delivered-filters button.active { background: var(--log-btn-color); color: #fff; border-color: var(--log-btn-color); }
+.logistics-table-card { background: var(--log-card); border-radius: var(--log-radius); box-shadow: var(--log-shadow-card); border: 1px solid var(--log-border); overflow: hidden; margin-bottom: 24px; }
+.logistics-table-card h3 { margin: 0; padding: 20px 24px 8px; font-size: 1.15rem; }
+.logistics-table-hint { margin: 0; padding: 0 24px 16px; font-size: 0.9rem; color: var(--log-text-muted); }
+.logistics-table-wrap { overflow-x: hidden; width: 100%; }
+.logistics-table-wrap table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.logistics-table-wrap th, .logistics-table-wrap td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--log-border); word-break: break-word; }
+.logistics-table-wrap th { background: var(--log-bg); font-weight: 600; font-size: 0.85rem; white-space: nowrap; }
+.logistics-table-wrap .empty, .logistics-table-wrap .loading { color: var(--log-text-muted); text-align: center; padding: 24px; }
+.logistics-table-wrap .btn-view { padding: 6px 12px; font-size: 0.8rem; border-radius: 6px; cursor: pointer; border: none; background: var(--log-btn-color); color: #fff; font-weight: 500; }
+.logistics-table-wrap .btn-view:hover { background: var(--log-btn-hover); }
+.modal-overlay.logistics-detail-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 250; align-items: flex-start; justify-content: center; padding: 20px; overflow-y: auto; }
+.modal-overlay.logistics-detail-modal.open { display: flex; }
+.logistics-detail-modal .modal-dialog { background: var(--log-card); border-radius: var(--log-radius); box-shadow: 0 12px 40px rgba(0,0,0,.2); max-width: 540px; width: 100%; margin: auto; }
+.logistics-detail-modal .detail-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--log-border); }
+.logistics-detail-modal .detail-modal-header h3 { margin: 0; font-size: 1.1rem; }
+.logistics-detail-modal .detail-modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--log-text-muted); padding: 0 4px; line-height: 1; }
+.logistics-detail-modal .detail-modal-body { padding: 20px; max-height: 60vh; overflow-y: auto; }
+.logistics-detail-modal .detail-modal-footer { padding: 16px 20px; border-top: 1px solid var(--log-border); }
 
 @media (max-width: 768px) {
   .logistics-nav-toggle { display: block; }

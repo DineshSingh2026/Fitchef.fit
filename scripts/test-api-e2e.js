@@ -36,7 +36,18 @@ async function run() {
     const r = await request('POST', '/api/consultation', {
       full_name: 'E2E User',
       email: 'e2e-consult-' + Date.now() + '@test.com',
+      phone: '9876543210',
       city: 'Mumbai',
+      delivery_frequency: '3x per week',
+      goals: ['Fat Loss'],
+      age: 30,
+      gender: 'Male',
+      height: 175,
+      weight: 72,
+      activity_level: 'Moderate',
+      diet_type: 'Vegan',
+      spice_preference: 'Mild',
+      start_timeline: 'Immediately'
     });
     const pass = r.status === 201 && r.data && r.data.success === true;
     results.push({ name: 'Consultation (DB)', pass: !!pass, status: r.status });

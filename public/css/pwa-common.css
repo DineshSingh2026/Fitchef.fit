@@ -1,0 +1,94 @@
+/* Shared PWA UI controls (install + notifications) */
+.pwa-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pwa-banner {
+  width: 100%;
+  max-width: 100%;
+  margin: 0 0 16px;
+  background: #fff;
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 14px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+}
+
+.pwa-banner-inner {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  position: relative;
+}
+
+.pwa-banner-title {
+  font-weight: 700;
+  font-size: 0.92rem;
+  letter-spacing: -0.01em;
+}
+
+.pwa-banner-sub {
+  font-size: 0.82rem;
+  color: rgba(0,0,0,0.62);
+  margin-top: 2px;
+}
+
+.pwa-banner-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  color: rgba(0,0,0,0.45);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+}
+.pwa-banner-close:hover {
+  background: rgba(0,0,0,0.04);
+  color: rgba(0,0,0,0.7);
+}
+
+.pwa-ios-steps {
+  margin: 6px 0 0;
+  padding-left: 18px;
+  font-size: 0.82rem;
+  color: rgba(0,0,0,0.68);
+}
+.pwa-ios-steps li { margin: 4px 0; }
+
+.pwa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(0,0,0,0.12);
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.85rem;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pwa-btn svg { width: 18px; height: 18px; }
+.pwa-btn:hover { background: rgba(0,0,0,0.04); }
+
+@media (max-width: 480px) {
+  .pwa-btn span { display: none; }
+  .pwa-btn { width: 40px; padding: 0; justify-content: center; }
+}
+
