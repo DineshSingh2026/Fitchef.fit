@@ -1,6 +1,9 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const AdminUser = require('../models/AdminUser');
+const Chef = require('../models/Chef');
+const LogisticsUser = require('../models/LogisticsUser');
 const { JWT_SECRET } = require('../middleware/auth');
 
 function sanitizeString(val, maxLen) {
@@ -62,7 +65,74 @@ async function signin(req, res) {
     if (!email || !password) {
       return res.status(400).json({ success: false, message: 'Email and password are required.' });
     }
-    const user = await User.findByEmail(email.trim().toLowerCase());
+    const trimmedEmail = email.trim().toLowerCase();
+
+    // 1) Admin login (role from record, e.g. admin / superadmin)
+    const admin = await AdminUser.findByEmail(trimmedEmail);
+    if (admin) {
+      const matchAdmin = await bcrypt.compare(password, admin.password_hash);
+      if (!matchAdmin) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      }
+      const adminRole = admin.role || 'admin';
+      const adminToken = jwt.sign(
+        { id: admin.id, email: admin.email, role: adminRole },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      return res.json({
+        success: true,
+        message: 'Signed in successfully.',
+        role: adminRole,
+        token: adminToken,
+        user: { id: admin.id, email: admin.email, full_name: admin.full_name, role: adminRole },
+      });
+    }
+
+    // 2) Chef login
+    const chef = await Chef.findByEmail(trimmedEmail);
+    if (chef) {
+      const matchChef = await bcrypt.compare(password, chef.password_hash);
+      if (!matchChef) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      }
+      const chefToken = jwt.sign(
+        { id: chef.id, email: chef.email, role: 'chef' },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      return res.json({
+        success: true,
+        message: 'Signed in successfully.',
+        role: 'chef',
+        token: chefToken,
+        user: { id: chef.id, email: chef.email, name: chef.name, role: 'chef' },
+      });
+    }
+
+    // 3) Logistics login
+    const logisticsUser = await LogisticsUser.findByEmail(trimmedEmail);
+    if (logisticsUser) {
+      const matchLogistics = await bcrypt.compare(password, logisticsUser.password_hash);
+      if (!matchLogistics) {
+        return res.status(401).json({ success: false, message: 'Invalid email or password.' });
+      }
+      const logisticsToken = jwt.sign(
+        { id: logisticsUser.id, email: logisticsUser.email, role: 'logistics' },
+        JWT_SECRET,
+        { expiresIn: '7d' }
+      );
+      return res.json({
+        success: true,
+        message: 'Signed in successfully.',
+        role: 'logistics',
+        token: logisticsToken,
+        user: { id: logisticsUser.id, email: logisticsUser.email, name: logisticsUser.name, role: 'logistics' },
+      });
+    }
+
+    // 4) Regular user login (existing behavior)
+    const user = await User.findByEmail(trimmedEmail);
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
@@ -72,20 +142,21 @@ async function signin(req, res) {
       }
       return res.status(403).json({ success: false, message: 'Your account is pending admin approval. You will be able to sign in once approved.' });
     }
-    const match = await bcrypt.compare(password, user.password_hash);
-    if (!match) {
+    const matchUser = await bcrypt.compare(password, user.password_hash);
+    if (!matchUser) {
       return res.status(401).json({ success: false, message: 'Invalid email or password.' });
     }
-    const token = jwt.sign(
+    const userToken = jwt.sign(
       { id: user.id, email: user.email, role: 'user' },
       JWT_SECRET,
       { expiresIn: '30d' }
     );
-    res.json({
+    return res.json({
       success: true,
       message: 'Signed in successfully.',
-      token,
-      user: { id: user.id, email: user.email, full_name: user.full_name },
+      role: 'user',
+      token: userToken,
+      user: { id: user.id, email: user.email, full_name: user.full_name, role: 'user' },
     });
   } catch (err) {
     console.error('Signin error:', err);

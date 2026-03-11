@@ -595,6 +595,22 @@
       else if (signupModal && signupModal.classList.contains('is-open')) closeAuthModal(signupModal);
     });
 
+    function initPasswordToggle(toggleId, inputId) {
+      var toggle = document.getElementById(toggleId);
+      var input = document.getElementById(inputId);
+      if (!toggle || !input) return;
+      toggle.addEventListener('click', function () {
+        var visible = input.type === 'text';
+        input.type = visible ? 'password' : 'text';
+        toggle.classList.toggle('is-visible', !visible);
+        toggle.setAttribute('aria-label', visible ? 'Show password' : 'Hide password');
+        toggle.setAttribute('title', visible ? 'Show password' : 'Hide password');
+      });
+    }
+    initPasswordToggle('signin-password-toggle', 'signin-password');
+    initPasswordToggle('signup-password-toggle', 'signup-password');
+    initPasswordToggle('signup-confirm-toggle', 'signup-confirm_password');
+
     var signinForm = document.getElementById('signin-form');
     if (signinForm) {
       signinForm.addEventListener('submit', function (e) {
@@ -620,16 +636,43 @@
         })
           .then(function (r) { return r.json(); })
           .then(function (data) {
-            if (data.success && data.token && data.user) {
-              localStorage.setItem(TOKEN_KEY, data.token);
-              localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user));
-              updateHeader();
-              closeAuthModal(signinModal);
-              signinForm.reset();
-            } else {
-              if (msgEl) msgEl.textContent = data.message || 'Sign in failed.';
+            if (!data || !data.success || !data.token || !data.user) {
+              if (msgEl) msgEl.textContent = (data && data.message) || 'Sign in failed.';
               if (msgEl) msgEl.className = 'auth-message error';
+              return;
             }
+
+            var role = data.role || 'user';
+
+            if (role === 'admin' || role === 'superadmin') {
+              // Admin: use existing admin storage keys and redirect to admin dashboard
+              localStorage.setItem('adminToken', data.token);
+              localStorage.setItem('adminUser', JSON.stringify(data.user));
+              window.location.href = '/admin/dashboard.html';
+              return;
+            }
+
+            if (role === 'chef') {
+              localStorage.setItem('chefToken', data.token);
+              localStorage.setItem('chefUser', JSON.stringify(data.user));
+              window.location.href = '/chef/dashboard.html';
+              return;
+            }
+
+            if (role === 'logistics') {
+              localStorage.setItem('logisticsToken', data.token);
+              localStorage.setItem('logisticsUser', JSON.stringify(data.user));
+              window.location.href = '/logistics/dashboard.html';
+              return;
+            }
+
+            // Default: regular user
+            localStorage.setItem(TOKEN_KEY, data.token);
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user));
+            updateHeader();
+            closeAuthModal(signinModal);
+            signinForm.reset();
+            // If they click "My Dashboard" they go to the user dashboard.
           })
           .catch(function () {
             if (msgEl) msgEl.textContent = 'Something went wrong. Please try again.';

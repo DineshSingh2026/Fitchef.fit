@@ -37,10 +37,10 @@ app.use('/api/chef', chefRoutes);
 app.use('/api/logistics', logisticsRoutes);
 app.use('/api/health', healthRoutes);
 
-app.get('/admin', (req, res) => res.redirect('/admin/index.html'));
+app.get('/admin', (req, res) => res.redirect('/'));
 app.get('/user', (req, res) => res.redirect('/user/dashboard.html'));
-app.get('/chef', (req, res) => res.redirect('/chef/index.html'));
-app.get('/logistics', (req, res) => res.redirect('/logistics/index.html'));
+app.get('/chef', (req, res) => res.redirect('/'));
+app.get('/logistics', (req, res) => res.redirect('/'));
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

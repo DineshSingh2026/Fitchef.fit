@@ -681,6 +681,40 @@ a, button {
   border-color: var(--gold);
   box-shadow: 0 0 0 2px rgba(198, 167, 94, 0.2);
 }
+.auth-password-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+.auth-password-wrap input {
+  padding-right: 44px;
+}
+.auth-password-toggle {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 6px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted, #2d5a52);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.auth-password-toggle:hover {
+  color: var(--gold);
+}
+.auth-password-toggle .icon-eye-off {
+  display: none;
+}
+.auth-password-toggle.is-visible .icon-eye {
+  display: none;
+}
+.auth-password-toggle.is-visible .icon-eye-off {
+  display: block;
+}
 .auth-form .field-error {
   display: block;
   font-size: 0.8rem;
