@@ -426,6 +426,6 @@ body {
   bottom: max(1.5rem, env(safe-area-inset-bottom));
   right: max(1.5rem, env(safe-area-inset-right));
 }
-@media (max-width: 480px) {
-  .whatsapp-fab { bottom: max(1rem, env(safe-area-inset-bottom)); right: max(1rem, env(safe-area-inset-right)); width: 52px; height: 52px; }
+@media (max-width: 768px) {
+  .whatsapp-fab { bottom: calc(80px + env(safe-area-inset-bottom, 0px)); right: max(1rem, env(safe-area-inset-right)); width: 52px; height: 52px; }
 }
