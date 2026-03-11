@@ -666,13 +666,10 @@
               return;
             }
 
-            // Default: regular user
+            // Default: regular user – redirect directly to dashboard (mobile and web)
             localStorage.setItem(TOKEN_KEY, data.token);
             localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user));
-            updateHeader();
-            closeAuthModal(signinModal);
-            signinForm.reset();
-            // If they click "My Dashboard" they go to the user dashboard.
+            window.location.href = '/user/dashboard.html';
           })
           .catch(function () {
             if (msgEl) msgEl.textContent = 'Something went wrong. Please try again.';
