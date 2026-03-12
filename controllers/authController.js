@@ -78,7 +78,7 @@ async function signin(req, res) {
       const adminToken = jwt.sign(
         { id: admin.id, email: admin.email, role: adminRole },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '90d' }
       );
       return res.json({
         success: true,
@@ -99,7 +99,7 @@ async function signin(req, res) {
       const chefToken = jwt.sign(
         { id: chef.id, email: chef.email, role: 'chef' },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '90d' }
       );
       return res.json({
         success: true,
@@ -120,7 +120,7 @@ async function signin(req, res) {
       const logisticsToken = jwt.sign(
         { id: logisticsUser.id, email: logisticsUser.email, role: 'logistics' },
         JWT_SECRET,
-        { expiresIn: '7d' }
+        { expiresIn: '90d' }
       );
       return res.json({
         success: true,
@@ -149,7 +149,7 @@ async function signin(req, res) {
     const userToken = jwt.sign(
       { id: user.id, email: user.email, role: 'user' },
       JWT_SECRET,
-      { expiresIn: '30d' }
+      { expiresIn: '90d' }
     );
     return res.json({
       success: true,

@@ -15,7 +15,8 @@
     "db:seed-chef": "node scripts/seed-chef.js",
     "db:seed-logistics": "node scripts/seed-logistics.js",
     "db:test": "node scripts/test-db-connection.js",
-    "pwa:icons": "node scripts/generate-pwa-icons.js"
+    "pwa:icons": "node scripts/generate-pwa-icons.js",
+    "vapid:keys": "node scripts/generate-vapid-keys.js"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -35,7 +36,8 @@
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "pg": "^8.11.3"
+    "pg": "^8.11.3",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "sharp": "^0.34.5"

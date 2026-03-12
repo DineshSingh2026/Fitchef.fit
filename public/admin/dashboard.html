@@ -976,6 +976,6 @@
   loadOverview();
 })();
   </script>
-  <script>window.initFitChefPwa && window.initFitChefPwa({ scopeKey: 'admin' });</script>
+  <script>window.initFitChefPwa && window.initFitChefPwa({ scopeKey: 'admin', getToken: function(){ return localStorage.getItem('adminToken'); } });</script>
 </body>
 </html>

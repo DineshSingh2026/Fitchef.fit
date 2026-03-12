@@ -149,6 +149,6 @@
   </a>
   <script src="/js/pwa-common.js"></script>
   <script src="js/logistics-dashboard.js"></script>
-  <script>window.initFitChefPwa && window.initFitChefPwa({ scopeKey: 'logistics' });</script>
+  <script>window.initFitChefPwa && window.initFitChefPwa({ scopeKey: 'logistics', getToken: function(){ return localStorage.getItem('logisticsToken'); } });</script>
 </body>
 </html>

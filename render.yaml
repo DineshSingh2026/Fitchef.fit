@@ -26,6 +26,11 @@ services:
           property: connectionString
       - key: JWT_SECRET
         generateValue: true
+      # Web Push – set in Dashboard after first deploy (from npm run vapid:keys)
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
       # Optional: set in Dashboard after first deploy for custom admin
       # - key: INITIAL_ADMIN_EMAIL
       #   sync: false

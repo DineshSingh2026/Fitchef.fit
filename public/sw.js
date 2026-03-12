@@ -1,5 +1,5 @@
 /* FitChef PWA service worker (minimal, safe defaults) */
-const CACHE_NAME = 'fitchef-pwa-v4';
+const CACHE_NAME = 'fitchef-pwa-v5';
 
 const CORE_ASSETS = [
   '/',
@@ -71,6 +71,42 @@ self.addEventListener('fetch', (event) => {
       });
     })
   );
+});
+
+self.addEventListener('push', (event) => {
+  let payload = { title: 'FitChef', body: '' };
+  try {
+    if (event.data) payload = event.data.json();
+  } catch (e) {}
+  const title = payload.title || 'FitChef';
+  const options = {
+    body: payload.body || '',
+    icon: '/images/pwa/icon-192.png',
+    badge: '/images/pwa/icon-192.png',
+    tag: payload.tag || 'fitchef',
+    data: payload.data || {},
+    requireInteraction: false
+  };
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  var data = event.notification.data || {};
+  var path = data.url || '/';
+  var url = path.startsWith('http') ? path : self.location.origin + (path.startsWith('/') ? path : '/' + path);
+  if (url) {
+    event.waitUntil(clients.matchAll({ type: 'window', includeUncontrolled: true }).then(function (list) {
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].url.indexOf(self.registration.scope) === 0) {
+          list[i].navigate(url);
+          list[i].focus();
+          return;
+        }
+      }
+      if (clients.openWindow) clients.openWindow(url);
+    }));
+  }
 });
 
 self.addEventListener('message', (event) => {

@@ -1,4 +1,5 @@
 const pool = require('../../config/database');
+const pushService = require('../../services/pushService');
 
 // Logistics-safe fields only: no payment, email, nutrition, admin notes
 const ORDER_SELECT = `
@@ -205,11 +206,12 @@ async function markDelivered(req, res) {
   try {
     const orderId = req.params.id;
     const orderRow = await pool.query(
-      'SELECT id, status FROM user_orders WHERE id = $1',
+      'SELECT id, status, user_id FROM user_orders WHERE id = $1',
       [orderId]
     );
     if (orderRow.rows.length === 0) return res.status(404).json({ error: 'Order not found' });
-    if (orderRow.rows[0].status !== 'Out for Delivery') {
+    const ord = orderRow.rows[0];
+    if (ord.status !== 'Out for Delivery') {
       return res.status(400).json({ error: 'Order must be Out for Delivery to mark delivered' });
     }
 
@@ -217,6 +219,9 @@ async function markDelivered(req, res) {
       `UPDATE user_orders SET status = 'Delivered', delivered_time = CURRENT_TIMESTAMP WHERE id = $1`,
       [orderId]
     );
+    var msg = 'Your FitChef order has been delivered. Enjoy!';
+    await pool.query('INSERT INTO user_notifications (user_id, order_id, message) VALUES ($1, $2, $3)', [ord.user_id, orderId, msg]);
+    pushService.sendPush('user', ord.user_id, { title: 'Order Delivered', body: msg, tag: 'order-' + orderId, data: { url: '/user/dashboard.html' } });
     res.json({ success: true, message: 'Order marked as delivered' });
   } catch (err) {
     console.error('Logistics mark delivered error:', err);

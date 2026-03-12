@@ -240,6 +240,6 @@
   </a>
   <script src="/js/pwa-common.js"></script>
   <script src="js/user-dashboard.js"></script>
-  <script>window.initFitChefPwa && window.initFitChefPwa({ scopeKey: 'user' });</script>
+  <script>window.initFitChefPwa && window.initFitChefPwa({ scopeKey: 'user', getToken: function(){ return localStorage.getItem('fitchef_token'); } });</script>
 </body>
 </html>

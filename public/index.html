@@ -3,7 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <script>
-    (function(){try{var t=localStorage.getItem('fitchef_token');var u=localStorage.getItem('fitchef_user');if(t&&u){window.location.replace('/user/dashboard.html');}}catch(e){}})();
+    (function(){try{
+      var a=localStorage.getItem('adminToken');if(a){window.location.replace('/admin/dashboard.html');return;}
+      var c=localStorage.getItem('chefToken');if(c){window.location.replace('/chef/dashboard.html');return;}
+      var l=localStorage.getItem('logisticsToken');if(l){window.location.replace('/logistics/dashboard.html');return;}
+      var t=localStorage.getItem('fitchef_token');var u=localStorage.getItem('fitchef_user');if(t&&u){window.location.replace('/user/dashboard.html');}
+    }catch(e){}})();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="theme-color" content="#0e2f2b">

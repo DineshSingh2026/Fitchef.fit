@@ -92,10 +92,12 @@
       });
     }
 
-    // Enable notifications: show button if permission not granted, handle click
+    // Enable notifications: show button if permission not granted, subscribe to push
+    var getToken = opts.getToken || function () { return null; };
     if (notifBtn && banner && 'Notification' in window) {
       if (Notification.permission === 'granted') {
         hide(notifBtn);
+        try { subscribeToPush(getToken); } catch (e) {}
       } else {
         show(notifBtn);
       }
@@ -104,11 +106,38 @@
           if (perm === 'granted') {
             hide(notifBtn);
             if (bannerSub) bannerSub.textContent = 'Notifications enabled. You\'ll receive order updates.';
+            try { subscribeToPush(getToken); } catch (e) {}
           } else if (bannerSub && perm === 'denied') {
             bannerSub.textContent = 'Notifications blocked. You can enable them in your browser settings.';
           }
         });
       });
+    }
+    function subscribeToPush(getTok) {
+      if (!('PushManager' in window) || !('serviceWorker' in navigator)) return;
+      fetch('/api/push/vapid-public').then(function (r) { return r.json(); }).then(function (d) {
+        var key = d.vapidPublicKey;
+        if (!key) return;
+        var token = getTok ? getTok() : null;
+        if (!token) return;
+        navigator.serviceWorker.ready.then(function (reg) {
+          return reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(key) });
+        }).then(function (sub) {
+          return fetch('/api/push/subscribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify(sub.toJSON())
+          });
+        }).catch(function () {});
+      }).catch(function () {});
+    }
+    function urlBase64ToUint8Array(base64) {
+      var padding = '='.repeat((4 - base64.length % 4) % 4);
+      var b64 = (base64 + padding).replace(/-/g, '+').replace(/_/g, '/');
+      var raw = atob(b64);
+      var out = new Uint8Array(raw.length);
+      for (var i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+      return out;
     }
   };
 })();

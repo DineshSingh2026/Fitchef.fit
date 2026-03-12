@@ -1,4 +1,5 @@
 const pool = require('../../config/database');
+const pushService = require('../../services/pushService');
 
 /** GET /api/admin/open-orders - list user_orders (default: status Open) */
 async function list(req, res) {
@@ -99,10 +100,13 @@ async function confirm(req, res) {
       `UPDATE user_orders SET status = 'Confirmed', admin_approved = true, delivery_address = $2, delivery_instructions = $3, chef_id = $4 WHERE id = $1`,
       [id, deliveryAddress, deliveryInstructions, chefId]
     );
+    const msg = 'Your order has been confirmed. Thank you for choosing FitChef!';
     await pool.query(
       `INSERT INTO user_notifications (user_id, order_id, message) VALUES ($1, $2, $3)`,
-      [order.user_id, id, 'Your order has been confirmed. Thank you for choosing FitChef!']
+      [order.user_id, id, msg]
     );
+    pushService.sendPush('user', order.user_id, { title: 'Order Confirmed', body: msg, tag: 'order-' + id, data: { url: '/user/dashboard.html' } });
+    if (chefId) pushService.sendPush('chef', chefId, { title: 'New Order Assigned', body: 'You have a new order to prepare.', tag: 'order-' + id, data: { url: '/chef/dashboard.html' } });
 
     res.json({ success: true, message: 'Order confirmed. User has been notified.' });
   } catch (err) {
@@ -128,6 +132,7 @@ async function assignChef(req, res) {
     const chefCheck = await pool.query('SELECT id FROM chefs WHERE id = $1', [chefId]);
     if (chefCheck.rows.length === 0) return res.status(400).json({ error: 'Chef not found' });
     await pool.query('UPDATE user_orders SET chef_id = $1 WHERE id = $2', [chefId, id]);
+    pushService.sendPush('chef', chefId, { title: 'Order Assigned', body: 'A new order has been assigned to you.', tag: 'order-' + id, data: { url: '/chef/dashboard.html' } });
     res.json({ success: true, message: 'Chef assigned.' });
   } catch (err) {
     console.error('Assign chef error:', err);

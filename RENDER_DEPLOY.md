@@ -61,6 +61,8 @@ In the Web Service → **Environment** tab, add:
 | `NODE_ENV` | `production` | Recommended |
 | `DATABASE_URL` | *(paste Internal Database URL from step 1)* | Required |
 | `JWT_SECRET` | *(long random string, e.g. 32+ chars)* | Required for admin login |
+| `VAPID_PUBLIC_KEY` | *(from `npm run vapid:keys`)* | Required for push notifications |
+| `VAPID_PRIVATE_KEY` | *(from `npm run vapid:keys`)* | Required for push notifications |
 | `INITIAL_ADMIN_EMAIL` | `admin@fitchef.fit` | Optional, default |
 | `INITIAL_ADMIN_PASSWORD` | *(strong password)* | Optional, change default |
 | `INITIAL_ADMIN_NAME` | `FitChef Admin` | Optional |

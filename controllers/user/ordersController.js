@@ -1,4 +1,5 @@
 const pool = require('../../config/database');
+const pushService = require('../../services/pushService');
 
 async function list(req, res) {
   try {
@@ -103,6 +104,7 @@ async function create(req, res) {
       await client.query('COMMIT');
       order.total_amount = total;
       order.items = items.map((it, i) => ({ dish_id: it.dish_id, quantity: it.quantity }));
+      pushService.sendPushToRole('admin', { title: 'New Order', body: 'A new order needs your attention.', tag: 'order-' + order.id, data: { url: '/admin/dashboard.html' } });
       res.status(201).json(order);
     } catch (e) {
       await client.query('ROLLBACK');

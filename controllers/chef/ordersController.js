@@ -1,4 +1,5 @@
 const pool = require('../../config/database');
+const pushService = require('../../services/pushService');
 
 /**
  * GET /api/chef/orders/open
@@ -135,6 +136,9 @@ async function markReady(req, res) {
         [adminRow.rows[0].id, orderId, message]
       );
     }
+    var userMsg = 'Your order is ready for dispatch. Dishes: ' + (names || 'N/A') + '.';
+    pushService.sendPush('user', order.user_id, { title: 'Order Ready', body: userMsg, tag: 'order-' + orderId, data: { url: '/user/dashboard.html' } });
+    pushService.sendPushToRole('logistics', { title: 'Order Ready for Dispatch', body: 'An order is ready for pickup.', tag: 'order-' + orderId, data: { url: '/logistics/dashboard.html' } });
     res.json({ success: true, message: 'Order marked ready for dispatch. Admin and customer notified.' });
   } catch (err) {
     console.error('Chef mark ready error:', err);

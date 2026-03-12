@@ -83,6 +83,12 @@ async function ensureTables() {
   } catch (e) {
     if (e.code !== '42P01') console.warn('ensureDb: logistics dashboard', e.message);
   }
+  try {
+    await pool.query(loadSql('init-push.sql'));
+    console.log('ensureDb: push_subscriptions OK');
+  } catch (e) {
+    if (e.code !== '42P01') console.warn('ensureDb: push_subscriptions', e.message);
+  }
 }
 
 // Fixed FitChef chef: default chef@fitchef.fit / Chef@123 (saved in DB on first run)
