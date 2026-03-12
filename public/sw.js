@@ -1,5 +1,5 @@
 /* FitChef PWA service worker (minimal, safe defaults) */
-const CACHE_NAME = 'fitchef-pwa-v3';
+const CACHE_NAME = 'fitchef-pwa-v4';
 
 const CORE_ASSETS = [
   '/',

@@ -1,5 +1,5 @@
 /**
- * Generate PWA icons from Fitchef3 logo – 192, 512 (any + maskable), apple-touch 180
+ * Generate PWA icons from Fit Chef App Logo – 192, 512 (any + maskable), apple-touch 180
  * Run: node scripts/generate-pwa-icons.js
  */
 const fs = require('fs');
@@ -7,12 +7,12 @@ const path = require('path');
 
 const sharp = require('sharp');
 
-const SOURCE = path.join(__dirname, '../public/images/Fitchef3 logo.png');
+const SOURCE = path.join(__dirname, '../public/images/Fit Chef App Logo - Green background.png');
 const OUT_DIR = path.join(__dirname, '../public/images/pwa');
 
 async function run() {
   const buf = await sharp(SOURCE)
-    .resize(512, 512, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 1 } })
+    .resize(512, 512, { fit: 'contain', position: 'center', background: { r: 13, g: 40, b: 24, alpha: 1 } })
     .png()
     .toBuffer();
 
@@ -26,7 +26,7 @@ async function run() {
 
   await sharp(buf).resize(180, 180).png().toFile(path.join(OUT_DIR, 'apple-touch-icon.png'));
 
-  console.log('PWA icons generated from Fitchef3 logo');
+  console.log('PWA icons generated from Fit Chef App Logo');
 }
 
 run().catch((err) => {
